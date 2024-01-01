@@ -107,13 +107,14 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
           borderRadius: BorderRadius.circular(10),
           color: Colors.black38,
         ),
-        width: screenWidth / 3,
-        height: screenHeight / 5,
+        width: (screenWidth - 30) / 2,
+        height: screenHeight / 4,
         child: FutureBuilder(
             future: cpuStats,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Text(
                       'Memory data',
@@ -122,9 +123,6 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                     Text(
                       'Total: ${snapshot.data!.memory.readable.total} ',
                       style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                    SizedBox(
-                      height: 10,
                     ),
                     Column(
                       children: [
@@ -180,13 +178,14 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
           borderRadius: BorderRadius.circular(10),
           color: Colors.black38,
         ),
-        width: screenWidth / 3,
-        height: screenHeight / 5,
+        width: (screenWidth - 30) / 2,
+        height: screenHeight / 4,
         child: FutureBuilder(
             future: cpuStats,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Text(
                       'CPU data',
@@ -195,9 +194,6 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                     Text(
                       'Num of cores: ${snapshot.data!.cpu.cores.length}',
                       style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                    SizedBox(
-                      height: 10,
                     ),
                     Column(
                       children: [
