@@ -1,5 +1,9 @@
+import 'package:azuracastadmin/cubits/api/api_cubit.dart';
+import 'package:azuracastadmin/cubits/url/url_cubit.dart';
 import 'package:azuracastadmin/screens/settingsScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../widgets/c_p_u_stats_widget.dart';
 
 class WidgetsScreen extends StatefulWidget {
   const WidgetsScreen({super.key});
@@ -11,10 +15,21 @@ class WidgetsScreen extends StatefulWidget {
 class _WidgetsScreenState extends State<WidgetsScreen> {
   @override
   Widget build(BuildContext context) {
+    String url = context.read<UrlCubit>().state.url;
+    String apiKey = context.read<ApiCubit>().state.api;
     return Container(
       padding: EdgeInsets.all(10),
       child: Column(
-        children: [TitleAndSettingsIconButton()],
+        children: [
+          TitleAndSettingsIconButton(),
+          SizedBox(
+            height: 10,
+          ),
+          CPUMemoryDiskStatsWidget(
+            url: url,
+            apiKey: apiKey,
+          ),
+        ],
       ),
     );
   }

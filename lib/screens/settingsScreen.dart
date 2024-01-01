@@ -31,6 +31,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             height: double.infinity,
             decoration: BoxDecoration(
                 gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                     colors: [Colors.black, Color.fromARGB(241, 1, 1, 18)])),
             padding: EdgeInsets.all(10),
             child: Column(
