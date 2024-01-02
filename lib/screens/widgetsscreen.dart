@@ -4,6 +4,7 @@ import 'package:azuracastadmin/screens/settingsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../widgets/c_p_u_stats_widget.dart';
+import '../widgets/select_radio_station.dart';
 
 class WidgetsScreen extends StatefulWidget {
   const WidgetsScreen({super.key});
@@ -28,6 +29,13 @@ class _WidgetsScreenState extends State<WidgetsScreen> {
           CPUMemoryDiskStatsWidget(
             url: url,
             apiKey: apiKey,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          SelectRadioStation(),
+          SizedBox(
+            height: 10,
           ),
         ],
       ),
