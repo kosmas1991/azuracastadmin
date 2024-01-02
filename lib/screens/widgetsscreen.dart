@@ -33,7 +33,7 @@ class _WidgetsScreenState extends State<WidgetsScreen> {
           SizedBox(
             height: 10,
           ),
-          SelectRadioStation(),
+          SelectRadioStation(url: url, apiKey: apiKey),
           SizedBox(
             height: 10,
           ),

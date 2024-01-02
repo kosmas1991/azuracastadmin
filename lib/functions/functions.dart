@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:azuracastadmin/models/cpustats.dart';
+import 'package:azuracastadmin/models/radiostations.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
@@ -28,6 +29,21 @@ Future<CpuStats> fetchCpuStats(String url, String path, String apiKey) async {
   if (response.statusCode == 200) {
     CpuStats cpuStats = CpuStats.fromJson(jsonDecode(response.body));
     return cpuStats;
+  } else {
+    throw Exception('Failed');
+  }
+}
+
+Future<List<RadioStations>> fetchRadioStations(
+    String url, String path, String apiKey) async {
+  Response response = await getResponse(url: url, path: path, apiKey: apiKey);
+  if (response.statusCode == 200) {
+    print('           RESPONSE     : ${response.body}  ');
+    List<RadioStations> radioStations = (json.decode(response.body) as List)
+        .map((i) => RadioStations.fromJson(i))
+        .toList();
+
+    return radioStations;
   } else {
     throw Exception('Failed');
   }

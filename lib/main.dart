@@ -1,4 +1,5 @@
 import 'package:azuracastadmin/cubits/api/api_cubit.dart';
+import 'package:azuracastadmin/cubits/radioID/radio_id_cubit.dart';
 import 'package:azuracastadmin/cubits/step/step_cubit.dart';
 import 'package:azuracastadmin/cubits/url/url_cubit.dart';
 import 'package:azuracastadmin/screens/homescreen.dart';
@@ -43,7 +44,10 @@ class _MyAppState extends State<MyApp> {
                 BlocProvider(
                   create: (context) =>
                       ApiCubit(initAPI: snapshot.data!.getString('api') ?? ''),
-                )
+                ),
+                BlocProvider(
+                  create: (context) => RadioIdCubit(),
+                ),
               ],
               child: MaterialApp(
                 title: 'Azuracast Admin',
