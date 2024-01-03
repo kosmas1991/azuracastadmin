@@ -45,7 +45,6 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
         CPU(screenWidth, screenHeight),
         Memory(screenWidth, screenHeight),
         Disk(screenWidth, screenHeight),
-        
       ],
     );
   }

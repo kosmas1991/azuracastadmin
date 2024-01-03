@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SelectRadioStation extends StatefulWidget {
-  final String apiKey;
+
   final String url;
   const SelectRadioStation({
-    required this.apiKey,
+
     required this.url,
     super.key,
   });
@@ -26,7 +26,7 @@ class _SelectRadioStationState extends State<SelectRadioStation> {
   @override
   void initState() {
     radiostations =
-        fetchRadioStations(widget.url, 'admin/stations', widget.apiKey);
+        fetchRadioStations(widget.url, 'stations');
     super.initState();
   }
 
@@ -51,11 +51,11 @@ class _SelectRadioStationState extends State<SelectRadioStation> {
                 items: [
                   ...snapshot.data!.map((e) {
                     if (isTheFirstElement) {
-                      context.read<RadioIdCubit>().emitNewID(e.id);
+                      context.read<RadioIdCubit>().emitNewID(e.id!);
                       isTheFirstElement = false;
                     }
                     return DropdownMenuItem<String>(
-                        value: e.name, child: Text(e.name));
+                        value: e.name, child: Text(e.name!));
                   }).toList()
                 ],
                 onChanged: (value) {
@@ -69,7 +69,7 @@ class _SelectRadioStationState extends State<SelectRadioStation> {
                         return false;
                       }
                     });
-                    context.read<RadioIdCubit>().emitNewID(radio.id);
+                    context.read<RadioIdCubit>().emitNewID(radio.id!);
                   });
                 },
               );
