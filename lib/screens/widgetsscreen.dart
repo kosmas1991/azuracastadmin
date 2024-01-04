@@ -21,8 +21,8 @@ class WidgetsScreen extends StatefulWidget {
 class _WidgetsScreenState extends State<WidgetsScreen> {
   @override
   Widget build(BuildContext context) {
-    String url = context.read<UrlCubit>().state.url;
-    String apiKey = context.read<ApiCubit>().state.api;
+    String url = context.watch<UrlCubit>().state.url;
+    String apiKey = context.watch<ApiCubit>().state.api;
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.all(10),
