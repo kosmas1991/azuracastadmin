@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:azuracastadmin/models/cpustats.dart';
+import 'package:azuracastadmin/models/listeners.dart';
 import 'package:azuracastadmin/models/nextsongs.dart';
 import 'package:azuracastadmin/models/nowplaying.dart';
 import 'package:azuracastadmin/models/radiostations.dart';
@@ -121,5 +122,20 @@ Future<Response> postAdminActions(
     printError(
         'statuscode: ${response.statusCode} and body : ${response.body}');
     return response;
+  }
+}
+
+Future<List<ActiveListeners>> fetchListeners(
+    String url, String path, String apiKey, int id) async {
+  Response response =
+      await getResponse(url: url, path: path, apiKey: apiKey, id: id);
+  if (response.statusCode == 200) {
+    List<ActiveListeners> activeListeners = (json.decode(response.body) as List)
+        .map((i) => ActiveListeners.fromJson(i))
+        .toList();
+
+    return activeListeners;
+  } else {
+    throw Exception('Failed');
   }
 }

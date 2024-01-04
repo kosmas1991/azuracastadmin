@@ -4,6 +4,7 @@ import 'package:azuracastadmin/cubits/url/url_cubit.dart';
 import 'package:azuracastadmin/screens/settingsScreen.dart';
 import 'package:azuracastadmin/widgets/backendactions.dart';
 import 'package:azuracastadmin/widgets/frontendactions.dart';
+import 'package:azuracastadmin/widgets/otherinfo.dart';
 import 'package:azuracastadmin/widgets/station_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -73,6 +74,15 @@ class _WidgetsScreenState extends State<WidgetsScreen> {
             BlocBuilder<RadioIdCubit, RadioIdState>(
               builder: (context, state) {
                 return BackEndActions(
+                    url: url, apiKey: apiKey, stationID: state.id);
+              },
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            BlocBuilder<RadioIdCubit, RadioIdState>(
+              builder: (context, state) {
+                return OtherInfo(
                     url: url, apiKey: apiKey, stationID: state.id);
               },
             ),
