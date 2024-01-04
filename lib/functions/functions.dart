@@ -3,6 +3,7 @@ import 'package:azuracastadmin/models/cpustats.dart';
 import 'package:azuracastadmin/models/nextsongs.dart';
 import 'package:azuracastadmin/models/nowplaying.dart';
 import 'package:azuracastadmin/models/radiostations.dart';
+import 'package:azuracastadmin/models/stationsstatus.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
@@ -87,6 +88,21 @@ Future<List<NextSongs>> fetchNextSongs(
         .toList();
 
     return nextSongs;
+  } else {
+    throw Exception('Failed');
+  }
+}
+
+Future<StationStatus> fetchStatus(
+    String url, String path, String apiKey, int id) async {
+  final headers = {
+    'accept': 'application/json',
+    'X-API-Key': '${apiKey}',
+  };
+  var response = await http.get(Uri.parse('${url}/api/station/${id}/${path}'),
+      headers: headers);
+  if (response.statusCode == 200) {
+    return StationStatus.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Failed');
   }
