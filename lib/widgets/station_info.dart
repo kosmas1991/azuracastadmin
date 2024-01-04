@@ -4,7 +4,9 @@ import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/nextsongs.dart';
 import 'package:azuracastadmin/models/nowplaying.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:http/http.dart' as http;
 
 class StationInfo extends StatefulWidget {
   final String url;
@@ -26,12 +28,11 @@ class _StationInfoState extends State<StationInfo> {
   late Future<List<NextSongs>> nextSongs;
   @override
   void initState() {
-   
-      nextSongs =
-          fetchNextSongs(widget.url, 'queue', widget.apiKey, widget.stationID);
-      nowPlaying = fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
+    nextSongs =
+        fetchNextSongs(widget.url, 'queue', widget.apiKey, widget.stationID);
+    nowPlaying = fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
 
-    Timer.periodic(Duration(seconds: 5), (timer) {
+    Timer.periodic(Duration(seconds: 2), (timer) {
       setState(() {
         nowPlaying =
             fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
@@ -73,10 +74,11 @@ class _StationInfoState extends State<StationInfo> {
     );
   }
 
-  Row HistoryAndNextSongs(
+  Wrap HistoryAndNextSongs(
       BuildContext context, double screenWidth, double screenHeight) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      runAlignment: WrapAlignment.spaceBetween,
       children: [
         TextButton.icon(
             onPressed: () {
@@ -319,11 +321,47 @@ class _StationInfoState extends State<StationInfo> {
               );
             },
             icon: Icon(
-              Icons.skip_next_outlined,
+              Icons.fast_forward,
               color: Colors.white,
             ),
             label: Text(
               'Next Songs',
+              style: TextStyle(color: Colors.white),
+            )),
+        TextButton.icon(
+            onPressed: () async {
+              await http.post(
+                  headers: <String, String>{
+                    'accept': 'application/json',
+                    'X-API-Key': '${widget.apiKey}',
+                  },
+                  Uri.parse(
+                      '${widget.url}/api/station/${widget.stationID}/backend/skip')).then(
+                (Response response) {
+                  if (response.statusCode == 200) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                      'Song will be skipped',
+                      style: TextStyle(color: Colors.green),
+                    )));
+                  } else {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                      'Failed! Try again',
+                      style: TextStyle(color: Colors.red),
+                    )));
+                  }
+                },
+              );
+            },
+            icon: Icon(
+              Icons.skip_next_outlined,
+              color: Colors.white,
+            ),
+            label: Text(
+              'Skip song',
               style: TextStyle(color: Colors.white),
             )),
       ],
@@ -407,7 +445,9 @@ class _StationInfoState extends State<StationInfo> {
                 );
               } else {
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(
+                    color: Colors.blue,
+                  ),
                 );
               }
             },
@@ -432,7 +472,10 @@ class _StationInfoState extends State<StationInfo> {
                     ],
                   );
                 } else {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(
+                      child: CircularProgressIndicator(
+                    color: Colors.blue,
+                  ));
                 }
               }),
         ],

@@ -24,7 +24,7 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
   @override
   void initState() {
     cpuStats = fetchCpuStats(widget.url, 'admin/server/stats', widget.apiKey);
-    Timer.periodic(Duration(seconds: 5), (timer) {
+    Timer.periodic(Duration(seconds: 2), (timer) {
       setState(() {
         cpuStats =
             fetchCpuStats(widget.url, 'admin/server/stats', widget.apiKey);
