@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/stationsstatus.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +24,13 @@ class _StationStatusWidgetState extends State<StationStatusWidget> {
   void initState() {
     stationStatus =
         fetchStatus(widget.url, 'status', widget.apiKey, widget.stationID);
+    Timer.periodic(Duration(seconds: 2), (timer) {
+      setState(() {
+              stationStatus =
+          fetchStatus(widget.url, 'status', widget.apiKey, widget.stationID);
+      });
+
+    });
     super.initState();
   }
 

@@ -107,3 +107,19 @@ Future<StationStatus> fetchStatus(
     throw Exception('Failed');
   }
 }
+
+Future<Response> postAdminActions(
+    String url, String path, String apiKey, int id, String action) async {
+  var response = await http.post(headers: <String, String>{
+    'accept': 'application/json',
+    'X-API-Key': '${apiKey}',
+  }, Uri.parse('${url}/api/station/${id}/${path}/${action}'));
+  printError('status code: ${response.statusCode} and body: ${response.body}');
+  if (response.statusCode == 200 || response.statusCode == 500) {
+    return response;
+  } else {
+    printError(
+        'statuscode: ${response.statusCode} and body : ${response.body}');
+    return response;
+  }
+}
