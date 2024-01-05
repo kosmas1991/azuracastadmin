@@ -31,7 +31,7 @@ class _BackEndActionsState extends State<BackEndActions> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Backtend management',
+            'Backend management',
             style: TextStyle(color: Colors.white),
           ),
           Wrap(

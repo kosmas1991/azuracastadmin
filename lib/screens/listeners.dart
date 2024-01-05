@@ -4,6 +4,7 @@ import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/listeners.dart';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class ListenersScreen extends StatefulWidget {
   final String url;
@@ -46,7 +47,6 @@ class _ListenersScreenState extends State<ListenersScreen> {
     return SafeArea(
         child: Scaffold(
       body: Container(
-        color: Colors.black,
         height: double.infinity,
         width: double.infinity,
         child: Stack(children: [
@@ -59,10 +59,8 @@ class _ListenersScreenState extends State<ListenersScreen> {
             ),
           ).blurred(blur: 10, blurColor: Colors.black),
           Container(
-            margin: EdgeInsets.all(10),
             width: double.infinity,
             padding: EdgeInsets.all(10),
-            color: Colors.black38,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -96,20 +94,20 @@ class _ListenersScreenState extends State<ListenersScreen> {
                           itemBuilder: (context, index) {
                             var data = snapshot.data![index];
                             return Card(
-                              color: Colors.blue,
+                              color: Colors.black38,
                               child: Container(
                                 padding: EdgeInsets.all(10),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'IP : ${data.ip}',
+                                      'IP: ${data.ip}',
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     Row(
                                       children: [
                                         Text(
-                                          'Listening for : ',
+                                          'Listening for: ',
                                           style: TextStyle(color: Colors.white),
                                         ),
                                         data.connectedTime! < 60
@@ -132,12 +130,25 @@ class _ListenersScreenState extends State<ListenersScreen> {
                                       ],
                                     ),
                                     Text(
-                                      'City: ${data.location!.city}',
+                                      'City: ${data.location!.city}, ${data.location!.region}',
                                       style: TextStyle(color: Colors.white),
                                     ),
-                                    Text(
-                                      'Country: ${data.location!.country}',
-                                      style: TextStyle(color: Colors.white),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Country: ',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        FadeInImage.memoryNetwork(
+                                          placeholder: kTransparentImage,
+                                          image:
+                                              'https://flagsapi.com/${data.location!.country}/flat/24.png',
+                                        ),
+                                        Text(
+                                          ' (${data.location!.country})',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
