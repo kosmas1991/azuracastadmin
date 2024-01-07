@@ -123,85 +123,116 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       var list = snapshot.data!;
-                      return Expanded(
-                        child: ListView.builder(
-                          itemCount: list.length,
-                          itemBuilder: (context, index) {
-                            var item = list[index];
-                            return Card(
-                              color: Colors.black38,
-                              child: Container(
-                                padding: EdgeInsets.all(10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          child: FadeInImage.memoryNetwork(
-                                            height: 50,
-                                            placeholder: kTransparentImage,
-                                            image: '${item.song!.art}',
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              width: screenWidth * 5 / 9,
-                                              child: Text(
-                                                '${item.song!.title}',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                                overflow: TextOverflow.fade,
-                                                maxLines: 2,
-                                                softWrap: false,
+                      return list.length != 0
+                          ? Expanded(
+                              child: ListView.builder(
+                                itemCount: list.length,
+                                itemBuilder: (context, index) {
+                                  var item = list[index];
+                                  return Card(
+                                    color: Colors.black38,
+                                    child: Container(
+                                      padding: EdgeInsets.all(10),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                child:
+                                                    FadeInImage.memoryNetwork(
+                                                  height: 50,
+                                                  placeholder:
+                                                      kTransparentImage,
+                                                  image: '${item.song!.art}',
+                                                ),
                                               ),
-                                            ),
-                                            Container(
-                                              width: screenWidth * 5 / 9,
-                                              child: Text(
-                                                '${item.song!.artist}',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 15),
-                                                overflow: TextOverflow.clip,
-                                                maxLines: 2,
-                                                softWrap: false,
+                                              SizedBox(
+                                                width: 10,
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    width: screenWidth * 5 / 9,
+                                                    child: Text(
+                                                      '${item.song!.title}',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      overflow:
+                                                          TextOverflow.fade,
+                                                      maxLines: 2,
+                                                      softWrap: false,
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    width: screenWidth * 5 / 9,
+                                                    child: Text(
+                                                      '${item.song!.artist}',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 15),
+                                                      overflow:
+                                                          TextOverflow.clip,
+                                                      maxLines: 2,
+                                                      softWrap: false,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          Text(
+                                            'Played at: ${DateFormat.yMMMEd().add_jm().format(DateTime.fromMillisecondsSinceEpoch(item.playedAt! * 1000))}',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          Text(
+                                            'Duration: ${item.duration!} secs (${formattedTime(timeInSecond: item.duration!)})',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          Text(
+                                            'Listeners start/end: ${item.listenersStart}/${item.listenersEnd}',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          Text(
+                                            'Delta total: ${item.deltaTotal}',
+                                            style: TextStyle(
+                                                color: (item
+                                                        .deltaTotal!.isNegative)
+                                                    ? Colors.red
+                                                    : (item.deltaTotal == 0)
+                                                        ? Colors.white
+                                                        : Colors.green),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      'Played at: ${DateFormat.yMMMEd().add_jm().format(DateTime.fromMillisecondsSinceEpoch(item.playedAt! * 1000))}',
-                                      style: TextStyle(color: Colors.white),
-                                    )
-                                  ],
-                                ),
+                                  );
+                                },
                               ),
+                            )
+                          : Text(
+                              'No results',
+                              style: TextStyle(color: Colors.white),
                             );
-                          },
-                        ),
-                      );
                     } else if (searchPressed) {
                       return Center(
                         child: CircularProgressIndicator(
@@ -241,4 +272,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
       });
     }
   }
+}
+
+formattedTime({required int timeInSecond}) {
+  int sec = timeInSecond % 60;
+  int min = (timeInSecond / 60).floor();
+  String minute = min.toString().length <= 1 ? "0$min" : "$min";
+  String second = sec.toString().length <= 1 ? "0$sec" : "$sec";
+  return "$minute:$second";
 }

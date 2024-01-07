@@ -160,7 +160,6 @@ Future<List<HistoryFiles>> fetchHistoryFiles(
       Uri.parse(
           '${url}/api/station/${id}/history?start=${startDate}&end=${endDate}'),
       headers: headers);
-  printError('respo is ${response.body}');
   if (response.statusCode == 200) {
     List<HistoryFiles> historyFiles = (json.decode(response.body) as List)
         .map((i) => HistoryFiles.fromJson(i))

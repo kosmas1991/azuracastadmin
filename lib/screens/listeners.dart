@@ -117,11 +117,19 @@ class _ListenersScreenState extends State<ListenersScreen> {
                                                     color: Colors.white),
                                               )
                                             : data.connectedTime! >= 3600
-                                                ? Text(
-                                                    '${(data.connectedTime! / 3600).round().toInt()} hour(s)',
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  )
+                                                ? (data.connectedTime! >= 86400)
+                                                    ? Text(
+                                                        '${(data.connectedTime! / 86400).round().toInt()} day(s)',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                      )
+                                                    : Text(
+                                                        '${(data.connectedTime! / 3600).round().toInt()} hour(s)',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                      )
                                                 : Text(
                                                     '${(data.connectedTime! / 60).round().toInt()} min(s)',
                                                     style: TextStyle(
