@@ -1,3 +1,4 @@
+import 'package:azuracastadmin/screens/filesscreens.dart';
 import 'package:azuracastadmin/screens/listeners.dart';
 import 'package:flutter/material.dart';
 
@@ -68,7 +69,13 @@ class _OtherInfoState extends State<OtherInfo> {
               style: ButtonStyle(
                 backgroundColor: MaterialStatePropertyAll(Colors.blue),
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FilesScreen(apiKey: widget.apiKey, stationID: widget.stationID, url: widget.url),
+                    ));
+              },
               child: Text(
                 'Files',
                 style: TextStyle(color: Colors.white),
