@@ -15,7 +15,6 @@ class RadioIdState extends Equatable {
   RadioIdState copyWith({
     int? id,
   }) {
-    print('ID selected      ----->>>>     ${id}');
     return RadioIdState(
       id: id ?? this.id,
     );

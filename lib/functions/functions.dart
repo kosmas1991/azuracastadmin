@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:azuracastadmin/models/cpustats.dart';
+import 'package:azuracastadmin/models/historyfiles.dart';
 import 'package:azuracastadmin/models/listeners.dart';
 import 'package:azuracastadmin/models/listoffiles.dart';
 import 'package:azuracastadmin/models/nextsongs.dart';
@@ -149,4 +150,24 @@ Future<List<ListOfFiles>> fetchListOfFiles(
   }
 }
 
+Future<List<HistoryFiles>> fetchHistoryFiles(
+    String url, String apiKey, int id, String startDate, String endDate) async {
+  final headers = {
+    'accept': 'application/json',
+    'X-API-Key': '${apiKey}',
+  };
+  Response response = await http.get(
+      Uri.parse(
+          '${url}/api/station/${id}/history?start=${startDate}&end=${endDate}'),
+      headers: headers);
+  printError('respo is ${response.body}');
+  if (response.statusCode == 200) {
+    List<HistoryFiles> historyFiles = (json.decode(response.body) as List)
+        .map((i) => HistoryFiles.fromJson(i))
+        .toList();
 
+    return historyFiles;
+  } else {
+    throw Exception('Failed');
+  }
+}
