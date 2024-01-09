@@ -43,6 +43,7 @@ dependencies:
   percent_indicator: ^4.2.3
   transparent_image: ^2.0.1
   intl: ^0.19.0
+  assets_audio_player: ^3.1.1
 
 dev_dependencies:
   flutter_test:

@@ -79,7 +79,6 @@ Future<NowPlaying> fetchNowPlaying(String url, String path, int id) async {
   if (response.statusCode == 200) {
     return NowPlaying.fromJson(jsonDecode(response.body));
   } else {
-    printError('error here id ${id}');
     throw Exception('Failed');
   }
 }
@@ -220,7 +219,7 @@ Future<Response> putFTPUser(
         'X-API-Key': '${apiKey}',
       },
       Uri.parse('${url}/api/station/${stationID}/${path}/${userID}'));
-  printError('status code ${response.statusCode} and body: ${response.body}');
+
   return response;
 }
 

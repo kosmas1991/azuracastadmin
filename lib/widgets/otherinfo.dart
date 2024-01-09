@@ -1,8 +1,12 @@
+import 'dart:async';
+
+import 'package:azuracastadmin/functions/functions.dart';
+import 'package:azuracastadmin/models/nowplaying.dart';
 import 'package:azuracastadmin/screens/filesscreens.dart';
 import 'package:azuracastadmin/screens/ftpusersscreen.dart';
 import 'package:azuracastadmin/screens/historyscreen.dart';
 import 'package:azuracastadmin/screens/listeners.dart';
-import 'package:azuracastadmin/screens/settingsScreen.dart';
+import 'package:azuracastadmin/screens/playstationscreen.dart';
 import 'package:azuracastadmin/screens/settingsscreens.dart';
 import 'package:azuracastadmin/screens/usersscreen.dart';
 import 'package:flutter/material.dart';
@@ -11,17 +15,32 @@ class OtherInfo extends StatefulWidget {
   final String url;
   final String apiKey;
   final int stationID;
-  const OtherInfo(
-      {super.key,
-      required this.url,
-      required this.apiKey,
-      required this.stationID});
+
+  const OtherInfo({
+    super.key,
+    required this.url,
+    required this.apiKey,
+    required this.stationID,
+  });
 
   @override
   State<OtherInfo> createState() => _OtherInfoState();
 }
 
 class _OtherInfoState extends State<OtherInfo> {
+  late Future<NowPlaying> nowPlaying;
+  @override
+  void initState() {
+    nowPlaying = fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
+    Timer.periodic(Duration(seconds: 2), (timer) {
+      setState(() {
+        nowPlaying = fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
+      });
+      nowPlaying = fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -55,24 +74,42 @@ class _OtherInfoState extends State<OtherInfo> {
                 'Listeners',
                 style: TextStyle(color: Colors.white),
               )),
-          FilledButton(
-              style: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(Colors.blue),
-              ),
-              onPressed: () {},
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.play_arrow),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    'Play station',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
-              )),
+          FutureBuilder(
+            future: nowPlaying,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return FilledButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PlayStationScreen(
+                                playURL: snapshot.data!.station!.listenUrl!,
+                                stationID: widget.stationID,
+                                url: widget.url),
+                          ));
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.play_arrow),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          'Play station',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ));
+              } else {
+                return Container();
+              }
+            },
+          ),
           FilledButton(
               style: ButtonStyle(
                 backgroundColor: MaterialStatePropertyAll(Colors.blue),
@@ -96,11 +133,13 @@ class _OtherInfoState extends State<OtherInfo> {
                 backgroundColor: MaterialStatePropertyAll(Colors.blue),
               ),
               onPressed: () {
-                 Navigator.push(
+                Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ServerSettingsScreen(apiKey: widget.apiKey, url: widget.url,
-                    ),
+                      builder: (context) => ServerSettingsScreen(
+                        apiKey: widget.apiKey,
+                        url: widget.url,
+                      ),
                     ));
               },
               child: Text(
@@ -149,8 +188,10 @@ class _OtherInfoState extends State<OtherInfo> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          FTPUsersScreen(apiKey: widget.apiKey, stationID: widget.stationID, url: widget.url),
+                      builder: (context) => FTPUsersScreen(
+                          apiKey: widget.apiKey,
+                          stationID: widget.stationID,
+                          url: widget.url),
                     ));
               },
               child: Text(
