@@ -25,6 +25,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
   AssetsAudioPlayer _assetsAudioPlayer = AssetsAudioPlayer();
   double volume = 1;
   late Future<NowPlaying> nowPlaying;
+  late Timer timer;
   @override
   void initState() {
     super.initState();
@@ -34,7 +35,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
         volume: 1,
         showNotification: true);
     nowPlaying = fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
-    Timer.periodic(Duration(seconds: 3), (timer) {
+    timer = Timer.periodic(Duration(seconds: 3), (timer) {
       setState(() {
         nowPlaying =
             fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
@@ -44,6 +45,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
 
   @override
   void dispose() {
+    timer.cancel();
     _assetsAudioPlayer.stop();
 
     super.dispose();
