@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/historyfiles.dart';
-import 'package:azuracastadmin/models/listeners.dart';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -23,7 +22,6 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  late Future<List<ActiveListeners>> activeListeners;
   late var timer;
   TextEditingController textEditingController1 = TextEditingController();
   TextEditingController textEditingController2 = TextEditingController();

@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'package:azuracastadmin/models/cpustats.dart';
+import 'package:azuracastadmin/models/ftpusers.dart';
 import 'package:azuracastadmin/models/historyfiles.dart';
 import 'package:azuracastadmin/models/listeners.dart';
 import 'package:azuracastadmin/models/listoffiles.dart';
 import 'package:azuracastadmin/models/nextsongs.dart';
 import 'package:azuracastadmin/models/nowplaying.dart';
 import 'package:azuracastadmin/models/radiostations.dart';
+import 'package:azuracastadmin/models/settings.dart';
 import 'package:azuracastadmin/models/stationsstatus.dart';
+import 'package:azuracastadmin/models/users.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
@@ -166,6 +169,67 @@ Future<List<HistoryFiles>> fetchHistoryFiles(
         .toList();
 
     return historyFiles;
+  } else {
+    throw Exception('Failed');
+  }
+}
+
+Future<List<Users>> fetchUsers(String url, String path, String apiKey) async {
+  Response response = await getResponse(url: url, path: path, apiKey: apiKey);
+  if (response.statusCode == 200) {
+    List<Users> users = (json.decode(response.body) as List)
+        .map((i) => Users.fromJson(i))
+        .toList();
+    return users;
+  } else {
+    throw Exception('Failed');
+  }
+}
+
+Future<List<FtpUsers>> fetchFTPUsers(
+    String url, int id, String path, String apiKey) async {
+  Response response =
+      await getResponse(url: url, id: id, path: path, apiKey: apiKey);
+  if (response.statusCode == 200) {
+    List<FtpUsers> FTPusers = (json.decode(response.body) as List)
+        .map((i) => FtpUsers.fromJson(i))
+        .toList();
+    return FTPusers;
+  } else {
+    throw Exception('Failed');
+  }
+}
+
+Future<Response> putFTPUser(
+    {required String url,
+    required String path,
+    required String apiKey,
+    required int stationID,
+    required int userID,
+    required String pass,
+    required String username}) async {
+  var response = await http.put(
+      body: jsonEncode(<String, dynamic>{
+        "id": userID,
+        "username": username,
+        "password": pass,
+        "publicKeys": "",
+      }),
+      headers: <String, String>{
+        'accept': 'application/json',
+        'X-API-Key': '${apiKey}',
+      },
+      Uri.parse('${url}/api/station/${stationID}/${path}/${userID}'));
+  printError('status code ${response.statusCode} and body: ${response.body}');
+  return response;
+}
+
+Future<SettingsModel> fetchSettings(
+    String url, String path, String apiKey) async {
+  Response response = await getResponse(url: url, path: path, apiKey: apiKey);
+  if (response.statusCode == 200) {
+    SettingsModel settings = SettingsModel.fromJson(jsonDecode(response.body));
+    return settings;
   } else {
     throw Exception('Failed');
   }

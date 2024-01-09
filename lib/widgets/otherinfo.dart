@@ -1,6 +1,10 @@
 import 'package:azuracastadmin/screens/filesscreens.dart';
+import 'package:azuracastadmin/screens/ftpusersscreen.dart';
 import 'package:azuracastadmin/screens/historyscreen.dart';
 import 'package:azuracastadmin/screens/listeners.dart';
+import 'package:azuracastadmin/screens/settingsScreen.dart';
+import 'package:azuracastadmin/screens/settingsscreens.dart';
+import 'package:azuracastadmin/screens/usersscreen.dart';
 import 'package:flutter/material.dart';
 
 class OtherInfo extends StatefulWidget {
@@ -41,7 +45,10 @@ class _OtherInfoState extends State<OtherInfo> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ListenersScreen(apiKey: widget.apiKey, stationID: widget.stationID, url: widget.url),
+                      builder: (context) => ListenersScreen(
+                          apiKey: widget.apiKey,
+                          stationID: widget.stationID,
+                          url: widget.url),
                     ));
               },
               child: Text(
@@ -74,7 +81,10 @@ class _OtherInfoState extends State<OtherInfo> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => FilesScreen(apiKey: widget.apiKey, stationID: widget.stationID, url: widget.url),
+                      builder: (context) => FilesScreen(
+                          apiKey: widget.apiKey,
+                          stationID: widget.stationID,
+                          url: widget.url),
                     ));
               },
               child: Text(
@@ -85,7 +95,14 @@ class _OtherInfoState extends State<OtherInfo> {
               style: ButtonStyle(
                 backgroundColor: MaterialStatePropertyAll(Colors.blue),
               ),
-              onPressed: () {},
+              onPressed: () {
+                 Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ServerSettingsScreen(apiKey: widget.apiKey, url: widget.url,
+                    ),
+                    ));
+              },
               child: Text(
                 'Settings',
                 style: TextStyle(color: Colors.white),
@@ -98,11 +115,46 @@ class _OtherInfoState extends State<OtherInfo> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => HistoryScreen(apiKey: widget.apiKey, stationID: widget.stationID, url: widget.url),
+                      builder: (context) => HistoryScreen(
+                          apiKey: widget.apiKey,
+                          stationID: widget.stationID,
+                          url: widget.url),
                     ));
               },
               child: Text(
                 'History',
+                style: TextStyle(color: Colors.white),
+              )),
+          FilledButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStatePropertyAll(Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          UsersScreen(apiKey: widget.apiKey, url: widget.url),
+                    ));
+              },
+              child: Text(
+                'Users',
+                style: TextStyle(color: Colors.white),
+              )),
+          FilledButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStatePropertyAll(Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          FTPUsersScreen(apiKey: widget.apiKey, stationID: widget.stationID, url: widget.url),
+                    ));
+              },
+              child: Text(
+                'FTP users',
                 style: TextStyle(color: Colors.white),
               )),
         ],
