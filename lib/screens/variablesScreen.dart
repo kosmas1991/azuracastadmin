@@ -13,9 +13,11 @@ class VariablesScreen extends StatefulWidget {
 }
 
 class _VariablesScreenState extends State<VariablesScreen> {
+  
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   @override
   Widget build(BuildContext context) {
+    
     TextEditingController textEditingController = TextEditingController();
     return Center(
       child: BlocBuilder<step.StepCubit, step.StepState>(

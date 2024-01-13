@@ -15,6 +15,7 @@ class ApiState extends Equatable {
   ApiState copyWith({
     String? api,
   }) {
+    printError('api cubit is: ${api}');
     return ApiState(
       api: api ?? this.api,
     );

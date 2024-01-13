@@ -15,6 +15,7 @@ class UrlState extends Equatable {
   UrlState copyWith({
     String? url,
   }) {
+    printError('url cubit is: ${url}');
     return UrlState(
       url: url ?? this.url,
     );

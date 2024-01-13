@@ -1,5 +1,6 @@
 import 'package:azuracastadmin/cubits/api/api_cubit.dart';
 import 'package:azuracastadmin/cubits/radioID/radio_id_cubit.dart';
+import 'package:azuracastadmin/cubits/retry/retry_cubit.dart';
 import 'package:azuracastadmin/cubits/step/step_cubit.dart';
 import 'package:azuracastadmin/cubits/url/url_cubit.dart';
 import 'package:azuracastadmin/screens/homescreen.dart';
@@ -7,9 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:azuracastadmin/cubits/step/step_cubit.dart' as step;
 
 void main() {
-  runApp(const MyApp()); 
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -48,6 +50,9 @@ class _MyAppState extends State<MyApp> {
                 BlocProvider(
                   create: (context) => RadioIdCubit(),
                 ),
+                BlocProvider(
+                  create: (context) => RetryCubit(stepCubit: context.read<step.StepCubit>()),
+                )
               ],
               child: MaterialApp(
                 title: 'Azuracast Admin',

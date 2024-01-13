@@ -1,6 +1,9 @@
+import 'package:azuracastadmin/cubits/api/api_cubit.dart';
+import 'package:azuracastadmin/cubits/retry/retry_cubit.dart';
 import 'package:azuracastadmin/cubits/step/step_cubit.dart' as step;
+import 'package:azuracastadmin/cubits/url/url_cubit.dart';
+import 'package:azuracastadmin/screens/checkscreen.dart';
 import 'package:azuracastadmin/screens/variablesScreen.dart';
-import 'package:azuracastadmin/screens/widgetsscreen.dart';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,11 +41,28 @@ class _HomeScreenState extends State<HomeScreen> {
               if (snapshot.hasData) {
                 return BlocBuilder<step.StepCubit, step.StepState>(
                   builder: (context, state) {
-                    return state.step == 2 ||
-                            (snapshot.data!.getString('url') != null &&
-                                snapshot.data!.getString('api') != null)
-                        ? WidgetsScreen()
-                        : VariablesScreen();
+                    // return !context.read<RetryCubit>().state.retry
+                    //     ? (state.step == 2 ||
+                    //             (snapshot.data!.getString('url') != null &&
+                    //                 snapshot.data!.getString('api') != null))
+                    //         ? CheckScreen(
+                    //             url: context.watch<UrlCubit>().state.url,
+                    //             apiKey: context.watch<ApiCubit>().state.api)
+                    //         : VariablesScreen()
+                    //     : VariablesScreen();
+                    if (!context.read<RetryCubit>().state.retry) {
+                      if (state.step == 2 ||
+                          (snapshot.data!.getString('url') != null &&
+                              snapshot.data!.getString('api') != null)) {
+                        return CheckScreen(
+                            url: context.watch<UrlCubit>().state.url,
+                            apiKey: context.watch<ApiCubit>().state.api);
+                      } else {
+                        return VariablesScreen();
+                      }
+                    } else {
+                      return VariablesScreen();
+                    }
                   },
                 );
               } else {

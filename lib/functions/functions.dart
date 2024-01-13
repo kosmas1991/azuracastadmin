@@ -27,7 +27,7 @@ Future<Response> getResponse({
   String? apiKey,
   int? id,
 }) async {
-  var response;
+  Response response;
   if (apiKey != null && id == null) {
     final headers = {
       'accept': 'application/json',
@@ -47,7 +47,7 @@ Future<Response> getResponse({
   } else {
     response = await http.get(Uri.parse('${url}/api/${path}'));
   }
-
+  printError('resp status: ${response.statusCode} and body: ${response.body}');
   return response;
 }
 
