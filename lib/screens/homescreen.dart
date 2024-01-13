@@ -41,15 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
               if (snapshot.hasData) {
                 return BlocBuilder<step.StepCubit, step.StepState>(
                   builder: (context, state) {
-                    // return !context.read<RetryCubit>().state.retry
-                    //     ? (state.step == 2 ||
-                    //             (snapshot.data!.getString('url') != null &&
-                    //                 snapshot.data!.getString('api') != null))
-                    //         ? CheckScreen(
-                    //             url: context.watch<UrlCubit>().state.url,
-                    //             apiKey: context.watch<ApiCubit>().state.api)
-                    //         : VariablesScreen()
-                    //     : VariablesScreen();
                     if (!context.read<RetryCubit>().state.retry) {
                       if (state.step == 2 ||
                           (snapshot.data!.getString('url') != null &&

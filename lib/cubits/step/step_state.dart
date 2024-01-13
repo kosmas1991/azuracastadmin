@@ -15,7 +15,7 @@ class StepState extends Equatable {
   StepState copyWith({
     int? step,
   }) {
-    printError('step is: ${step}');
+   
     return StepState(
       step: step ?? this.step,
     );

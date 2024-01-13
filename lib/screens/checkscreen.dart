@@ -28,13 +28,13 @@ class _CheckScreenState extends State<CheckScreen> {
   @override
   Widget build(BuildContext context) {
     context.read<RetryCubit>().emitNewState(false);
-    
+
     return FutureBuilder(
       future: response,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           var data = snapshot.data!;
-          printError(' body: ${data.body}');
+
           if (data.statusCode == 200) {
             if (!data.body.contains('"status":"error"') &&
                 data.body.contains('cpu')) {
@@ -91,7 +91,6 @@ class _CheckScreenState extends State<CheckScreen> {
             );
           }
         } else if (snapshot.hasError) {
-          printError('${snapshot.error}');
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
