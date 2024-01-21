@@ -1,6 +1,9 @@
 import 'package:azuracastadmin/cubits/api/api_cubit.dart';
+import 'package:azuracastadmin/cubits/filteredlist/filteredlist_cubit.dart';
 import 'package:azuracastadmin/cubits/radioID/radio_id_cubit.dart';
+import 'package:azuracastadmin/cubits/requestsonglist/requestsonglist_cubit.dart';
 import 'package:azuracastadmin/cubits/retry/retry_cubit.dart';
+import 'package:azuracastadmin/cubits/searchstring/searchstring_cubit.dart';
 import 'package:azuracastadmin/cubits/step/step_cubit.dart';
 import 'package:azuracastadmin/cubits/url/url_cubit.dart';
 import 'package:azuracastadmin/screens/homescreen.dart';
@@ -51,7 +54,22 @@ class _MyAppState extends State<MyApp> {
                   create: (context) => RadioIdCubit(),
                 ),
                 BlocProvider(
-                  create: (context) => RetryCubit(stepCubit: context.read<step.StepCubit>()),
+                  create: (context) =>
+                      RetryCubit(stepCubit: context.read<step.StepCubit>()),
+                ),
+                BlocProvider(
+                  create: (context) => SearchstringCubit(),
+                ),
+                BlocProvider(
+                  create: (context) => RequestsonglistCubit(),
+                ),
+                BlocProvider(
+                  create: (context) => FilteredlistCubit(
+                      requestsonglistCubit:
+                          context.read<RequestsonglistCubit>(),
+                      searchstringCubit: context.read<SearchstringCubit>(),
+                      initialList:
+                          context.read<RequestsonglistCubit>().state.list),
                 )
               ],
               child: MaterialApp(

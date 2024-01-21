@@ -1,10 +1,17 @@
 import 'dart:async';
 
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:azuracastadmin/cubits/filteredlist/filteredlist_cubit.dart';
+import 'package:azuracastadmin/cubits/radioID/radio_id_cubit.dart';
+import 'package:azuracastadmin/cubits/requestsonglist/requestsonglist_cubit.dart';
+import 'package:azuracastadmin/cubits/searchstring/searchstring_cubit.dart';
+import 'package:azuracastadmin/cubits/url/url_cubit.dart';
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/nowplaying.dart';
+import 'package:azuracastadmin/models/requestsongdata.dart';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class PlayStationScreen extends StatefulWidget {
@@ -22,10 +29,12 @@ class PlayStationScreen extends StatefulWidget {
 }
 
 class _PlayStationScreenState extends State<PlayStationScreen> {
+  TextEditingController textEditingController = TextEditingController();
   AssetsAudioPlayer _assetsAudioPlayer = AssetsAudioPlayer();
   double volume = 1;
   late Future<NowPlaying> nowPlaying;
   late Timer timer;
+  late Future<List<RequestSongData>> reqData;
   @override
   void initState() {
     super.initState();
@@ -41,6 +50,9 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
             fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
       });
     });
+    reqData = fetchSongRequestList(context.read<UrlCubit>().state.url, context.read<RadioIdCubit>().state.id);
+    reqData.then(
+        (value) => context.read<RequestsonglistCubit>().emitNewList(value));
   }
 
   @override
@@ -52,7 +64,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext screenContext) {
     return SafeArea(
       child: Scaffold(
         body: Stack(children: [
@@ -85,7 +97,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                     SizedBox(
                       height: 0,
                     ),
-                    SongHistoryAndRequestSongButtons(),
+                    SongHistoryAndRequestSongButtons(screenContext),
                   ],
                 )),
           ),
@@ -239,12 +251,135 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
     );
   }
 
-  Widget SongHistoryAndRequestSongButtons() {
+  Widget SongHistoryAndRequestSongButtons(BuildContext screenContext) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     return Wrap(
       alignment: WrapAlignment.spaceBetween,
       children: [
+        TextButton.icon(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                  backgroundColor: Color.fromARGB(255, 42, 42, 42),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Song History',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.close,
+                          color: Colors.grey,
+                          size: 20,
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                      )
+                    ],
+                  ),
+                  content: FutureBuilder<NowPlaying>(
+                      future: nowPlaying,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Container(
+                            width: screenWidth * 7 / 9,
+                            height: screenHeight * 5 / 9,
+                            child: ListView.builder(
+                              itemCount: snapshot.data!.songHistory!.length,
+                              itemBuilder: (context, index) => Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        width: 20,
+                                        child: Text(
+                                          textAlign: TextAlign.center,
+                                          (index + 1).toString(),
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Container(
+                                        height: 50,
+                                        width: 50,
+                                        child: FadeInImage.memoryNetwork(
+                                          placeholder: kTransparentImage,
+                                          image:
+                                              '${snapshot.data!.songHistory![index].song!.art}',
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            width: screenWidth * 1 / 2.5,
+                                            child: Text(
+                                              '${snapshot.data!.songHistory![index].song!.title}',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold),
+                                              overflow: TextOverflow.clip,
+                                              maxLines: 2,
+                                            ),
+                                          ),
+                                          Container(
+                                            width: screenWidth * 1 / 2.5,
+                                            child: Text(
+                                              '${snapshot.data!.songHistory![index].song!.artist}',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10),
+                                              overflow: TextOverflow.clip,
+                                              maxLines: 2,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        } else {
+                          return Center(
+                              child: CircularProgressIndicator(
+                            color: Colors.blue,
+                          ));
+                        }
+                      })),
+            );
+          },
+          icon: Icon(
+            Icons.history,
+            color: Colors.white,
+          ),
+          label: Text(
+            'Song History',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
         TextButton.icon(
             onPressed: () {
               showDialog(
@@ -255,7 +390,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Song History',
+                          'Request Song',
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -267,106 +402,159 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                             color: Colors.grey,
                             size: 20,
                           ),
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () {
+                            textEditingController.text = '';
+                            context.read<SearchstringCubit>().emitNewSearch('');
+                            Navigator.pop(context);
+                          },
                         )
                       ],
                     ),
-                    content: FutureBuilder<NowPlaying>(
-                        future: nowPlaying,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return Container(
-                              width: screenWidth * 7 / 9,
-                              height: screenHeight * 5 / 9,
-                              child: ListView.builder(
-                                itemCount: snapshot.data!.songHistory!.length,
-                                itemBuilder: (context, index) => Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                    content: Column(
+                      children: [
+                        Flexible(
+                          flex: 1,
+                          child: TextField(
+                            controller: textEditingController,
+                            onChanged: (value) {
+                              textEditingController.text = value;
+                              context
+                                  .read<SearchstringCubit>()
+                                  .emitNewSearch(value);
+                            },
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                            maxLines: 1,
+                            cursorColor: Colors.blue,
+                            decoration: InputDecoration(
+                                hintText: 'Search a song or artist ...',
+                                hintStyle: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 15,
+                                    fontStyle: FontStyle.italic),
+                                enabledBorder: UnderlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.white)),
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.white)),
+                                suffixIcon: Icon(
+                                  Icons.search,
+                                  color: Colors.white,
+                                )),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Flexible(
+                            flex: 9,
+                            child: BlocBuilder<FilteredlistCubit,
+                                FilteredlistState>(
+                              builder: (context1, state) {
+                                return Container(
+                                  width: screenWidth * 8 / 9,
+                                  height: screenHeight * 8 / 9,
+                                  child: ListView.builder(
+                                    itemCount: state.filteredList.length,
+                                    itemBuilder: (context2, index) => Column(
                                       children: [
-                                        Container(
-                                          width: 20,
-                                          child: Text(
-                                            textAlign: TextAlign.center,
-                                            (index + 1).toString(),
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
+                                        InkWell(
+                                          onTap: () {
+                                            requestNewSong(context.read<UrlCubit>().state.url,
+                                                state.filteredList[index]
+                                                    .requestUrl!,
+                                                screenContext);
+                                            Navigator.pop(context);
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                width: 25,
+                                                child: Text(
+                                                  textAlign: TextAlign.center,
+                                                  (index + 1).toString(),
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 5,
+                                              ),
+                                              Container(
+                                                height: 50,
+                                                width: 50,
+                                                child:
+                                                    FadeInImage.memoryNetwork(
+                                                  placeholder:
+                                                      kTransparentImage,
+                                                  image:
+                                                      '${state.filteredList[index].song!.art}',
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 5,
+                                              ),
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    width:
+                                                        screenWidth * 1 / 2.5,
+                                                    child: Text(
+                                                      '${state.filteredList[index].song!.title}',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      overflow:
+                                                          TextOverflow.clip,
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    width:
+                                                        screenWidth * 1 / 2.5,
+                                                    child: Text(
+                                                      '${state.filteredList[index].song!.artist}',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 10),
+                                                      overflow:
+                                                          TextOverflow.clip,
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         ),
                                         SizedBox(
-                                          width: 5,
-                                        ),
-                                        Container(
-                                          height: 50,
-                                          width: 50,
-                                          child: FadeInImage.memoryNetwork(
-                                            placeholder: kTransparentImage,
-                                            image:
-                                                '${snapshot.data!.songHistory![index].song!.art}',
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              width: screenWidth * 1 / 2.5,
-                                              child: Text(
-                                                '${snapshot.data!.songHistory![index].song!.title}',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 12,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                                overflow: TextOverflow.clip,
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                            Container(
-                                              width: screenWidth * 1 / 2.5,
-                                              child: Text(
-                                                '${snapshot.data!.songHistory![index].song!.artist}',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 10),
-                                                overflow: TextOverflow.clip,
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                          height: 15,
+                                        )
                                       ],
                                     ),
-                                    SizedBox(
-                                      height: 15,
-                                    )
-                                  ],
-                                ),
-                              ),
-                            );
-                          } else {
-                            return Center(
-                                child: CircularProgressIndicator(
-                              color: Colors.blue,
-                            ));
-                          }
-                        })),
+                                  ),
+                                );
+                              },
+                            )),
+                      ],
+                    )),
               );
             },
             icon: Icon(
-              Icons.history,
+              Icons.audiotrack_sharp,
               color: Colors.white,
             ),
             label: Text(
-              'Song History',
+              'Request Song',
               style: TextStyle(color: Colors.white),
             )),
       ],

@@ -7,9 +7,11 @@ import 'package:azuracastadmin/models/listoffiles.dart';
 import 'package:azuracastadmin/models/nextsongs.dart';
 import 'package:azuracastadmin/models/nowplaying.dart';
 import 'package:azuracastadmin/models/radiostations.dart';
+import 'package:azuracastadmin/models/requestsongdata.dart';
 import 'package:azuracastadmin/models/settings.dart';
 import 'package:azuracastadmin/models/stationsstatus.dart';
 import 'package:azuracastadmin/models/users.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
@@ -229,6 +231,61 @@ Future<SettingsModel> fetchSettings(
   if (response.statusCode == 200) {
     SettingsModel settings = SettingsModel.fromJson(jsonDecode(response.body));
     return settings;
+  } else {
+    throw Exception('Failed');
+  }
+}
+
+void requestNewSong(String theURL, String url, BuildContext context) async {
+  var response = await http.get(Uri.parse('${theURL}${url}'));
+  if (response.body.contains('"success":true')) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+      'Song just added to the song queue',
+      style: TextStyle(color: Colors.green),
+    )));
+  } else if (response.body.contains('Duplicate request')) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+      'Failed! Song already requested!',
+      style: TextStyle(color: Colors.red),
+    )));
+  } else if (response.body.contains('played too recently')) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+      'Failed! Same song or artist played too recently!',
+      style: TextStyle(color: Colors.red),
+    )));
+  } else if (response.body.contains('a request too recently')) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+      'Failed! You asked for another request too recently!',
+      style: TextStyle(color: Colors.red),
+    )));
+  } else {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+      'Failed!',
+      style: TextStyle(color: Colors.red),
+    )));
+  }
+}
+
+Future<List<RequestSongData>> fetchSongRequestList(
+    String theURL, int theStationID) async {
+  var response = await http
+      .get(Uri.parse('${theURL}/api/station/${theStationID}/requests'));
+
+  if (response.statusCode == 200) {
+    List<RequestSongData> data = (json.decode(response.body) as List)
+        .map((i) => RequestSongData.fromJson(i))
+        .toList();
+    return data;
   } else {
     throw Exception('Failed');
   }
