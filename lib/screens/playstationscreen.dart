@@ -50,16 +50,20 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
             fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
       });
     });
-    reqData = fetchSongRequestList(context.read<UrlCubit>().state.url, context.read<RadioIdCubit>().state.id);
+    reqData = fetchSongRequestList(context.read<UrlCubit>().state.url,
+        context.read<RadioIdCubit>().state.id);
     reqData.then(
         (value) => context.read<RequestsonglistCubit>().emitNewList(value));
+    Timer(Duration(seconds: 1),() {
+              context.read<SearchstringCubit>().emitNewSearch('test');
+    context.read<SearchstringCubit>().emitNewSearch('');
+    },);
   }
 
   @override
   void dispose() {
     timer.cancel();
     _assetsAudioPlayer.stop();
-
     super.dispose();
   }
 
@@ -460,7 +464,11 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                                       children: [
                                         InkWell(
                                           onTap: () {
-                                            requestNewSong(context.read<UrlCubit>().state.url,
+                                            requestNewSong(
+                                                context
+                                                    .read<UrlCubit>()
+                                                    .state
+                                                    .url,
                                                 state.filteredList[index]
                                                     .requestUrl!,
                                                 screenContext);

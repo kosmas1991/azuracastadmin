@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:azuracastadmin/cubits/requestsonglist/requestsonglist_cubit.dart';
 import 'package:azuracastadmin/cubits/searchstring/searchstring_cubit.dart';
+import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/requestsongdata.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -19,7 +20,7 @@ class FilteredlistCubit extends Cubit<FilteredlistState> {
       : super(FilteredlistState(filteredList: initialList)) {
     searchStreamSubscription =
         searchstringCubit.stream.listen((SearchstringState event) {
-      if (event.searchString.isEmpty) {
+      if (event.searchString.isEmpty || event.searchString == '') {
         emitNewFilteredList(requestsonglistCubit.state.list);
       } else {
         List<RequestSongData> newCreatedList =

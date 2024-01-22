@@ -7,10 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SelectRadioStation extends StatefulWidget {
-
   final String url;
   const SelectRadioStation({
-
     required this.url,
     super.key,
   });
@@ -25,8 +23,7 @@ class _SelectRadioStationState extends State<SelectRadioStation> {
   String? dropDownValue;
   @override
   void initState() {
-    radiostations =
-        fetchRadioStations(widget.url, 'stations');
+    radiostations = fetchRadioStations(widget.url, 'stations');
     super.initState();
   }
 
