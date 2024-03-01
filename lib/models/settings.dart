@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final settingsModel = settingsModelFromJson(jsonString);
+
 import 'dart:convert';
 
 SettingsModel settingsModelFromJson(String str) => SettingsModel.fromJson(json.decode(str));
@@ -16,7 +20,7 @@ class SettingsModel {
     bool? enableStaticNowplaying;
     String? analytics;
     bool? checkForUpdates;
-    dynamic updateResults;
+    UpdateResults? updateResults;
     int? updateLastRun;
     dynamic publicTheme;
     bool? hideAlbumArt;
@@ -125,7 +129,7 @@ class SettingsModel {
         enableStaticNowplaying: json["enable_static_nowplaying"],
         analytics: json["analytics"],
         checkForUpdates: json["check_for_updates"],
-        updateResults: json["update_results"],
+        updateResults: json["update_results"] == null ? null : UpdateResults.fromJson(json["update_results"]),
         updateLastRun: json["update_last_run"],
         publicTheme: json["public_theme"],
         hideAlbumArt: json["hide_album_art"],
@@ -180,7 +184,7 @@ class SettingsModel {
         "enable_static_nowplaying": enableStaticNowplaying,
         "analytics": analytics,
         "check_for_updates": checkForUpdates,
-        "update_results": updateResults,
+        "update_results": updateResults?.toJson(),
         "update_last_run": updateLastRun,
         "public_theme": publicTheme,
         "hide_album_art": hideAlbumArt,
@@ -221,5 +225,45 @@ class SettingsModel {
         "acme_email": acmeEmail,
         "acme_domains": acmeDomains,
         "ip_source": ipSource,
+    };
+}
+
+class UpdateResults {
+    String? currentRelease;
+    String? latestRelease;
+    bool? needsRollingUpdate;
+    int? rollingUpdatesAvailable;
+    List<dynamic>? rollingUpdatesList;
+    bool? needsReleaseUpdate;
+    bool? canSwitchToStable;
+
+    UpdateResults({
+        this.currentRelease,
+        this.latestRelease,
+        this.needsRollingUpdate,
+        this.rollingUpdatesAvailable,
+        this.rollingUpdatesList,
+        this.needsReleaseUpdate,
+        this.canSwitchToStable,
+    });
+
+    factory UpdateResults.fromJson(Map<String, dynamic> json) => UpdateResults(
+        currentRelease: json["currentRelease"],
+        latestRelease: json["latestRelease"],
+        needsRollingUpdate: json["needs_rolling_update"],
+        rollingUpdatesAvailable: json["rolling_updates_available"],
+        rollingUpdatesList: json["rolling_updates_list"] == null ? [] : List<dynamic>.from(json["rolling_updates_list"]!.map((x) => x)),
+        needsReleaseUpdate: json["needs_release_update"],
+        canSwitchToStable: json["can_switch_to_stable"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "currentRelease": currentRelease,
+        "latestRelease": latestRelease,
+        "needs_rolling_update": needsRollingUpdate,
+        "rolling_updates_available": rollingUpdatesAvailable,
+        "rolling_updates_list": rollingUpdatesList == null ? [] : List<dynamic>.from(rollingUpdatesList!.map((x) => x)),
+        "needs_release_update": needsReleaseUpdate,
+        "can_switch_to_stable": canSwitchToStable,
     };
 }
