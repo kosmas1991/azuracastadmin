@@ -99,14 +99,16 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                                       'Check for updates: ${data.checkForUpdates}',
                                       style: TextStyle(color: Colors.white),
                                     ),
+                                    data.updateResults!=null?
                                     Text(
                                       'Current release: ${data.updateResults!.currentRelease}',
                                       style: TextStyle(color: Colors.white),
-                                    ),
+                                    ): Container(),
+                                    data.updateResults!=null?
                                     Text(
                                       'Latest release: ${data.updateResults!.latestRelease}',
                                       style: TextStyle(color: Colors.white),
-                                    ),
+                                    ): Container(),
                                     Text(
                                       'Update last run: ${DateFormat.yMMMEd().add_jm().format(DateTime.fromMillisecondsSinceEpoch(data.updateLastRun! * 1000))}',
                                       style: TextStyle(color: Colors.white),

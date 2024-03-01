@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final activeListeners = activeListenersFromJson(jsonString);
+
 import 'dart:convert';
 
 List<ActiveListeners> activeListenersFromJson(String str) => List<ActiveListeners>.from(json.decode(str).map((x) => ActiveListeners.fromJson(x)));
@@ -57,72 +61,72 @@ class ActiveListeners {
 }
 
 class Device {
-    String? client;
     bool? isBrowser;
     bool? isMobile;
     bool? isBot;
+    String? client;
     String? browserFamily;
     String? osFamily;
 
     Device({
-        this.client,
         this.isBrowser,
         this.isMobile,
         this.isBot,
+        this.client,
         this.browserFamily,
         this.osFamily,
     });
 
     factory Device.fromJson(Map<String, dynamic> json) => Device(
-        client: json["client"],
         isBrowser: json["is_browser"],
         isMobile: json["is_mobile"],
         isBot: json["is_bot"],
+        client: json["client"],
         browserFamily: json["browser_family"],
         osFamily: json["os_family"],
     );
 
     Map<String, dynamic> toJson() => {
-        "client": client,
         "is_browser": isBrowser,
         "is_mobile": isMobile,
         "is_bot": isBot,
+        "client": client,
         "browser_family": browserFamily,
         "os_family": osFamily,
     };
 }
 
 class Location {
-    String? description;
-    String? region;
     String? city;
+    String? region;
     String? country;
-    String? lat;
-    String? lon;
+    String? description;
+    double? lat;
+    double? lon;
 
     Location({
-        this.description,
-        this.region,
         this.city,
+        this.region,
         this.country,
+        this.description,
         this.lat,
         this.lon,
     });
 
     factory Location.fromJson(Map<String, dynamic> json) => Location(
-        description: json["description"],
-        region: json["region"],
         city: json["city"],
+        region: json["region"],
         country: json["country"],
-        lat: json["lat"],
-        lon: json["lon"],
+        description: json["description"],
+        lat: json["lat"]?.toDouble(),
+        lon: json["lon"]?.toDouble(),
     );
 
     Map<String, dynamic> toJson() => {
-        "description": description,
-        "region": region,
         "city": city,
+        "region": region,
         "country": country,
+        "description": description,
         "lat": lat,
         "lon": lon,
     };
