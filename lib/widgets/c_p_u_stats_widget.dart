@@ -61,6 +61,10 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
             future: cpuStats,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
+                printError(
+                    'used : ${double.parse(snapshot.data!.disk.readable.used.split(' ').first)}');
+                printError(
+                    'total : ${double.parse(snapshot.data!.disk.readable.total.split(' ').first)}');
                 return Column(
                   children: [
                     Text(
@@ -81,9 +85,12 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                         style: TextStyle(color: Colors.black, fontSize: 12),
                       ),
                       progressColor: Colors.blue,
-                      percent: double.parse(
-                              snapshot.data!.disk.readable.used[0]) /
-                          double.parse(snapshot.data!.disk.readable.total[0]),
+                      percent: double.parse(snapshot.data!.disk.readable.used
+                              .split(' ')
+                              .first) /
+                          double.parse(snapshot.data!.disk.readable.total
+                              .split(' ')
+                              .first),
                     ),
                     SizedBox(
                       height: 10,
