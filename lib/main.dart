@@ -13,6 +13,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:azuracastadmin/cubits/step/step_cubit.dart' as step;
 
+/* 
+Flutter 3.16.3 • channel stable • https://github.com/flutter/flutter.git
+Framework • revision b0366e0a3f (6 months ago) • 2023-12-05 19:46:39 -0800
+Engine • revision 54a7145303
+Tools • Dart 3.2.3 • DevTools 2.28.4
+*/
+
 void main() {
   runApp(const MyApp());
 }

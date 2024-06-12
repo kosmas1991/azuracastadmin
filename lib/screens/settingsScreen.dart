@@ -86,8 +86,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   height: 40,
                 ),
                 Text(
-                  'Disclaimer: Please note that this application is fully compatible with the latest stable release of azuracast software. Current version tested is v0.19.5 Stable. Using this app with older or newer versions may create malfunctions.',
-                  style: TextStyle(color: Colors.white),
+                  'Disclaimer: Please note that this application is fully compatible with the latest stable release of azuracast software. Using this app with older or newer (rolling beta) versions may create malfunctions.',
+                  style: TextStyle(
+                    color: Colors.yellow,
+                  ),
+                  textAlign: TextAlign.center,
                 )
               ],
             )),
