@@ -61,10 +61,6 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
             future: cpuStats,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                printError(
-                    'used : ${double.parse(snapshot.data!.disk.readable.used.split(' ').first)}');
-                printError(
-                    'total : ${double.parse(snapshot.data!.disk.readable.total.split(' ').first)}');
                 return Column(
                   children: [
                     Text(
