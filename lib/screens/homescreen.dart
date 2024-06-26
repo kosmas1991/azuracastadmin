@@ -45,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (state.step == 2 ||
                           (snapshot.data!.getString('url') != null &&
                               snapshot.data!.getString('api') != null)) {
+                        //! here add the debugging code
                         return CheckScreen(
                             url: context.watch<UrlCubit>().state.url,
                             apiKey: context.watch<ApiCubit>().state.api);
