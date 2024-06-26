@@ -7,6 +7,8 @@ import 'package:azuracastadmin/screens/variablesScreen.dart';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -45,7 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (state.step == 2 ||
                           (snapshot.data!.getString('url') != null &&
                               snapshot.data!.getString('api') != null)) {
-                        //! here add the debugging code
+                        //! START here add the debugging code
+
+                        //! END here add the debugging code
                         return CheckScreen(
                             url: context.watch<UrlCubit>().state.url,
                             apiKey: context.watch<ApiCubit>().state.api);

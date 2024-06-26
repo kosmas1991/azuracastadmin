@@ -135,7 +135,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                       ),
                       SizedBox(width: 5),
                       Text(
-                        'listening now: ${snapshot.data!.listeners!.current}',
+                        'listening now: ${snapshot.data!.listeners!.unique}',
                         style: TextStyle(color: Colors.white),
                       ),
                     ],
