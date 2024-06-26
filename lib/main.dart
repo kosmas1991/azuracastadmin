@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:azuracastadmin/cubits/api/api_cubit.dart';
 import 'package:azuracastadmin/cubits/filteredlist/filteredlist_cubit.dart';
 import 'package:azuracastadmin/cubits/radioID/radio_id_cubit.dart';
@@ -21,6 +23,9 @@ Tools • Dart 3.2.3 • DevTools 2.28.4
 */
 
 void main() {
+  //allows IP as server name instead of only domain value
+  HttpOverrides.global = MyHttpOverrides();
+
   runApp(const MyApp());
 }
 
@@ -90,5 +95,14 @@ class _MyAppState extends State<MyApp> {
             );
           }
         });
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

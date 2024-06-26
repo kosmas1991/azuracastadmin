@@ -49,7 +49,6 @@ Future<Response> getResponse({
   } else {
     response = await http.get(Uri.parse('${url}/api/${path}'));
   }
-
   return response;
 }
 

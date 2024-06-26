@@ -28,9 +28,13 @@ class _VariablesScreenState extends State<VariablesScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 10),
                   child: Text(
                     state.step == 0
-                        ? 'Please fill below the azuracast server URL'
+                        ? 'Please fill below the azuracast server URL or IP address of the server'
                         : 'Please fill below the admin API key',
-                    style: TextStyle(color: Colors.white, fontSize: 20),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
                 SizedBox(
@@ -53,7 +57,7 @@ class _VariablesScreenState extends State<VariablesScreen> {
                                 color: Colors.white54,
                                 fontStyle: FontStyle.italic),
                             hintText: state.step == 0
-                                ? 'ex. https://radiounicorn.eu'
+                                ? 'ex. https://radioserver.gr or http://5.255.120.50'
                                 : 'ex. gfdg0dfgf400gfh88'),
                         style: TextStyle(color: Colors.white),
                       ),
@@ -74,13 +78,15 @@ class _VariablesScreenState extends State<VariablesScreen> {
                         context
                             .read<UrlCubit>()
                             .emitNewUrl(textEditingController.text.trim());
-                        prefs.setString('url', textEditingController.text.trim());
+                        prefs.setString(
+                            'url', textEditingController.text.trim());
                       } else if (context.read<step.StepCubit>().state.step ==
                           1) {
                         context
                             .read<ApiCubit>()
                             .emitNewApi(textEditingController.text.trim());
-                        prefs.setString('api', textEditingController.text.trim());
+                        prefs.setString(
+                            'api', textEditingController.text.trim());
                       }
                       context.read<step.StepCubit>().addOne();
                     },

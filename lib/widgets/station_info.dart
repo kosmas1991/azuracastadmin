@@ -339,6 +339,7 @@ class _StationInfoState extends State<StationInfo> {
                       '${widget.url}/api/station/${widget.stationID}/backend/skip')).then(
                 (Response response) {
                   if (response.statusCode == 200) {
+                    printWarning(response.body);
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text(
@@ -346,6 +347,7 @@ class _StationInfoState extends State<StationInfo> {
                       style: TextStyle(color: Colors.green),
                     )));
                   } else {
+                    printWarning('error code : ${response.statusCode.toString()} and headers ${response.headers} and is redirect ${response.isRedirect}');
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text(

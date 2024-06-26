@@ -34,7 +34,6 @@ class _CheckScreenState extends State<CheckScreen> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           var data = snapshot.data!;
-
           if (data.statusCode == 200) {
             if (!data.body.contains('"status":"error"') &&
                 data.body.contains('cpu')) {
@@ -91,12 +90,13 @@ class _CheckScreenState extends State<CheckScreen> {
             );
           }
         } else if (snapshot.hasError) {
+
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Invalid server ot API',
+                  'Invalid server or API',
                   style: TextStyle(color: Colors.white),
                 ),
                 SizedBox(

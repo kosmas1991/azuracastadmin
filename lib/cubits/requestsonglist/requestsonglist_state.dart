@@ -15,7 +15,6 @@ class RequestsonglistState extends Equatable {
   RequestsonglistState copyWith({
     List<RequestSongData>? list,
   }) {
-    printError('request list is: ${list}');
     return RequestsonglistState(
       list: list ?? this.list,
     );

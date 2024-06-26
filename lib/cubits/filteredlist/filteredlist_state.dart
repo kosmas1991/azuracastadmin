@@ -15,7 +15,6 @@ class FilteredlistState extends Equatable {
   FilteredlistState copyWith({
     List<RequestSongData>? filteredList,
   }) {
-    printError('filtered list is: ${filteredList}');
     return FilteredlistState(
       filteredList: filteredList ?? this.filteredList,
     );

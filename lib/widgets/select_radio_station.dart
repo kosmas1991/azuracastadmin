@@ -52,7 +52,9 @@ class _SelectRadioStationState extends State<SelectRadioStation> {
                       isTheFirstElement = false;
                     }
                     return DropdownMenuItem<String>(
-                        value: e.name, child: Text(e.name!));
+                      value: e.name,
+                      child: Text(e.name!),
+                    );
                   }).toList()
                 ],
                 onChanged: (value) {
