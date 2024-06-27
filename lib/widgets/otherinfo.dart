@@ -87,6 +87,7 @@ class _OtherInfoState extends State<OtherInfo> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => PlayStationScreen(
+                              radio_name: snapshot.data!.station!.name!,
                                 playURL: snapshot.data!.station!.listenUrl!,
                                 stationID: widget.stationID,
                                 url: widget.url),

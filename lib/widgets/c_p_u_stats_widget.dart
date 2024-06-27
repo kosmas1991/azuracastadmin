@@ -81,12 +81,21 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                         style: TextStyle(color: Colors.black, fontSize: 12),
                       ),
                       progressColor: Colors.blue,
-                      percent: double.parse(snapshot.data!.disk.readable.used
-                              .split(' ')
-                              .first) /
-                          double.parse(snapshot.data!.disk.readable.total
-                              .split(' ')
-                              .first),
+                      percent: (double.parse(snapshot.data!.disk.readable.used
+                                      .split(' ')
+                                      .first) /
+                                  double.parse(snapshot
+                                      .data!.disk.readable.total
+                                      .split(' ')
+                                      .first)) <
+                              1
+                          ? double.parse(snapshot.data!.disk.readable.used
+                                  .split(' ')
+                                  .first) /
+                              double.parse(snapshot.data!.disk.readable.total
+                                  .split(' ')
+                                  .first)
+                          : 0,
                     ),
                     SizedBox(
                       height: 10,
@@ -146,9 +155,19 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                             ],
                           ),
                           progressColor: (double.parse(snapshot
-                                              .data!.memory.readable.used[0]) /
-                                          double.parse(snapshot.data!.memory
-                                              .readable.total[0])) *
+                                              .data!.memory.readable.used
+                                              .substring(
+                                                  0,
+                                                  snapshot.data!.memory.readable
+                                                      .used
+                                                      .indexOf(' '))) /
+                                          double.parse(snapshot
+                                              .data!.memory.readable.total
+                                              .substring(
+                                                  0,
+                                                  snapshot.data!.memory.readable
+                                                      .total
+                                                      .indexOf(' ')))) *
                                       100 <
                                   80
                               ? Colors.blue

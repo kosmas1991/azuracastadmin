@@ -15,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class PlayStationScreen extends StatefulWidget {
+  final String radio_name;
   final String url;
   final int stationID;
   final String playURL;
@@ -22,7 +23,8 @@ class PlayStationScreen extends StatefulWidget {
       {required this.stationID,
       required this.url,
       super.key,
-      required this.playURL});
+      required this.playURL,
+      required this.radio_name});
 
   @override
   State<PlayStationScreen> createState() => _PlayStationScreenState();
@@ -54,10 +56,13 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
         context.read<RadioIdCubit>().state.id);
     reqData.then(
         (value) => context.read<RequestsonglistCubit>().emitNewList(value));
-    Timer(Duration(seconds: 1),() {
-              context.read<SearchstringCubit>().emitNewSearch('test');
-    context.read<SearchstringCubit>().emitNewSearch('');
-    },);
+    Timer(
+      Duration(seconds: 1),
+      () {
+        context.read<SearchstringCubit>().emitNewSearch('test');
+        context.read<SearchstringCubit>().emitNewSearch('');
+      },
+    );
   }
 
   @override
@@ -117,7 +122,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'radio unicorn',
+            '${widget.radio_name}',
             style: TextStyle(
                 color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
           ),
