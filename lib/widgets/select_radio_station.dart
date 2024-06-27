@@ -24,23 +24,27 @@ class _SelectRadioStationState extends State<SelectRadioStation> {
   @override
   void initState() {
     radiostations = fetchRadioStations(widget.url, 'stations');
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Select radio station:',
-          style: TextStyle(color: Colors.white, fontSize: 18),
-        ),
-        FutureBuilder(
-          future: radiostations,
-          builder: (context2, snapshot) {
-            if (snapshot.hasData) {
-              return DropdownButton<String>(
+    return FutureBuilder(
+      future: radiostations,
+      builder: (context2, snapshot) {
+        if (snapshot.hasData) {
+          if (snapshot.data!.length == 0) {
+            return Container();
+          }
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Select radio station:',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+              DropdownButton<String>(
                 value: dropDownValue ?? snapshot.data![0].name,
                 underline: Container(),
                 style: TextStyle(color: Colors.white, fontSize: 18),
@@ -71,15 +75,15 @@ class _SelectRadioStationState extends State<SelectRadioStation> {
                     context.read<RadioIdCubit>().emitNewID(radio.id!);
                   });
                 },
-              );
-            } else {
-              return Center(
-                child: CircularProgressIndicator(color: Colors.blue),
-              );
-            }
-          },
-        )
-      ],
+              ),
+            ],
+          );
+        } else {
+          return Center(
+            child: CircularProgressIndicator(color: Colors.blue),
+          );
+        }
+      },
     );
   }
 }
