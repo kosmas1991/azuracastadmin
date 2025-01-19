@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/historyfiles.dart';
@@ -163,7 +164,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                   Container(
                                                     width: screenWidth * 5 / 9,
                                                     child: Text(
-                                                      '${item.song!.title}',
+                                                      '${utf8.decode(item.song!.title!.codeUnits)}',
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 16,
@@ -178,7 +179,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                   Container(
                                                     width: screenWidth * 5 / 9,
                                                     child: Text(
-                                                      '${item.song!.artist}',
+                                                      '${utf8.decode(item.song!.artist!.codeUnits)}',
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 15),

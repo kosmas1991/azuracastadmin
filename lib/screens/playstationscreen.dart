@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:azuracastadmin/cubits/filteredlist/filteredlist_cubit.dart';
@@ -183,7 +184,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                     Container(
                       width: screenWidth * 5 / 9,
                       child: Text(
-                        '${snapshot.data!.nowPlaying!.song!.title}',
+                        '${utf8.decode(snapshot.data!.nowPlaying!.song!.title!.codeUnits)}',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -196,7 +197,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                     Container(
                       width: screenWidth * 5 / 9,
                       child: Text(
-                        '${snapshot.data!.nowPlaying!.song!.artist}',
+                        '${utf8.decode(snapshot.data!.nowPlaying!.song!.artist!.codeUnits)}',
                         style: TextStyle(color: Colors.white, fontSize: 15),
                         overflow: TextOverflow.clip,
                         maxLines: 2,
@@ -340,7 +341,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                                           Container(
                                             width: screenWidth * 1 / 2.5,
                                             child: Text(
-                                              '${snapshot.data!.songHistory![index].song!.title}',
+                                              '${utf8.decode(snapshot.data!.songHistory![index].song!.title!.codeUnits)}',
                                               style: TextStyle(
                                                   color: Colors.white,
                                                   fontSize: 12,
@@ -352,7 +353,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                                           Container(
                                             width: screenWidth * 1 / 2.5,
                                             child: Text(
-                                              '${snapshot.data!.songHistory![index].song!.artist}',
+                                              '${utf8.decode(snapshot.data!.songHistory![index].song!.artist!.codeUnits)}',
                                               style: TextStyle(
                                                   color: Colors.white,
                                                   fontSize: 10),
@@ -520,7 +521,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                                                     width:
                                                         screenWidth * 1 / 2.5,
                                                     child: Text(
-                                                      '${state.filteredList[index].song!.title}',
+                                                      '${utf8.decode(state.filteredList[index].song!.title!.codeUnits)}',
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 12,
@@ -535,7 +536,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                                                     width:
                                                         screenWidth * 1 / 2.5,
                                                     child: Text(
-                                                      '${state.filteredList[index].song!.artist}',
+                                                      '${utf8.decode(state.filteredList[index].song!.artist!.codeUnits)}',
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 10),

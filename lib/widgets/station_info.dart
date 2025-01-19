@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/nextsongs.dart';
@@ -155,7 +156,7 @@ class _StationInfoState extends State<StationInfo> {
                                             Container(
                                               width: screenWidth * 1 / 2.5,
                                               child: Text(
-                                                '${snapshot.data!.songHistory![index].song!.title}',
+                                                '${utf8.decode(snapshot.data!.songHistory![index].song!.title!.codeUnits)}',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 12,
@@ -168,7 +169,7 @@ class _StationInfoState extends State<StationInfo> {
                                             Container(
                                               width: screenWidth * 1 / 2.5,
                                               child: Text(
-                                                '${snapshot.data!.songHistory![index].song!.artist}',
+                                                '${utf8.decode(snapshot.data!.songHistory![index].song!.artist!.codeUnits)}',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 10),
@@ -279,7 +280,7 @@ class _StationInfoState extends State<StationInfo> {
                                             Container(
                                               width: screenWidth * 1 / 2.5,
                                               child: Text(
-                                                '${snapshot.data![index].song.title}',
+                                                '${utf8.decode(snapshot.data![index].song.title.codeUnits)}',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 12,
@@ -292,7 +293,7 @@ class _StationInfoState extends State<StationInfo> {
                                             Container(
                                               width: screenWidth * 1 / 2.5,
                                               child: Text(
-                                                '${snapshot.data![index].song.artist}',
+                                                '${utf8.decode(snapshot.data![index].song.artist.codeUnits)}',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 10),
@@ -398,7 +399,7 @@ class _StationInfoState extends State<StationInfo> {
                     Container(
                       width: screenWidth * 5 / 9,
                       child: Text(
-                        '${snapshot.data!.nowPlaying!.song!.title}',
+                        '${utf8.decode(snapshot.data!.nowPlaying!.song!.title!.codeUnits)}',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -411,7 +412,7 @@ class _StationInfoState extends State<StationInfo> {
                     Container(
                       width: screenWidth * 5 / 9,
                       child: Text(
-                        '${snapshot.data!.nowPlaying!.song!.artist}',
+                        '${utf8.decode(snapshot.data!.nowPlaying!.song!.artist!.codeUnits)}',
                         style: TextStyle(color: Colors.white, fontSize: 15),
                         overflow: TextOverflow.clip,
                         maxLines: 2,

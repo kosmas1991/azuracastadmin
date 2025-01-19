@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/listoffiles.dart';
@@ -26,7 +27,7 @@ class _FilesScreenState extends State<FilesScreen> {
   void initState() {
     listOfFiles =
         fetchListOfFiles(widget.url, 'files', widget.apiKey, widget.stationID);
-    timer = Timer.periodic(Duration(seconds: 30), (timer) {
+    timer = Timer.periodic(Duration(minutes: 1), (timer) {
       setState(() {
         listOfFiles = fetchListOfFiles(
             widget.url, 'files', widget.apiKey, widget.stationID);
@@ -69,12 +70,21 @@ class _FilesScreenState extends State<FilesScreen> {
                   future: listOfFiles,
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
+                 
                       return Text(
                         'Number of files: ${snapshot.data!.length}',
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       );
-                    } else {
+                    } else if (snapshot.hasError) {
+                    
                       return Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.blue,
+                        ),
+                      );
+                    } else {
+                      
+                                     return Center(
                         child: CircularProgressIndicator(
                           color: Colors.blue,
                         ),
@@ -128,7 +138,7 @@ class _FilesScreenState extends State<FilesScreen> {
                                             Container(
                                               width: screenWidth * 5 / 9,
                                               child: Text(
-                                                '${data.title}',
+                                                '${utf8.decode(data.title!.codeUnits)}',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 16,
@@ -142,7 +152,7 @@ class _FilesScreenState extends State<FilesScreen> {
                                             Container(
                                               width: screenWidth * 5 / 9,
                                               child: Text(
-                                                '${data.artist}',
+                                                '${utf8.decode(data.artist!.codeUnits)}',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 15),

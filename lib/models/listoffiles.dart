@@ -1,149 +1,162 @@
 import 'dart:convert';
 
-List<ListOfFiles> listOfFilesFromJson(String str) => List<ListOfFiles>.from(json.decode(str).map((x) => ListOfFiles.fromJson(x)));
-
-String listOfFilesToJson(List<ListOfFiles> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
-
 class ListOfFiles {
-    String? uniqueId;
-    dynamic album;
-    dynamic genre;
-    dynamic lyrics;
-    dynamic isrc;
-    double? length;
-    String? lengthText;
-    String? path;
-    int? mtime;
-    dynamic amplify;
-    dynamic fadeOverlap;
-    dynamic fadeIn;
-    dynamic fadeOut;
-    dynamic cueIn;
-    dynamic cueOut;
-    int? artUpdatedAt;
+  int id;
+  String uniqueId;
+  String songId;
+  String? art; // Nullable
+  String? path; // Nullable
+  int? mtime; // Nullable
+  int? uploadedAt; // Nullable
+  int? artUpdatedAt; // Nullable
+  int? length; // Nullable
+  String? lengthText; // Nullable
+  Map<String, dynamic> customFields;
+  ExtraMetadata? extraMetadata; // Nullable
+  List<Playlist>? playlists; // Nullable
+  String? text; // Nullable
+  String? artist; // Nullable
+  String? title; // Nullable
+  String? album; // Nullable
+  String? genre; // Nullable
+  String? isrc; // Nullable
+  String? lyrics; // Nullable
+  Links? links; // Nullable
 
-    int? id;
-    String? songId;
-    String? text;
-    String? artist;
-    String? title;
-    List<dynamic>? customFields;
-    Links? links;
+  ListOfFiles({
+    required this.id,
+    required this.uniqueId,
+    required this.songId,
+    this.art,
+    this.path,
+    this.mtime,
+    this.uploadedAt,
+    this.artUpdatedAt,
+    this.length,
+    this.lengthText,
+    required this.customFields,
+    this.extraMetadata,
+    this.playlists,
+    this.text,
+    this.artist,
+    this.title,
+    this.album,
+    this.genre,
+    this.isrc,
+    this.lyrics,
+    this.links,
+  });
 
-    ListOfFiles({
-        this.uniqueId,
-        this.album,
-        this.genre,
-        this.lyrics,
-        this.isrc,
-        this.length,
-        this.lengthText,
-        this.path,
-        this.mtime,
-        this.amplify,
-        this.fadeOverlap,
-        this.fadeIn,
-        this.fadeOut,
-        this.cueIn,
-        this.cueOut,
-        this.artUpdatedAt,
-
-        this.id,
-        this.songId,
-        this.text,
-        this.artist,
-        this.title,
-        this.customFields,
-        this.links,
-    });
-
-    factory ListOfFiles.fromJson(Map<String, dynamic> json) => ListOfFiles(
-        uniqueId: json["unique_id"],
-        album: json["album"],
-        genre: json["genre"],
-        lyrics: json["lyrics"],
-        isrc: json["isrc"],
-        length: json["length"]?.toDouble(),
-        lengthText: json["length_text"],
-        path: json["path"],
-        mtime: json["mtime"],
-        amplify: json["amplify"],
-        fadeOverlap: json["fade_overlap"],
-        fadeIn: json["fade_in"],
-        fadeOut: json["fade_out"],
-        cueIn: json["cue_in"],
-        cueOut: json["cue_out"],
-        artUpdatedAt: json["art_updated_at"],
-    
-        id: json["id"],
-        songId: json["song_id"],
-        text: json["text"],
-        artist: json["artist"],
-        title: json["title"],
-        customFields: json["custom_fields"] == null ? [] : List<dynamic>.from(json["custom_fields"]!.map((x) => x)),
-        links: json["links"] == null ? null : Links.fromJson(json["links"]),
+  factory ListOfFiles.fromJson(Map<String, dynamic> json) {
+    return ListOfFiles(
+      id: json['id'],
+      uniqueId: json['unique_id'],
+      songId: json['song_id'],
+      art: json['art'],
+      path: json['path'],
+      mtime: json['mtime'],
+      uploadedAt: json['uploaded_at'],
+      artUpdatedAt: json['art_updated_at'],
+      length: json['length'],
+      lengthText: json['length_text'],
+      customFields: json['custom_fields'] ?? {},
+      extraMetadata: json['extra_metadata'] != null
+          ? ExtraMetadata.fromJson(json['extra_metadata'])
+          : null,
+      playlists: json['playlists'] != null
+          ? List<Playlist>.from(json['playlists'].map((x) => Playlist.fromJson(x)))
+          : null,
+      text: json['text'],
+      artist: json['artist'],
+      title: json['title'],
+      album: json['album'],
+      genre: json['genre'],
+      isrc: json['isrc'],
+      lyrics: json['lyrics'],
+      links: json['links'] != null ? Links.fromJson(json['links']) : null,
     );
+  }
+}
 
-    Map<String, dynamic> toJson() => {
-        "unique_id": uniqueId,
-        "album": album,
-        "genre": genre,
-        "lyrics": lyrics,
-        "isrc": isrc,
-        "length": length,
-        "length_text": lengthText,
-        "path": path,
-        "mtime": mtime,
-        "amplify": amplify,
-        "fade_overlap": fadeOverlap,
-        "fade_in": fadeIn,
-        "fade_out": fadeOut,
-        "cue_in": cueIn,
-        "cue_out": cueOut,
-        "art_updated_at": artUpdatedAt,
+class ExtraMetadata {
+  dynamic amplify;
+  dynamic crossStartNext;
+  dynamic cueIn;
+  dynamic cueOut;
+  dynamic fadeIn;
+  dynamic fadeOut;
 
-        "id": id,
-        "song_id": songId,
-        "text": text,
-        "artist": artist,
-        "title": title,
-        "custom_fields": customFields == null ? [] : List<dynamic>.from(customFields!.map((x) => x)),
-        "links": links?.toJson(),
-    };
+  ExtraMetadata({
+    this.amplify,
+    this.crossStartNext,
+    this.cueIn,
+    this.cueOut,
+    this.fadeIn,
+    this.fadeOut,
+  });
+
+  factory ExtraMetadata.fromJson(Map<String, dynamic> json) {
+    return ExtraMetadata(
+      amplify: json['amplify'],
+      crossStartNext: json['cross_start_next'],
+      cueIn: json['cue_in'],
+      cueOut: json['cue_out'],
+      fadeIn: json['fade_in'],
+      fadeOut: json['fade_out'],
+    );
+  }
+}
+
+class Playlist {
+  int id;
+  String name;
+  String shortName;
+  int count;
+
+  Playlist({
+    required this.id,
+    required this.name,
+    required this.shortName,
+    required this.count,
+  });
+
+  factory Playlist.fromJson(Map<String, dynamic> json) {
+    return Playlist(
+      id: json['id'],
+      name: json['name'],
+      shortName: json['short_name'],
+      count: json['count'],
+    );
+  }
 }
 
 class Links {
-    String? self;
+  String? self; // Nullable
+  String? play; // Nullable
+  String? art; // Nullable
+  String? waveform; // Nullable
+  String? waveformCache; // Nullable
 
-    Links({
-        this.self,
-    });
+  Links({
+    this.self,
+    this.play,
+    this.art,
+    this.waveform,
+    this.waveformCache,
+  });
 
-    factory Links.fromJson(Map<String, dynamic> json) => Links(
-        self: json["self"],
+  factory Links.fromJson(Map<String, dynamic> json) {
+    return Links(
+      self: json['self'],
+      play: json['play'],
+      art: json['art'],
+      waveform: json['waveform'],
+      waveformCache: json['waveform_cache'],
     );
-
-    Map<String, dynamic> toJson() => {
-        "self": self,
-    };
+  }
 }
 
-enum Name {
-    ALL
-}
-
-final nameValues = EnumValues({
-    "All": Name.ALL
-});
-
-class EnumValues<T> {
-    Map<String, T> map;
-    late Map<T, String> reverseMap;
-
-    EnumValues(this.map);
-
-    Map<T, String> get reverse {
-        reverseMap = map.map((k, v) => MapEntry(v, k));
-        return reverseMap;
-    }
+List<ListOfFiles> listOfFilesFromJson(String str) {
+  final jsonData = json.decode(str);
+  return List<ListOfFiles>.from(jsonData.map((x) => ListOfFiles.fromJson(x)));
 }

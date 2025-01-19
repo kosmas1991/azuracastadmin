@@ -142,13 +142,14 @@ Future<List<ListOfFiles>> fetchListOfFiles(
     String url, String path, String apiKey, int id) async {
   Response response =
       await getResponse(url: url, path: path, apiKey: apiKey, id: id);
+
   if (response.statusCode == 200) {
-    List<ListOfFiles> listOfFiles = (json.decode(response.body) as List)
-        .map((i) => ListOfFiles.fromJson(i))
-        .toList();
+    List<ListOfFiles> listOfFiles = listOfFilesFromJson(response.body);
+
 
     return listOfFiles;
   } else {
+ 
     throw Exception('Failed');
   }
 }
