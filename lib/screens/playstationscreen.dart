@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:azuracastadmin/cubits/filteredlist/filteredlist_cubit.dart';
 import 'package:azuracastadmin/cubits/radioID/radio_id_cubit.dart';
 import 'package:azuracastadmin/cubits/requestsonglist/requestsonglist_cubit.dart';
@@ -13,6 +12,8 @@ import 'package:azuracastadmin/models/requestsongdata.dart';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class PlayStationScreen extends StatefulWidget {
@@ -33,7 +34,7 @@ class PlayStationScreen extends StatefulWidget {
 
 class _PlayStationScreenState extends State<PlayStationScreen> {
   TextEditingController textEditingController = TextEditingController();
-  AssetsAudioPlayer _assetsAudioPlayer = AssetsAudioPlayer();
+  final player = AudioPlayer();
   double volume = 1;
   late Future<NowPlaying> nowPlaying;
   late Timer timer;
@@ -41,11 +42,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
   @override
   void initState() {
     super.initState();
-    _assetsAudioPlayer.open(Audio.liveStream(widget.playURL),
-        autoStart: true,
-        playInBackground: PlayInBackground.disabledPause,
-        volume: 1,
-        showNotification: true);
+    _init();
     nowPlaying = fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
     timer = Timer.periodic(Duration(seconds: 3), (timer) {
       setState(() {
@@ -69,8 +66,24 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
   @override
   void dispose() {
     timer.cancel();
-    _assetsAudioPlayer.stop();
+    player.dispose();
     super.dispose();
+  }
+
+  Future<void> _init() async {
+    await player.setUrl(
+      widget.playURL,
+      tag: MediaItem(
+        id: '1',
+        title: widget.radio_name,
+        artist: 'stream',
+        isLive: true,
+        artUri: Uri.parse(
+            'https://avatars.githubusercontent.com/u/28115974?s=200&v=4'),
+      ),
+    );
+    await player.setVolume(volume);
+    await player.play();
   }
 
   @override
@@ -147,7 +160,10 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                     ],
                   );
                 } else {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(
+                      child: CircularProgressIndicator(
+                    color: Colors.blue,
+                  ));
                 }
               }),
         ],
@@ -218,44 +234,76 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        IconButton(
-            onPressed: () {
-              _assetsAudioPlayer.playOrPause();
-            },
-            icon: PlayerBuilder.isPlaying(
-                player: _assetsAudioPlayer,
-                builder: (context, isPlaying) => isPlaying
-                    ? Icon(
-                        Icons.pause_circle_outline,
-                        size: 40,
-                        color: Colors.blue,
-                      )
-                    : Icon(
-                        Icons.play_circle_outline,
-                        size: 40,
-                        color: Colors.blue,
-                      ))),
-        Row(children: [
-          Icon(
-            Icons.volume_mute,
-            color: Colors.grey,
-            size: 20,
-          ),
-          PlayerBuilder.volume(
-            player: _assetsAudioPlayer,
-            builder: (context, volume) => Slider(
+        StreamBuilder<PlayerState>(
+          stream: player.playerStateStream,
+          builder: (context, snapshot) {
+            final playerState = snapshot.data;
+            final processingState = playerState?.processingState;
+            final playing = playerState?.playing;
+            if (processingState == ProcessingState.loading ||
+                processingState == ProcessingState.buffering) {
+              return Container(
+                margin: const EdgeInsets.all(8.0),
+                width: 32.0,
+                height: 32.0,
+                child: const CircularProgressIndicator(
+                  color: Colors.blue,
+                ),
+              );
+            } else if (playing != true) {
+              return IconButton(
+                icon: const Icon(
+                  Icons.play_circle_outline,
+                  color: Colors.blue,
+                ),
+                iconSize: 32.0,
+                onPressed: player.play,
+              );
+            } else if (processingState != ProcessingState.completed) {
+              return IconButton(
+                icon: const Icon(
+                  Icons.pause_circle_outline,
+                  color: Colors.blue,
+                ),
+                iconSize: 32.0,
+                onPressed: player.pause,
+              );
+            } else {
+              return IconButton(
+                icon: const Icon(
+                  Icons.replay_outlined,
+                  color: Colors.blue,
+                ),
+                iconSize: 32.0,
+                onPressed: () => player.seek(Duration.zero),
+              );
+            }
+          },
+        ),
+        Spacer(),
+        Row(
+          children: [
+            Icon(
+              Icons.volume_mute,
+              color: Colors.grey,
+              size: 20,
+            ),
+            Slider(
               activeColor: Colors.grey,
               value: volume,
               onChanged: (value) {
-                _assetsAudioPlayer.setVolume(value);
+                setState(() {
+                  volume = value;
+                  player.setVolume(value);
+                });
               },
             ),
-          )
-        ]),
-        Icon(
-          Icons.volume_up,
-          color: Colors.grey,
-          size: 20,
+            Icon(
+              Icons.volume_up,
+              color: Colors.grey,
+              size: 20,
+            ),
+          ],
         ),
       ],
     );

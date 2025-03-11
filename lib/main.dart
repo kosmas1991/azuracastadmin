@@ -12,20 +12,27 @@ import 'package:azuracastadmin/screens/homescreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:azuracastadmin/cubits/step/step_cubit.dart' as step;
 
 /* 
-Flutter 3.16.3 • channel stable • https://github.com/flutter/flutter.git
-Framework • revision b0366e0a3f (6 months ago) • 2023-12-05 19:46:39 -0800
-Engine • revision 54a7145303
-Tools • Dart 3.2.3 • DevTools 2.28.4
+Flutter 3.29.1 • channel stable • https://github.com/flutter/flutter.git
+Framework • revision 09de023485 (10 days ago) • 2025-02-28 13:44:05 -0800
+Engine • revision 871f65ac1b
+Tools • Dart 3.7.0 • DevTools 2.42.2
 */
 
-void main() {
+//TODO crashlytics, fix loading indicators with one, inform users that only works with admins, base url to add https if not entered
+
+void main() async {
   //allows IP as server name instead of only domain value
   HttpOverrides.global = MyHttpOverrides();
-
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'gr.techzombie.azuracastadmin.channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+  );
   runApp(const MyApp());
 }
 
@@ -91,7 +98,9 @@ class _MyAppState extends State<MyApp> {
             );
           } else {
             return Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: Colors.blue,
+              ),
             );
           }
         });

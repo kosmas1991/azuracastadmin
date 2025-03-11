@@ -53,7 +53,7 @@ class _CheckScreenState extends State<CheckScreen> {
                     FilledButton(
                         style: ButtonStyle(
                             backgroundColor:
-                                MaterialStatePropertyAll(Colors.blue)),
+                                WidgetStatePropertyAll(Colors.blue)),
                         onPressed: () {
                           context.read<step.StepCubit>().setZero();
                           context.read<RetryCubit>().emitNewState(true);
@@ -78,8 +78,7 @@ class _CheckScreenState extends State<CheckScreen> {
                   ),
                   FilledButton(
                       style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStatePropertyAll(Colors.blue)),
+                          backgroundColor: WidgetStatePropertyAll(Colors.blue)),
                       onPressed: () {
                         context.read<step.StepCubit>().setZero();
                         context.read<RetryCubit>().emitNewState(true);
@@ -90,7 +89,6 @@ class _CheckScreenState extends State<CheckScreen> {
             );
           }
         } else if (snapshot.hasError) {
-
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -104,7 +102,7 @@ class _CheckScreenState extends State<CheckScreen> {
                 ),
                 FilledButton(
                     style: ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(Colors.blue)),
+                        backgroundColor: WidgetStatePropertyAll(Colors.blue)),
                     onPressed: () {
                       context.read<step.StepCubit>().setZero();
                       context.read<RetryCubit>().emitNewState(true);

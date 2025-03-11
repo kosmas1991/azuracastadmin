@@ -61,7 +61,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               } else {
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(
+                    color: Colors.blue,
+                  ),
                 );
               }
             },

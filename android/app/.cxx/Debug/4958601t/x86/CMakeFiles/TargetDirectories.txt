@@ -1,0 +1,2 @@
+C:/Users/KAG/Desktop/flutter_projects/azuracastadmin-1/android/app/.cxx/Debug/4958601t/x86/CMakeFiles/edit_cache.dir
+C:/Users/KAG/Desktop/flutter_projects/azuracastadmin-1/android/app/.cxx/Debug/4958601t/x86/CMakeFiles/rebuild_cache.dir

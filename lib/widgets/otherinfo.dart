@@ -34,7 +34,8 @@ class _OtherInfoState extends State<OtherInfo> {
     nowPlaying = fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
     Timer.periodic(Duration(seconds: 2), (timer) {
       setState(() {
-        nowPlaying = fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
+        nowPlaying =
+            fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
       });
       nowPlaying = fetchNowPlaying(widget.url, 'nowplaying', widget.stationID);
     });
@@ -58,7 +59,7 @@ class _OtherInfoState extends State<OtherInfo> {
         children: [
           FilledButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                backgroundColor: WidgetStatePropertyAll(Colors.blue),
               ),
               onPressed: () {
                 Navigator.push(
@@ -80,14 +81,14 @@ class _OtherInfoState extends State<OtherInfo> {
               if (snapshot.hasData) {
                 return FilledButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                      backgroundColor: WidgetStatePropertyAll(Colors.blue),
                     ),
                     onPressed: () {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => PlayStationScreen(
-                              radio_name: snapshot.data!.station!.name!,
+                                radio_name: snapshot.data!.station!.name!,
                                 playURL: snapshot.data!.station!.listenUrl!,
                                 stationID: widget.stationID,
                                 url: widget.url),
@@ -113,7 +114,7 @@ class _OtherInfoState extends State<OtherInfo> {
           ),
           FilledButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                backgroundColor: WidgetStatePropertyAll(Colors.blue),
               ),
               onPressed: () {
                 Navigator.push(
@@ -131,7 +132,7 @@ class _OtherInfoState extends State<OtherInfo> {
               )),
           FilledButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                backgroundColor: WidgetStatePropertyAll(Colors.blue),
               ),
               onPressed: () {
                 Navigator.push(
@@ -149,7 +150,7 @@ class _OtherInfoState extends State<OtherInfo> {
               )),
           FilledButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                backgroundColor: WidgetStatePropertyAll(Colors.blue),
               ),
               onPressed: () {
                 Navigator.push(
@@ -167,7 +168,7 @@ class _OtherInfoState extends State<OtherInfo> {
               )),
           FilledButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                backgroundColor: WidgetStatePropertyAll(Colors.blue),
               ),
               onPressed: () {
                 Navigator.push(
@@ -183,7 +184,7 @@ class _OtherInfoState extends State<OtherInfo> {
               )),
           FilledButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                backgroundColor: WidgetStatePropertyAll(Colors.blue),
               ),
               onPressed: () {
                 Navigator.push(
