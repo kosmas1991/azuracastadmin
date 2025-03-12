@@ -8,7 +8,11 @@ import 'package:azuracastadmin/cubits/retry/retry_cubit.dart';
 import 'package:azuracastadmin/cubits/searchstring/searchstring_cubit.dart';
 import 'package:azuracastadmin/cubits/step/step_cubit.dart';
 import 'package:azuracastadmin/cubits/url/url_cubit.dart';
+import 'package:azuracastadmin/firebase_options.dart';
 import 'package:azuracastadmin/screens/homescreen.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,9 +27,14 @@ Engine • revision 871f65ac1b
 Tools • Dart 3.7.0 • DevTools 2.42.2
 */
 
-//TODO crashlytics, fix loading indicators with one, inform users that only works with admins, base url to add https if not entered
+//TODO fix loading indicators with one, inform users that only works with admins, base url to add https if not entered
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   //allows IP as server name instead of only domain value
   HttpOverrides.global = MyHttpOverrides();
   await JustAudioBackground.init(
@@ -33,6 +42,16 @@ void main() async {
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
   );
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  analytics.logEvent(
+    name: "launch",
+    parameters: {
+      "screen": "home",
+      "action": "a user launched the app",
+    },
+  );
+
   runApp(const MyApp());
 }
 

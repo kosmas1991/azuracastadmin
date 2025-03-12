@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "131392413265",
+    "project_id": "azuracastadmin",
+    "storage_bucket": "azuracastadmin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:131392413265:android:adf0f6cc7ca9b4ba2c6270",
+        "android_client_info": {
+          "package_name": "gr.techzombie.azuracastadmin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsH-0aCFCtRaLWFbdD_zWpy4GRxDZ5szw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

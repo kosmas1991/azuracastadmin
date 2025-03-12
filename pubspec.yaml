@@ -46,6 +46,9 @@ dependencies:
   icons_launcher: ^3.0.1
   just_audio_background: ^0.0.1-beta.15
   just_audio: ^0.9.46
+  firebase_core: ^3.12.1
+  firebase_crashlytics: ^4.3.4
+  firebase_analytics: ^11.4.4
 
 dev_dependencies:
   flutter_test:

@@ -348,7 +348,8 @@ class _StationInfoState extends State<StationInfo> {
                       style: TextStyle(color: Colors.green),
                     )));
                   } else {
-                    printWarning('error code : ${response.statusCode.toString()} and headers ${response.headers} and is redirect ${response.isRedirect}');
+                    printWarning(
+                        'error code : ${response.statusCode.toString()} and headers ${response.headers} and is redirect ${response.isRedirect}');
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text(
@@ -367,6 +368,11 @@ class _StationInfoState extends State<StationInfo> {
               'Skip song',
               style: TextStyle(color: Colors.white),
             )),
+        // TextButton(
+        //     onPressed: () {
+        //       throw Exception('for testing crashlytics');
+        //     },
+        //     child: Text('throw ex')),
       ],
     );
   }
