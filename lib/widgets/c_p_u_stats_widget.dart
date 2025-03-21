@@ -68,7 +68,7 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                       style: TextStyle(color: Colors.white, fontSize: 15),
                     ),
                     Text(
-                      'Total space: ${snapshot.data!.disk.readable.total} ',
+                      'Total space: ${snapshot.data!.disk!.totalReadable} ',
                       style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
                     SizedBox(
@@ -77,22 +77,22 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                     LinearPercentIndicator(
                       lineHeight: 20,
                       center: Text(
-                        'used: ${snapshot.data!.disk.readable.used}',
+                        'used: ${snapshot.data!.disk!.usedReadable}',
                         style: TextStyle(color: Colors.black, fontSize: 12),
                       ),
                       progressColor: Colors.blue,
-                      percent: (double.parse(snapshot.data!.disk.readable.used
+                      percent: (double.parse(snapshot.data!.disk!.usedReadable!
                                       .split(' ')
                                       .first) /
                                   double.parse(snapshot
-                                      .data!.disk.readable.total
+                                      .data!.disk!.totalReadable!
                                       .split(' ')
                                       .first)) <
                               1
-                          ? double.parse(snapshot.data!.disk.readable.used
+                          ? double.parse(snapshot.data!.disk!.usedReadable!
                                   .split(' ')
                                   .first) /
-                              double.parse(snapshot.data!.disk.readable.total
+                              double.parse(snapshot.data!.disk!.totalReadable!
                                   .split(' ')
                                   .first)
                           : 0,
@@ -133,7 +133,7 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                       style: TextStyle(color: Colors.white, fontSize: 15),
                     ),
                     Text(
-                      'Total: ${snapshot.data!.memory.readable.total}',
+                      'Total: ${snapshot.data!.memory!.totalReadable}',
                       style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
                     Column(
@@ -148,39 +148,37 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                                 style: TextStyle(color: Colors.white),
                               ),
                               Text(
-                                '${snapshot.data!.memory.readable.used}',
+                                '${snapshot.data!.memory!.usedReadable}',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 15),
                               ),
                             ],
                           ),
                           progressColor: (double.parse(snapshot
-                                              .data!.memory.readable.used
+                                              .data!.memory!.usedReadable!
                                               .substring(
                                                   0,
-                                                  snapshot.data!.memory.readable
-                                                      .used
+                                                  snapshot.data!.memory!.usedReadable!
                                                       .indexOf(' '))) /
                                           double.parse(snapshot
-                                              .data!.memory.readable.total
+                                              .data!.memory!.totalReadable!
                                               .substring(
                                                   0,
-                                                  snapshot.data!.memory.readable
-                                                      .total
+                                                  snapshot.data!.memory!.totalReadable!
                                                       .indexOf(' ')))) *
                                       100 <
                                   80
                               ? Colors.blue
                               : Colors.red,
                           percent: (double.parse(
-                                  snapshot.data!.memory.readable.used.substring(
+                                  snapshot.data!.memory!.usedReadable!.substring(
                                       0,
-                                      snapshot.data!.memory.readable.used
+                                      snapshot.data!.memory!.usedReadable!
                                           .indexOf(' '))) /
-                              double.parse(snapshot.data!.memory.readable.total
+                              double.parse(snapshot.data!.memory!.totalReadable!
                                   .substring(
                                       0,
-                                      snapshot.data!.memory.readable.total
+                                      snapshot.data!.memory!.totalReadable!
                                           .indexOf(' ')))),
                           radius: 50,
                           lineWidth: 8,
@@ -220,7 +218,7 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                       style: TextStyle(color: Colors.white, fontSize: 15),
                     ),
                     Text(
-                      'Num of cores: ${snapshot.data!.cpu.cores.length}',
+                      'Num of cores: ${snapshot.data!.cpu!.cores!.length}',
                       style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
                     Column(
@@ -235,19 +233,19 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 Text(
-                                  '${snapshot.data!.cpu.total.usage} %',
+                                  '${snapshot.data!.cpu!.total!.usage} %',
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 15),
                                 ),
                               ],
                             ),
                             progressColor:
-                                double.parse(snapshot.data!.cpu.total.usage) <
+                                double.parse(snapshot.data!.cpu!.total!.usage!) <
                                         80
                                     ? Colors.blue
                                     : Colors.red,
                             percent:
-                                double.parse(snapshot.data!.cpu.total.usage) /
+                                double.parse(snapshot.data!.cpu!.total!.usage!) /
                                     100,
                             radius: 50,
                             lineWidth: 8),

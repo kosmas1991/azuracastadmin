@@ -265,7 +265,7 @@ class _StationInfoState extends State<StationInfo> {
                                           child: FadeInImage.memoryNetwork(
                                             placeholder: kTransparentImage,
                                             image:
-                                                '${snapshot.data![index].song.art}',
+                                                '${snapshot.data![index].song!.art}',
                                           ),
                                         ),
                                         SizedBox(
@@ -280,7 +280,7 @@ class _StationInfoState extends State<StationInfo> {
                                             Container(
                                               width: screenWidth * 1 / 2.5,
                                               child: Text(
-                                                '${utf8.decode(snapshot.data![index].song.title.codeUnits)}',
+                                                '${utf8.decode(snapshot.data![index].song!.title!.codeUnits)}',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 12,
@@ -293,7 +293,7 @@ class _StationInfoState extends State<StationInfo> {
                                             Container(
                                               width: screenWidth * 1 / 2.5,
                                               child: Text(
-                                                '${utf8.decode(snapshot.data![index].song.artist.codeUnits)}',
+                                                '${utf8.decode(snapshot.data![index].song!.artist!.codeUnits)}',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 10),

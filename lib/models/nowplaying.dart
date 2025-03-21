@@ -4,10 +4,11 @@
 
 import 'dart:convert';
 
-NowPlaying nowPlayingFromJson(String str) =>
-    NowPlaying.fromJson(json.decode(str));
+List<NowPlaying> nowPlayingFromJson(String str) =>
+    List<NowPlaying>.from(json.decode(str).map((x) => NowPlaying.fromJson(x)));
 
-String nowPlayingToJson(NowPlaying data) => json.encode(data.toJson());
+String nowPlayingToJson(List<NowPlaying> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class NowPlaying {
   Station? station;
@@ -29,6 +30,27 @@ class NowPlaying {
     this.isOnline,
     this.cache,
   });
+
+  NowPlaying copyWith({
+    Station? station,
+    Listeners? listeners,
+    Live? live,
+    NowPlayingClass? nowPlaying,
+    PlayingNext? playingNext,
+    List<NowPlayingClass>? songHistory,
+    bool? isOnline,
+    dynamic cache,
+  }) =>
+      NowPlaying(
+        station: station ?? this.station,
+        listeners: listeners ?? this.listeners,
+        live: live ?? this.live,
+        nowPlaying: nowPlaying ?? this.nowPlaying,
+        playingNext: playingNext ?? this.playingNext,
+        songHistory: songHistory ?? this.songHistory,
+        isOnline: isOnline ?? this.isOnline,
+        cache: cache ?? this.cache,
+      );
 
   factory NowPlaying.fromJson(Map<String, dynamic> json) => NowPlaying(
         station:
@@ -76,6 +98,17 @@ class Listeners {
     this.current,
   });
 
+  Listeners copyWith({
+    int? total,
+    int? unique,
+    int? current,
+  }) =>
+      Listeners(
+        total: total ?? this.total,
+        unique: unique ?? this.unique,
+        current: current ?? this.current,
+      );
+
   factory Listeners.fromJson(Map<String, dynamic> json) => Listeners(
         total: json["total"],
         unique: json["unique"],
@@ -102,6 +135,19 @@ class Live {
     this.art,
   });
 
+  Live copyWith({
+    bool? isLive,
+    String? streamerName,
+    dynamic broadcastStart,
+    dynamic art,
+  }) =>
+      Live(
+        isLive: isLive ?? this.isLive,
+        streamerName: streamerName ?? this.streamerName,
+        broadcastStart: broadcastStart ?? this.broadcastStart,
+        art: art ?? this.art,
+      );
+
   factory Live.fromJson(Map<String, dynamic> json) => Live(
         isLive: json["is_live"],
         streamerName: json["streamer_name"],
@@ -121,7 +167,6 @@ class NowPlayingClass {
   int? shId;
   int? playedAt;
   int? duration;
-  Playlist? playlist;
   String? streamer;
   bool? isRequest;
   Song? song;
@@ -132,7 +177,6 @@ class NowPlayingClass {
     this.shId,
     this.playedAt,
     this.duration,
-    this.playlist,
     this.streamer,
     this.isRequest,
     this.song,
@@ -140,12 +184,32 @@ class NowPlayingClass {
     this.remaining,
   });
 
+  NowPlayingClass copyWith({
+    int? shId,
+    int? playedAt,
+    int? duration,
+    String? streamer,
+    bool? isRequest,
+    Song? song,
+    int? elapsed,
+    int? remaining,
+  }) =>
+      NowPlayingClass(
+        shId: shId ?? this.shId,
+        playedAt: playedAt ?? this.playedAt,
+        duration: duration ?? this.duration,
+        streamer: streamer ?? this.streamer,
+        isRequest: isRequest ?? this.isRequest,
+        song: song ?? this.song,
+        elapsed: elapsed ?? this.elapsed,
+        remaining: remaining ?? this.remaining,
+      );
+
   factory NowPlayingClass.fromJson(Map<String, dynamic> json) =>
       NowPlayingClass(
         shId: json["sh_id"],
         playedAt: json["played_at"],
         duration: json["duration"],
-       
         streamer: json["streamer"],
         isRequest: json["is_request"],
         song: json["song"] == null ? null : Song.fromJson(json["song"]),
@@ -157,7 +221,6 @@ class NowPlayingClass {
         "sh_id": shId,
         "played_at": playedAt,
         "duration": duration,
-        "playlist": playlistValues.reverse[playlist],
         "streamer": streamer,
         "is_request": isRequest,
         "song": song?.toJson(),
@@ -166,24 +229,22 @@ class NowPlayingClass {
       };
 }
 
-enum Playlist { DEFAULT }
-
-final playlistValues = EnumValues({"default": Playlist.DEFAULT});
-
 class Song {
   String? id;
+  String? art;
+  List<dynamic>? customFields;
   String? text;
   String? artist;
   String? title;
-  String? album;
-  String? genre;
-  String? isrc;
+  Album? album;
+  Genre? genre;
+  Isrc? isrc;
   String? lyrics;
-  String? art;
-  List<dynamic>? customFields;
 
   Song({
     this.id,
+    this.art,
+    this.customFields,
     this.text,
     this.artist,
     this.title,
@@ -191,46 +252,89 @@ class Song {
     this.genre,
     this.isrc,
     this.lyrics,
-    this.art,
-    this.customFields,
   });
+
+  Song copyWith({
+    String? id,
+    String? art,
+    List<dynamic>? customFields,
+    String? text,
+    String? artist,
+    String? title,
+    Album? album,
+    Genre? genre,
+    Isrc? isrc,
+    String? lyrics,
+  }) =>
+      Song(
+        id: id ?? this.id,
+        art: art ?? this.art,
+        customFields: customFields ?? this.customFields,
+        text: text ?? this.text,
+        artist: artist ?? this.artist,
+        title: title ?? this.title,
+        album: album ?? this.album,
+        genre: genre ?? this.genre,
+        isrc: isrc ?? this.isrc,
+        lyrics: lyrics ?? this.lyrics,
+      );
 
   factory Song.fromJson(Map<String, dynamic> json) => Song(
         id: json["id"],
-        text: json["text"],
-        artist: json["artist"],
-        title: json["title"],
-        album: json["album"],
-        genre: json["genre"],
-        isrc: json["isrc"],
-        lyrics: json["lyrics"],
         art: json["art"],
         customFields: json["custom_fields"] == null
             ? []
             : List<dynamic>.from(json["custom_fields"]!.map((x) => x)),
+        text: json["text"],
+        artist: json["artist"],
+        title: json["title"],
+        album: albumValues.map[json["album"]]!,
+        genre: genreValues.map[json["genre"]]!,
+        isrc: isrcValues.map[json["isrc"]]!,
+        lyrics: json["lyrics"],
       );
 
   Map<String, dynamic> toJson() => {
         "id": id,
-        "text": text,
-        "artist": artist,
-        "title": title,
-        "album": album,
-        "genre": genre,
-        "isrc": isrc,
-        "lyrics": lyrics,
         "art": art,
         "custom_fields": customFields == null
             ? []
             : List<dynamic>.from(customFields!.map((x) => x)),
+        "text": text,
+        "artist": artist,
+        "title": title,
+        "album": albumValues.reverse[album],
+        "genre": genreValues.reverse[genre],
+        "isrc": isrcValues.reverse[isrc],
+        "lyrics": lyrics,
       };
 }
+
+enum Album { DARK_BEFORE_DAWN, EMPTY, TRANSIT_OF_VENUS }
+
+final albumValues = EnumValues({
+  "Dark Before Dawn": Album.DARK_BEFORE_DAWN,
+  "": Album.EMPTY,
+  "Transit Of Venus": Album.TRANSIT_OF_VENUS
+});
+
+enum Genre { ALTERNATIVE_METAL, EMPTY, ROCK }
+
+final genreValues = EnumValues({
+  "Alternative Metal": Genre.ALTERNATIVE_METAL,
+  "": Genre.EMPTY,
+  "Rock": Genre.ROCK
+});
+
+enum Isrc { EMPTY, USRC11200916 }
+
+final isrcValues =
+    EnumValues({"": Isrc.EMPTY, "USRC11200916": Isrc.USRC11200916});
 
 class PlayingNext {
   int? cuedAt;
   int? playedAt;
-  int? duration;
-  Playlist? playlist;
+  double? duration;
   bool? isRequest;
   Song? song;
 
@@ -238,16 +342,29 @@ class PlayingNext {
     this.cuedAt,
     this.playedAt,
     this.duration,
-    this.playlist,
     this.isRequest,
     this.song,
   });
 
+  PlayingNext copyWith({
+    int? cuedAt,
+    int? playedAt,
+    double? duration,
+    bool? isRequest,
+    Song? song,
+  }) =>
+      PlayingNext(
+        cuedAt: cuedAt ?? this.cuedAt,
+        playedAt: playedAt ?? this.playedAt,
+        duration: duration ?? this.duration,
+        isRequest: isRequest ?? this.isRequest,
+        song: song ?? this.song,
+      );
+
   factory PlayingNext.fromJson(Map<String, dynamic> json) => PlayingNext(
         cuedAt: json["cued_at"],
         playedAt: json["played_at"],
-        duration: json["duration"],
-  
+        duration: json["duration"]?.toDouble(),
         isRequest: json["is_request"],
         song: json["song"] == null ? null : Song.fromJson(json["song"]),
       );
@@ -256,7 +373,6 @@ class PlayingNext {
         "cued_at": cuedAt,
         "played_at": playedAt,
         "duration": duration,
-        "playlist": playlistValues.reverse[playlist],
         "is_request": isRequest,
         "song": song?.toJson(),
       };
@@ -269,15 +385,15 @@ class Station {
   String? description;
   String? frontend;
   String? backend;
+  String? timezone;
   String? listenUrl;
   String? url;
   String? publicPlayerUrl;
-  String? playlistPlsUrl;
-  String? playlistM3UUrl;
   bool? isPublic;
   List<Mount>? mounts;
   List<dynamic>? remotes;
   bool? hlsEnabled;
+  bool? hlsIsDefault;
   dynamic hlsUrl;
   int? hlsListeners;
 
@@ -288,18 +404,57 @@ class Station {
     this.description,
     this.frontend,
     this.backend,
+    this.timezone,
     this.listenUrl,
     this.url,
     this.publicPlayerUrl,
-    this.playlistPlsUrl,
-    this.playlistM3UUrl,
     this.isPublic,
     this.mounts,
     this.remotes,
     this.hlsEnabled,
+    this.hlsIsDefault,
     this.hlsUrl,
     this.hlsListeners,
   });
+
+  Station copyWith({
+    int? id,
+    String? name,
+    String? shortcode,
+    String? description,
+    String? frontend,
+    String? backend,
+    String? timezone,
+    String? listenUrl,
+    String? url,
+    String? publicPlayerUrl,
+    bool? isPublic,
+    List<Mount>? mounts,
+    List<dynamic>? remotes,
+    bool? hlsEnabled,
+    bool? hlsIsDefault,
+    dynamic hlsUrl,
+    int? hlsListeners,
+  }) =>
+      Station(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        shortcode: shortcode ?? this.shortcode,
+        description: description ?? this.description,
+        frontend: frontend ?? this.frontend,
+        backend: backend ?? this.backend,
+        timezone: timezone ?? this.timezone,
+        listenUrl: listenUrl ?? this.listenUrl,
+        url: url ?? this.url,
+        publicPlayerUrl: publicPlayerUrl ?? this.publicPlayerUrl,
+        isPublic: isPublic ?? this.isPublic,
+        mounts: mounts ?? this.mounts,
+        remotes: remotes ?? this.remotes,
+        hlsEnabled: hlsEnabled ?? this.hlsEnabled,
+        hlsIsDefault: hlsIsDefault ?? this.hlsIsDefault,
+        hlsUrl: hlsUrl ?? this.hlsUrl,
+        hlsListeners: hlsListeners ?? this.hlsListeners,
+      );
 
   factory Station.fromJson(Map<String, dynamic> json) => Station(
         id: json["id"],
@@ -308,11 +463,10 @@ class Station {
         description: json["description"],
         frontend: json["frontend"],
         backend: json["backend"],
+        timezone: json["timezone"],
         listenUrl: json["listen_url"],
         url: json["url"],
         publicPlayerUrl: json["public_player_url"],
-        playlistPlsUrl: json["playlist_pls_url"],
-        playlistM3UUrl: json["playlist_m3u_url"],
         isPublic: json["is_public"],
         mounts: json["mounts"] == null
             ? []
@@ -321,6 +475,7 @@ class Station {
             ? []
             : List<dynamic>.from(json["remotes"]!.map((x) => x)),
         hlsEnabled: json["hls_enabled"],
+        hlsIsDefault: json["hls_is_default"],
         hlsUrl: json["hls_url"],
         hlsListeners: json["hls_listeners"],
       );
@@ -332,11 +487,10 @@ class Station {
         "description": description,
         "frontend": frontend,
         "backend": backend,
+        "timezone": timezone,
         "listen_url": listenUrl,
         "url": url,
         "public_player_url": publicPlayerUrl,
-        "playlist_pls_url": playlistPlsUrl,
-        "playlist_m3u_url": playlistM3UUrl,
         "is_public": isPublic,
         "mounts": mounts == null
             ? []
@@ -344,6 +498,7 @@ class Station {
         "remotes":
             remotes == null ? [] : List<dynamic>.from(remotes!.map((x) => x)),
         "hls_enabled": hlsEnabled,
+        "hls_is_default": hlsIsDefault,
         "hls_url": hlsUrl,
         "hls_listeners": hlsListeners,
       };
@@ -369,6 +524,27 @@ class Mount {
     this.path,
     this.isDefault,
   });
+
+  Mount copyWith({
+    int? id,
+    String? name,
+    String? url,
+    int? bitrate,
+    String? format,
+    Listeners? listeners,
+    String? path,
+    bool? isDefault,
+  }) =>
+      Mount(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        url: url ?? this.url,
+        bitrate: bitrate ?? this.bitrate,
+        format: format ?? this.format,
+        listeners: listeners ?? this.listeners,
+        path: path ?? this.path,
+        isDefault: isDefault ?? this.isDefault,
+      );
 
   factory Mount.fromJson(Map<String, dynamic> json) => Mount(
         id: json["id"],
