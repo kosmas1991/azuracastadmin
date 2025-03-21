@@ -73,11 +73,7 @@ class _ListenersScreenState extends State<ListenersScreen> {
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       );
                     } else {
-                      return Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.blue,
-                        ),
-                      );
+                      return Container();
                     }
                   },
                 ),

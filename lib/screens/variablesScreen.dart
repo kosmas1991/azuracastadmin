@@ -79,7 +79,7 @@ class _VariablesScreenState extends State<VariablesScreen> {
                             .read<UrlCubit>()
                             .emitNewUrl(textEditingController.text.trim());
                         prefs.setString(
-                            'url', textEditingController.text.trim());
+                            'url', context.read<UrlCubit>().state.url);
                       } else if (context.read<step.StepCubit>().state.step ==
                           1) {
                         context

@@ -27,8 +27,6 @@ Engine • revision 871f65ac1b
 Tools • Dart 3.7.0 • DevTools 2.42.2
 */
 
-//TODO fix loading indicators with one, inform users that only works with admins, base url to add https if not entered
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

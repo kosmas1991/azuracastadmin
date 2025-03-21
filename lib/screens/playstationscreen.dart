@@ -325,8 +325,6 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-
-                        //TODO add before x minutes
                         'Song History',
                         style: TextStyle(
                             color: Colors.white,
@@ -346,6 +344,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                   content: FutureBuilder<NowPlaying>(
                       future: nowPlaying,
                       builder: (context, snapshot) {
+                        DateTime now = DateTime.now();
                         if (snapshot.hasData) {
                           return Container(
                             width: screenWidth * 7 / 9,
@@ -404,6 +403,17 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                                             width: screenWidth * 1 / 2.5,
                                             child: Text(
                                               '${utf8.decode(snapshot.data!.songHistory![index].song!.artist!.codeUnits)}',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10),
+                                              overflow: TextOverflow.clip,
+                                              maxLines: 2,
+                                            ),
+                                          ),
+                                          Container(
+                                            width: screenWidth * 1 / 2.5,
+                                            child: Text(
+                                              'before ${(((now.millisecondsSinceEpoch / 1000) - snapshot.data!.songHistory![index].playedAt!) / 60).round()} mins',
                                               style: TextStyle(
                                                   color: Colors.white,
                                                   fontSize: 10),

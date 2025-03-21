@@ -236,7 +236,6 @@ class Song {
   String? text;
   String? artist;
   String? title;
-  Album? album;
   Genre? genre;
   Isrc? isrc;
   String? lyrics;
@@ -248,7 +247,6 @@ class Song {
     this.text,
     this.artist,
     this.title,
-    this.album,
     this.genre,
     this.isrc,
     this.lyrics,
@@ -261,7 +259,6 @@ class Song {
     String? text,
     String? artist,
     String? title,
-    Album? album,
     Genre? genre,
     Isrc? isrc,
     String? lyrics,
@@ -273,7 +270,6 @@ class Song {
         text: text ?? this.text,
         artist: artist ?? this.artist,
         title: title ?? this.title,
-        album: album ?? this.album,
         genre: genre ?? this.genre,
         isrc: isrc ?? this.isrc,
         lyrics: lyrics ?? this.lyrics,
@@ -288,7 +284,6 @@ class Song {
         text: json["text"],
         artist: json["artist"],
         title: json["title"],
-        album: albumValues.map[json["album"]]!,
         genre: genreValues.map[json["genre"]]!,
         isrc: isrcValues.map[json["isrc"]]!,
         lyrics: json["lyrics"],
@@ -303,20 +298,11 @@ class Song {
         "text": text,
         "artist": artist,
         "title": title,
-        "album": albumValues.reverse[album],
         "genre": genreValues.reverse[genre],
         "isrc": isrcValues.reverse[isrc],
         "lyrics": lyrics,
       };
 }
-
-enum Album { DARK_BEFORE_DAWN, EMPTY, TRANSIT_OF_VENUS }
-
-final albumValues = EnumValues({
-  "Dark Before Dawn": Album.DARK_BEFORE_DAWN,
-  "": Album.EMPTY,
-  "Transit Of Venus": Album.TRANSIT_OF_VENUS
-});
 
 enum Genre { ALTERNATIVE_METAL, EMPTY, ROCK }
 

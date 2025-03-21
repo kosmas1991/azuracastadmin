@@ -110,6 +110,7 @@ class _StationInfoState extends State<StationInfo> {
                     content: FutureBuilder<NowPlaying>(
                         future: nowPlaying,
                         builder: (context, snapshot) {
+                          DateTime now = DateTime.now();
                           if (snapshot.hasData) {
                             return Container(
                               width: screenWidth * 7 / 9,
@@ -170,6 +171,17 @@ class _StationInfoState extends State<StationInfo> {
                                               width: screenWidth * 1 / 2.5,
                                               child: Text(
                                                 '${utf8.decode(snapshot.data!.songHistory![index].song!.artist!.codeUnits)}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10),
+                                                overflow: TextOverflow.clip,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                            Container(
+                                              width: screenWidth * 1 / 2.5,
+                                              child: Text(
+                                                'before ${(((now.millisecondsSinceEpoch / 1000) - snapshot.data!.songHistory![index].playedAt!) / 60).round()} mins',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 10),
