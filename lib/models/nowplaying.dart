@@ -236,8 +236,6 @@ class Song {
   String? text;
   String? artist;
   String? title;
-  Genre? genre;
-  Isrc? isrc;
   String? lyrics;
 
   Song({
@@ -247,8 +245,6 @@ class Song {
     this.text,
     this.artist,
     this.title,
-    this.genre,
-    this.isrc,
     this.lyrics,
   });
 
@@ -259,8 +255,6 @@ class Song {
     String? text,
     String? artist,
     String? title,
-    Genre? genre,
-    Isrc? isrc,
     String? lyrics,
   }) =>
       Song(
@@ -270,8 +264,6 @@ class Song {
         text: text ?? this.text,
         artist: artist ?? this.artist,
         title: title ?? this.title,
-        genre: genre ?? this.genre,
-        isrc: isrc ?? this.isrc,
         lyrics: lyrics ?? this.lyrics,
       );
 
@@ -284,8 +276,6 @@ class Song {
         text: json["text"],
         artist: json["artist"],
         title: json["title"],
-        genre: genreValues.map[json["genre"]]!,
-        isrc: isrcValues.map[json["isrc"]]!,
         lyrics: json["lyrics"],
       );
 
@@ -298,24 +288,9 @@ class Song {
         "text": text,
         "artist": artist,
         "title": title,
-        "genre": genreValues.reverse[genre],
-        "isrc": isrcValues.reverse[isrc],
         "lyrics": lyrics,
       };
 }
-
-enum Genre { ALTERNATIVE_METAL, EMPTY, ROCK }
-
-final genreValues = EnumValues({
-  "Alternative Metal": Genre.ALTERNATIVE_METAL,
-  "": Genre.EMPTY,
-  "Rock": Genre.ROCK
-});
-
-enum Isrc { EMPTY, USRC11200916 }
-
-final isrcValues =
-    EnumValues({"": Isrc.EMPTY, "USRC11200916": Isrc.USRC11200916});
 
 class PlayingNext {
   int? cuedAt;
@@ -555,16 +530,4 @@ class Mount {
         "path": path,
         "is_default": isDefault,
       };
-}
-
-class EnumValues<T> {
-  Map<String, T> map;
-  late Map<T, String> reverseMap;
-
-  EnumValues(this.map);
-
-  Map<T, String> get reverse {
-    reverseMap = map.map((k, v) => MapEntry(v, k));
-    return reverseMap;
-  }
 }

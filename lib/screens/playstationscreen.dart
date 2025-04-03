@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:azuracastadmin/cubits/filteredlist/filteredlist_cubit.dart';
 import 'package:azuracastadmin/cubits/radioID/radio_id_cubit.dart';
 import 'package:azuracastadmin/cubits/requestsonglist/requestsonglist_cubit.dart';
@@ -135,10 +136,15 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            '${widget.radio_name}',
-            style: TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+          SizedBox(
+            width: 180,
+            child: AutoSizeText(
+              '${widget.radio_name}',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
+            ),
           ),
           FutureBuilder(
               future: nowPlaying,
@@ -545,7 +551,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                                                 MainAxisAlignment.start,
                                             children: [
                                               Container(
-                                                width: 25,
+                                                width: 40,
                                                 child: Text(
                                                   textAlign: TextAlign.center,
                                                   (index + 1).toString(),
@@ -558,8 +564,8 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                                                 width: 5,
                                               ),
                                               Container(
-                                                height: 50,
-                                                width: 50,
+                                                height: 45,
+                                                width: 45,
                                                 child:
                                                     FadeInImage.memoryNetwork(
                                                   placeholder:

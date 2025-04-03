@@ -21,16 +21,23 @@ class CPUMemoryDiskStatsWidget extends StatefulWidget {
 
 class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
   late Future<CpuStats> cpuStats;
+  late Timer timer;
   @override
   void initState() {
     cpuStats = fetchCpuStats(widget.url, 'admin/server/stats', widget.apiKey);
-    Timer.periodic(Duration(seconds: 2), (timer) {
+    timer = Timer.periodic(Duration(seconds: 2), (timer) {
       setState(() {
         cpuStats =
             fetchCpuStats(widget.url, 'admin/server/stats', widget.apiKey);
       });
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
   }
 
   @override
@@ -158,20 +165,23 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                                               .data!.memory!.usedReadable!
                                               .substring(
                                                   0,
-                                                  snapshot.data!.memory!.usedReadable!
+                                                  snapshot.data!.memory!
+                                                      .usedReadable!
                                                       .indexOf(' '))) /
                                           double.parse(snapshot
                                               .data!.memory!.totalReadable!
                                               .substring(
                                                   0,
-                                                  snapshot.data!.memory!.totalReadable!
+                                                  snapshot.data!.memory!
+                                                      .totalReadable!
                                                       .indexOf(' ')))) *
                                       100 <
                                   80
                               ? Colors.blue
                               : Colors.red,
-                          percent: (double.parse(
-                                  snapshot.data!.memory!.usedReadable!.substring(
+                          percent: (double.parse(snapshot
+                                  .data!.memory!.usedReadable!
+                                  .substring(
                                       0,
                                       snapshot.data!.memory!.usedReadable!
                                           .indexOf(' '))) /
@@ -239,14 +249,14 @@ class _CPUMemoryDiskStatsWidgetState extends State<CPUMemoryDiskStatsWidget> {
                                 ),
                               ],
                             ),
-                            progressColor:
-                                double.parse(snapshot.data!.cpu!.total!.usage!) <
-                                        80
-                                    ? Colors.blue
-                                    : Colors.red,
-                            percent:
-                                double.parse(snapshot.data!.cpu!.total!.usage!) /
-                                    100,
+                            progressColor: double.parse(
+                                        snapshot.data!.cpu!.total!.usage!) <
+                                    80
+                                ? Colors.blue
+                                : Colors.red,
+                            percent: double.parse(
+                                    snapshot.data!.cpu!.total!.usage!) /
+                                100,
                             radius: 50,
                             lineWidth: 8),
                       ],

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/nextsongs.dart';
 import 'package:azuracastadmin/models/nowplaying.dart';
@@ -457,12 +458,16 @@ class _StationInfoState extends State<StationInfo> {
             future: nowPlaying,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                return Text(
-                  '${snapshot.data!.station!.name}',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
+                return SizedBox(
+                  width: 180,
+                  child: AutoSizeText(
+                    maxLines: 2,
+                    '${snapshot.data!.station!.name}',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
+                  ),
                 );
               } else {
                 return Center(

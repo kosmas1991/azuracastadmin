@@ -1,6 +1,8 @@
+import 'package:azuracastadmin/cubits/radioID/radio_id_cubit.dart';
 import 'package:azuracastadmin/cubits/retry/retry_cubit.dart';
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/cubits/step/step_cubit.dart' as step;
+import 'package:azuracastadmin/models/radiostations.dart';
 import 'package:azuracastadmin/screens/widgetsscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,10 +20,14 @@ class CheckScreen extends StatefulWidget {
 
 class _CheckScreenState extends State<CheckScreen> {
   late Future<Response> response;
+  late Future<List<RadioStations>> radiostations;
   @override
   void initState() {
     response = getResponse(
         url: widget.url, apiKey: widget.apiKey, path: 'admin/server/stats');
+
+    radiostations = fetchRadioStations(widget.url, 'stations');
+
     super.initState();
   }
 
@@ -37,7 +43,19 @@ class _CheckScreenState extends State<CheckScreen> {
           if (data.statusCode == 200) {
             if (!data.body.contains('"status":"error"') &&
                 data.body.contains('cpu')) {
-              return WidgetsScreen();
+              return FutureBuilder(
+                future: radiostations,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    context
+                        .read<RadioIdCubit>()
+                        .emitNewID(snapshot.data![0].id!);
+                    return WidgetsScreen();
+                  } else {
+                    return Container();
+                  }
+                },
+              );
             } else {
               return Center(
                 child: Column(

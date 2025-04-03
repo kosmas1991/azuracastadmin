@@ -27,7 +27,7 @@ class _FilesScreenState extends State<FilesScreen> {
   void initState() {
     listOfFiles =
         fetchListOfFiles(widget.url, 'files', widget.apiKey, widget.stationID);
-    timer = Timer.periodic(Duration(minutes: 1), (timer) {
+    timer = Timer.periodic(Duration(minutes: 2), (timer) {
       setState(() {
         listOfFiles = fetchListOfFiles(
             widget.url, 'files', widget.apiKey, widget.stationID);
@@ -70,21 +70,18 @@ class _FilesScreenState extends State<FilesScreen> {
                   future: listOfFiles,
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                 
                       return Text(
                         'Number of files: ${snapshot.data!.length}',
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       );
                     } else if (snapshot.hasError) {
-                    
                       return Center(
                         child: CircularProgressIndicator(
                           color: Colors.blue,
                         ),
                       );
                     } else {
-                      
-                                     return Center(
+                      return Center(
                         child: CircularProgressIndicator(
                           color: Colors.blue,
                         ),

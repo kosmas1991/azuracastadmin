@@ -37,46 +37,55 @@ class _SelectRadioStationState extends State<SelectRadioStation> {
           if (snapshot.data!.length == 0) {
             return Container();
           }
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Select radio station:',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-              DropdownButton<String>(
-                value: dropDownValue ?? snapshot.data![0].name,
-                underline: Container(),
-                style: TextStyle(color: Colors.white, fontSize: 18),
-                dropdownColor: Colors.black38,
-                items: [
-                  ...snapshot.data!.map((e) {
-                    if (isTheFirstElement) {
-                      context.read<RadioIdCubit>().emitNewID(e.id!);
-                      isTheFirstElement = false;
-                    }
-                    return DropdownMenuItem<String>(
-                      value: e.name,
-                      child: Text(e.name!),
-                    );
-                  }).toList()
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    dropDownValue = value;
-                    RadioStations radio;
-                    radio = snapshot.data!.firstWhere((element) {
-                      if (element.name == value) {
-                        return true;
-                      } else {
-                        return false;
+          // context.read<RadioIdCubit>().emitNewID(snapshot.data![0].id!);
+          return SizedBox(
+            width: double.infinity,
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              alignment: WrapAlignment.spaceEvenly,
+              children: [
+                Text(
+                  'Select radio:',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+                DropdownButton<String>(
+                  value: dropDownValue ?? snapshot.data![0].name,
+                  underline: Container(),
+                  style: TextStyle(
+                    fontFamily: 'Schyler',
+                    color: Colors.grey,
+                    fontSize: 18,
+                  ),
+                  dropdownColor: Colors.black38,
+                  items: [
+                    ...snapshot.data!.map((e) {
+                      if (isTheFirstElement) {
+                        context.read<RadioIdCubit>().emitNewID(e.id!);
+                        isTheFirstElement = false;
                       }
+                      return DropdownMenuItem<String>(
+                        value: e.name,
+                        child: Text(e.name!),
+                      );
+                    }).toList()
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      dropDownValue = value;
+                      RadioStations radio;
+                      radio = snapshot.data!.firstWhere((element) {
+                        if (element.name == value) {
+                          return true;
+                        } else {
+                          return false;
+                        }
+                      });
+                      context.read<RadioIdCubit>().emitNewID(radio.id!);
                     });
-                    context.read<RadioIdCubit>().emitNewID(radio.id!);
-                  });
-                },
-              ),
-            ],
+                  },
+                ),
+              ],
+            ),
           );
         } else {
           return Center(
