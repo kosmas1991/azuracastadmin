@@ -21,10 +21,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:azuracastadmin/cubits/step/step_cubit.dart' as step;
 
 /* 
-Flutter 3.29.1 • channel stable • https://github.com/flutter/flutter.git
-Framework • revision 09de023485 (10 days ago) • 2025-02-28 13:44:05 -0800
-Engine • revision 871f65ac1b
-Tools • Dart 3.7.0 • DevTools 2.42.2
+Flutter 3.32.0 • channel stable • https://github.com/flutter/flutter.git
+Framework • revision be698c48a6 (3 weeks ago) • 2025-05-19 12:59:14 -0700
+Engine • revision 1881800949 (3 weeks ago) • 2025-05-19 10:54:07 -0700
+Tools • Dart 3.8.0 • DevTools 2.45.1
 */
 
 void main() async {
