@@ -106,64 +106,163 @@ class _FilesScreenState extends State<FilesScreen> {
                               color: Colors.black38,
                               child: Container(
                                 padding: EdgeInsets.all(10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: FadeInImage.memoryNetwork(
+                                        height: 50,
+                                        placeholder: kTransparentImage,
+                                        image:
+                                            '${widget.url}/api/station/${widget.stationID}/art/${data.id}',
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Row(
-                                          children: [
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                              ),
-                                              child: FadeInImage.memoryNetwork(
-                                                height: 50,
-                                                placeholder: kTransparentImage,
-                                                image:
-                                                    '${widget.url}/api/station/${widget.stationID}/art/${data.id}',
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 10,
-                                            ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  width: screenWidth * 5 / 9,
-                                                  child: Text(
-                                                    '${utf8.decode(data.title!.codeUnits)}',
-                                                    style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                    overflow: TextOverflow.fade,
-                                                    maxLines: 2,
-                                                    softWrap: false,
+                                        Container(
+                                          width: screenWidth * 4 / 10,
+                                          child: Text(
+                                            '${utf8.decode(data.title!.codeUnits)}',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                            overflow: TextOverflow.fade,
+                                            maxLines: 2,
+                                            softWrap: false,
+                                          ),
+                                        ),
+                                        Container(
+                                          width: screenWidth * 4 / 10,
+                                          child: Text(
+                                            '${utf8.decode(data.artist!.codeUnits)}',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15),
+                                            overflow: TextOverflow.clip,
+                                            maxLines: 2,
+                                            softWrap: false,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          onPressed: () async {
+                                            if (data.path != null) {
+                                              // Show loading dialog
+                                              showDialog(
+                                                context: context,
+                                                barrierDismissible: false,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                  backgroundColor:
+                                                      Color.fromARGB(
+                                                          255, 42, 42, 42),
+                                                  content: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      CircularProgressIndicator(
+                                                        color: Colors.blue,
+                                                      ),
+                                                      SizedBox(width: 20),
+                                                      Text(
+                                                        'Downloading...',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
-                                                Container(
-                                                  width: screenWidth * 5 / 9,
-                                                  child: Text(
-                                                    '${utf8.decode(data.artist!.codeUnits)}',
+                                              );
+
+                                              try {
+                                                // Extract filename from path
+                                                String fileName =
+                                                    data.path!.split('/').last;
+
+                                                // Call download function
+                                                var response =
+                                                    await downloadFile(
+                                                  url: widget.url,
+                                                  apiKey: widget.apiKey,
+                                                  stationID: widget.stationID,
+                                                  filePath: data.path!,
+                                                  fileName: fileName,
+                                                );
+
+                                                // Close loading dialog
+                                                Navigator.of(context).pop();
+
+                                                // Show result
+                                                ScaffoldMessenger.of(context)
+                                                    .hideCurrentSnackBar();
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      response.message,
+                                                      style: TextStyle(
+                                                        color: response.success
+                                                            ? Colors.green
+                                                            : Colors.red,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              } catch (e) {
+                                                // Close loading dialog
+                                                Navigator.of(context).pop();
+
+                                                // Show error
+                                                ScaffoldMessenger.of(context)
+                                                    .hideCurrentSnackBar();
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      'Download failed: $e',
+                                                      style: TextStyle(
+                                                          color: Colors.red),
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .hideCurrentSnackBar();
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    'File path not available',
                                                     style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 15),
-                                                    overflow: TextOverflow.clip,
-                                                    maxLines: 2,
-                                                    softWrap: false,
+                                                        color: Colors.red),
                                                   ),
                                                 ),
-                                              ],
-                                            ),
-                                          ],
+                                              );
+                                            }
+                                          },
+                                          icon: Icon(
+                                            Icons.download,
+                                            color: Colors.green,
+                                            size: 24,
+                                          ),
+                                          tooltip: 'Download file',
                                         ),
                                         IconButton(
                                           onPressed: () {
@@ -181,14 +280,14 @@ class _FilesScreenState extends State<FilesScreen> {
                                             );
                                           },
                                           icon: Icon(
-                                            Icons.edit,
+                                            Icons.info_outline,
                                             color: Colors.blue,
                                             size: 24,
                                           ),
                                           tooltip: 'Edit file details',
                                         ),
                                       ],
-                                    )
+                                    ),
                                   ],
                                 ),
                               ),

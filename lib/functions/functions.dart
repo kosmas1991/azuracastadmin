@@ -16,6 +16,7 @@ import 'package:azuracastadmin/models/users.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:path_provider/path_provider.dart';
 
 void printError(String text) {
   print('\x1B[31m$text\x1B[0m');
@@ -405,6 +406,73 @@ Future<ApiResponse> deleteFile({
     return ApiResponse(
       success: false,
       message: 'Delete failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Download file from AzuraCast server
+Future<ApiResponse> downloadFile({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String filePath,
+  required String fileName,
+}) async {
+  try {
+    // Make the HTTP request to download the file
+    var response = await http.get(
+      Uri.parse('$url/api/station/$stationID/files/download?file=${Uri.encodeComponent(filePath)}'),
+      headers: {
+        'accept': 'application/octet-stream',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Get the downloads directory
+      Directory downloadsDirectory;
+      
+      if (Platform.isAndroid) {
+        // For Android, use external storage Downloads folder
+        Directory androidDownloads = Directory('/storage/emulated/0/Download');
+        if (androidDownloads.existsSync()) {
+          downloadsDirectory = androidDownloads;
+        } else {
+          // Fallback to app documents directory if Downloads folder is not accessible
+          downloadsDirectory = await getApplicationDocumentsDirectory();
+        }
+      } else if (Platform.isIOS) {
+        // For iOS, use documents directory
+        downloadsDirectory = await getApplicationDocumentsDirectory();
+      } else {
+        // For other platforms, use downloads directory
+        downloadsDirectory = await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+      }
+
+      // Create the full file path
+      final String fullPath = '${downloadsDirectory.path}/$fileName';
+      final File file = File(fullPath);
+
+      // Write the file
+      await file.writeAsBytes(response.bodyBytes);
+
+      return ApiResponse(
+        success: true,
+        message: 'File downloaded successfully to: $fullPath',
+        code: 200,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Download failed with status code: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Download failed: $e',
       code: 500,
     );
   }

@@ -51,6 +51,8 @@ dependencies:
   firebase_analytics: ^11.4.4
   image_picker: ^1.0.8
   auto_size_text: ^3.0.0
+  path_provider: ^2.1.2
+  permission_handler: ^11.3.0
 
 dev_dependencies:
   flutter_test:
