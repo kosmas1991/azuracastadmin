@@ -136,7 +136,7 @@ class _FilesScreenState extends State<FilesScreen> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Container(
-                                                  width: screenWidth * 4 / 9,
+                                                  width: screenWidth * 5 / 9,
                                                   child: Text(
                                                     '${utf8.decode(data.title!.codeUnits)}',
                                                     style: TextStyle(
@@ -150,7 +150,7 @@ class _FilesScreenState extends State<FilesScreen> {
                                                   ),
                                                 ),
                                                 Container(
-                                                  width: screenWidth * 4 / 9,
+                                                  width: screenWidth * 5 / 9,
                                                   child: Text(
                                                     '${utf8.decode(data.artist!.codeUnits)}',
                                                     style: TextStyle(
@@ -170,7 +170,8 @@ class _FilesScreenState extends State<FilesScreen> {
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                builder: (context) => FileDetailScreen(
+                                                builder: (context) =>
+                                                    FileDetailScreen(
                                                   url: widget.url,
                                                   apiKey: widget.apiKey,
                                                   stationID: widget.stationID,

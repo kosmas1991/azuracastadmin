@@ -354,3 +354,58 @@ Future<ApiResponse> deleteFileArt({
     );
   }
 }
+
+// Update file details
+Future<ApiResponse> updateFileDetails({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required int fileID,
+  required Map<String, dynamic> fileData,
+}) async {
+  try {
+    var response = await http.put(
+      Uri.parse('$url/api/station/$stationID/file/$fileID'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(fileData),
+    );
+
+    return ApiResponse.fromJson(json.decode(response.body));
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Update failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Delete file
+Future<ApiResponse> deleteFile({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required int fileID,
+}) async {
+  try {
+    var response = await http.delete(
+      Uri.parse('$url/api/station/$stationID/file/$fileID'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    return ApiResponse.fromJson(json.decode(response.body));
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Delete failed: $e',
+      code: 500,
+    );
+  }
+}
