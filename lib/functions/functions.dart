@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void printError(String text) {
   print('\x1B[31m$text\x1B[0m');
@@ -411,6 +412,70 @@ Future<ApiResponse> deleteFile({
   }
 }
 
+// Helper function to request storage permissions for Android
+Future<bool> _requestStoragePermission() async {
+  if (!Platform.isAndroid) return true;
+  
+  try {
+    // Check Android version to determine which permissions to request
+    const int androidSdk = 33; // Default to newer Android for safety
+    
+    // For Android 13+ (API 33+), we need different permissions
+    if (androidSdk >= 33) {
+      // For Android 13+, check media permissions
+      PermissionStatus audioStatus = await Permission.audio.status;
+      if (audioStatus != PermissionStatus.granted) {
+        audioStatus = await Permission.audio.request();
+        if (audioStatus != PermissionStatus.granted) {
+          return false;
+        }
+      }
+      
+      // Try to get manage external storage permission for broader access
+      PermissionStatus manageStorageStatus = await Permission.manageExternalStorage.status;
+      if (manageStorageStatus != PermissionStatus.granted) {
+        manageStorageStatus = await Permission.manageExternalStorage.request();
+        // For Android 13+, this might not be granted for regular apps, that's okay
+      }
+      
+      return true; // Audio permission is sufficient for downloads on Android 13+
+    } else {
+      // For Android 12 and below, use traditional storage permissions
+      PermissionStatus manageStorageStatus = await Permission.manageExternalStorage.status;
+      
+      if (manageStorageStatus == PermissionStatus.granted) {
+        return true;
+      }
+      
+      // If manage external storage is not granted, check regular storage permission
+      PermissionStatus storageStatus = await Permission.storage.status;
+      
+      if (storageStatus == PermissionStatus.granted) {
+        return true;
+      }
+      
+      // Request regular storage permission first
+      storageStatus = await Permission.storage.request();
+      
+      if (storageStatus == PermissionStatus.granted) {
+        return true;
+      }
+      
+      // If regular storage permission is denied, try requesting manage external storage
+      if (manageStorageStatus != PermissionStatus.permanentlyDenied) {
+        manageStorageStatus = await Permission.manageExternalStorage.request();
+        return manageStorageStatus == PermissionStatus.granted;
+      }
+      
+      return false;
+    }
+  } catch (e) {
+    // If permission request fails, return false
+    print('Permission request error: $e');
+    return false;
+  }
+}
+
 // Download file from AzuraCast server
 Future<ApiResponse> downloadFile({
   required String url,
@@ -420,6 +485,18 @@ Future<ApiResponse> downloadFile({
   required String fileName,
 }) async {
   try {
+    // Check and request storage permissions for Android
+    if (Platform.isAndroid) {
+      bool hasPermission = await _requestStoragePermission();
+      if (!hasPermission) {
+        return ApiResponse(
+          success: false,
+          message: 'Storage permission is required to download files. Please enable storage access in app settings.',
+          code: 403,
+        );
+      }
+    }
+
     // Make the HTTP request to download the file
     var response = await http.get(
       Uri.parse('$url/api/station/$stationID/files/download?file=${Uri.encodeComponent(filePath)}'),
@@ -434,19 +511,62 @@ Future<ApiResponse> downloadFile({
       Directory downloadsDirectory;
       
       if (Platform.isAndroid) {
-        // For Android, use external storage Downloads folder
-        Directory androidDownloads = Directory('/storage/emulated/0/Download');
-        if (androidDownloads.existsSync()) {
-          downloadsDirectory = androidDownloads;
-        } else {
-          // Fallback to app documents directory if Downloads folder is not accessible
-          downloadsDirectory = await getApplicationDocumentsDirectory();
+        // For Android, try multiple approaches to save to Downloads folder
+        try {
+          // First try: Use the public Downloads directory
+          const String publicDownloadsPath = '/storage/emulated/0/Download';
+          Directory publicDownloads = Directory(publicDownloadsPath);
+          
+          if (await publicDownloads.exists()) {
+            // Test write access
+            try {
+              final testPath = '${publicDownloads.path}/.azuracast_write_test';
+              final testFile = File(testPath);
+              await testFile.writeAsString('test');
+              await testFile.delete();
+              downloadsDirectory = publicDownloads;
+            } catch (e) {
+              throw Exception('No write access to public Downloads');
+            }
+          } else {
+            throw Exception('Public Downloads directory not found');
+          }
+        } catch (e) {
+          // Second try: Use external storage Downloads
+          try {
+            Directory? externalDir = await getExternalStorageDirectory();
+            if (externalDir != null) {
+              // Create a Downloads subdirectory in external storage
+              downloadsDirectory = Directory('${externalDir.path}/Downloads');
+              if (!await downloadsDirectory.exists()) {
+                await downloadsDirectory.create(recursive: true);
+              }
+            } else {
+              throw Exception('External storage not available');
+            }
+          } catch (e) {
+            // Final fallback: Use documents directory
+            downloadsDirectory = await getApplicationDocumentsDirectory();
+          }
         }
       } else if (Platform.isIOS) {
-        // For iOS, use documents directory
-        downloadsDirectory = await getApplicationDocumentsDirectory();
+        // For iOS, use documents directory (iOS doesn't allow direct Downloads folder access)
+        // We could also save to the app's Documents folder which appears in Files app
+        try {
+          downloadsDirectory = await getApplicationDocumentsDirectory();
+          
+          // Create a Downloads subfolder to make it clearer
+          final iosDownloadsDir = Directory('${downloadsDirectory.path}/Downloads');
+          if (!await iosDownloadsDir.exists()) {
+            await iosDownloadsDir.create(recursive: true);
+          }
+          downloadsDirectory = iosDownloadsDir;
+        } catch (e) {
+          // Fallback to documents directory
+          downloadsDirectory = await getApplicationDocumentsDirectory();
+        }
       } else {
-        // For other platforms, use downloads directory
+        // For other platforms, try to use downloads directory
         downloadsDirectory = await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
       }
 
@@ -457,9 +577,25 @@ Future<ApiResponse> downloadFile({
       // Write the file
       await file.writeAsBytes(response.bodyBytes);
 
+      // Determine the appropriate success message based on where the file was saved
+      String platformMessage;
+      if (Platform.isIOS) {
+        platformMessage = 'File saved to app documents folder';
+      } else if (Platform.isAndroid) {
+        if (downloadsDirectory.path.contains('/storage/emulated/0/Download')) {
+          platformMessage = 'File downloaded to Downloads folder';
+        } else if (downloadsDirectory.path.contains('Downloads')) {
+          platformMessage = 'File saved to app Downloads folder';
+        } else {
+          platformMessage = 'File saved to app storage';
+        }
+      } else {
+        platformMessage = 'File downloaded successfully';
+      }
+
       return ApiResponse(
         success: true,
-        message: 'File downloaded successfully to: $fullPath',
+        message: '$platformMessage: $fileName',
         code: 200,
       );
     } else {

@@ -237,7 +237,8 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
       // Prepare the data to send to the API - only send the editable fields
       Map<String, dynamic> fileData = {
         'text': _textController.text.isNotEmpty ? _textController.text : "",
-        'artist': _artistController.text.isNotEmpty ? _artistController.text : "",
+        'artist':
+            _artistController.text.isNotEmpty ? _artistController.text : "",
         'title': _titleController.text.isNotEmpty ? _titleController.text : "",
         'album': _albumController.text.isNotEmpty ? _albumController.text : "",
         'genre': _genreController.text.isNotEmpty ? _genreController.text : "",
@@ -419,6 +420,7 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
