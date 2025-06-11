@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:azuracastadmin/models/api_response.dart';
 import 'package:azuracastadmin/models/cpustats.dart';
 import 'package:azuracastadmin/models/ftpusers.dart';
 import 'package:azuracastadmin/models/historyfiles.dart';
@@ -288,5 +290,67 @@ Future<List<RequestSongData>> fetchSongRequestList(
     return data;
   } else {
     throw Exception('Failed');
+  }
+}
+
+// Upload art for a file
+Future<ApiResponse> uploadFileArt({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required int fileID,
+  required File imageFile,
+}) async {
+  var request = http.MultipartRequest(
+    'POST',
+    Uri.parse('$url/api/station/$stationID/art/$fileID'),
+  );
+
+  request.headers.addAll({
+    'accept': 'application/json',
+    'X-API-Key': apiKey,
+  });
+
+  request.files.add(
+    await http.MultipartFile.fromPath('file', imageFile.path),
+  );
+
+  try {
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+    
+    return ApiResponse.fromJson(json.decode(response.body));
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Upload failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Delete art for a file
+Future<ApiResponse> deleteFileArt({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required int fileID,
+}) async {
+  try {
+    var response = await http.delete(
+      Uri.parse('$url/api/station/$stationID/art/$fileID'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    return ApiResponse.fromJson(json.decode(response.body));
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Delete failed: $e',
+      code: 500,
+    );
   }
 }

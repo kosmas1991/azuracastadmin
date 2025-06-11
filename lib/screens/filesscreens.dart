@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/listoffiles.dart';
+import 'package:azuracastadmin/screens/file_detail_screen.dart';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -111,54 +112,79 @@ class _FilesScreenState extends State<FilesScreen> {
                                     Row(
                                       mainAxisSize: MainAxisSize.max,
                                       mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          child: FadeInImage.memoryNetwork(
-                                            height: 50,
-                                            placeholder: kTransparentImage,
-                                            image:
-                                                '${widget.url}/api/station/${widget.stationID}/art/${data.id}',
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                        Row(
                                           children: [
                                             Container(
-                                              width: screenWidth * 5 / 9,
-                                              child: Text(
-                                                '${utf8.decode(data.title!.codeUnits)}',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                                overflow: TextOverflow.fade,
-                                                maxLines: 2,
-                                                softWrap: false,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: FadeInImage.memoryNetwork(
+                                                height: 50,
+                                                placeholder: kTransparentImage,
+                                                image:
+                                                    '${widget.url}/api/station/${widget.stationID}/art/${data.id}',
                                               ),
                                             ),
-                                            Container(
-                                              width: screenWidth * 5 / 9,
-                                              child: Text(
-                                                '${utf8.decode(data.artist!.codeUnits)}',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 15),
-                                                overflow: TextOverflow.clip,
-                                                maxLines: 2,
-                                                softWrap: false,
-                                              ),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  width: screenWidth * 4 / 9,
+                                                  child: Text(
+                                                    '${utf8.decode(data.title!.codeUnits)}',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                    overflow: TextOverflow.fade,
+                                                    maxLines: 2,
+                                                    softWrap: false,
+                                                  ),
+                                                ),
+                                                Container(
+                                                  width: screenWidth * 4 / 9,
+                                                  child: Text(
+                                                    '${utf8.decode(data.artist!.codeUnits)}',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 15),
+                                                    overflow: TextOverflow.clip,
+                                                    maxLines: 2,
+                                                    softWrap: false,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ],
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => FileDetailScreen(
+                                                  url: widget.url,
+                                                  apiKey: widget.apiKey,
+                                                  stationID: widget.stationID,
+                                                  file: data,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          icon: Icon(
+                                            Icons.edit,
+                                            color: Colors.blue,
+                                            size: 24,
+                                          ),
+                                          tooltip: 'Edit file details',
                                         ),
                                       ],
                                     )
