@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/nowplaying.dart';
+import 'package:azuracastadmin/screens/charts_overview_screen.dart';
 import 'package:azuracastadmin/screens/filesscreens.dart';
 import 'package:azuracastadmin/screens/ftpusersscreen.dart';
 import 'package:azuracastadmin/screens/historyscreen.dart';
@@ -199,6 +200,24 @@ class _OtherInfoState extends State<OtherInfo> {
               },
               child: Text(
                 'FTP users',
+                style: TextStyle(color: Colors.white),
+              )),
+          FilledButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChartsOverviewScreen(
+                          apiKey: widget.apiKey,
+                          stationID: widget.stationID,
+                          url: widget.url),
+                    ));
+              },
+              child: Text(
+                'Charts',
                 style: TextStyle(color: Colors.white),
               )),
         ],

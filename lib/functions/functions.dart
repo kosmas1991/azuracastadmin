@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:azuracastadmin/models/api_response.dart';
+import 'package:azuracastadmin/models/charts.dart';
 import 'package:azuracastadmin/models/cpustats.dart';
 import 'package:azuracastadmin/models/ftpusers.dart';
 import 'package:azuracastadmin/models/historyfiles.dart';
@@ -173,6 +174,22 @@ Future<List<HistoryFiles>> fetchHistoryFiles(
         .toList();
 
     return historyFiles;
+  } else {
+    throw Exception('Failed');
+  }
+}
+
+Future<Charts> fetchCharts(String url, String apiKey, int id) async {
+  final headers = {
+    'accept': 'application/json',
+    'X-API-Key': '${apiKey}',
+  };
+  Response response = await http.get(
+      Uri.parse('${url}/api/station/${id}/reports/overview/charts'),
+      headers: headers);
+  if (response.statusCode == 200) {
+    Charts charts = Charts.fromJson(json.decode(response.body));
+    return charts;
   } else {
     throw Exception('Failed');
   }
