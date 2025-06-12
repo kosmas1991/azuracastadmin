@@ -97,20 +97,125 @@ class _FilesScreenState extends State<FilesScreen> {
     });
   }
 
+  // Alternative file picker method for better iOS compatibility
+  Future<FilePickerResult?> _pickAudioFileIOS() async {
+    try {
+      // First try with specific audio extensions
+      FilePickerResult? result = await FilePicker.platform
+          .pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['mp3', 'wav', 'flac', 'm4a', 'aac', 'ogg', 'wma'],
+        allowMultiple: false,
+        allowCompression: false,
+        withData: false,
+        withReadStream: true,
+      )
+          .timeout(
+        Duration(seconds: 30),
+        onTimeout: () {
+          print('File picker timed out');
+          return null;
+        },
+      );
+
+      if (result != null) return result;
+
+      // If that fails, try with FileType.audio as fallback
+      return await FilePicker.platform
+          .pickFiles(
+        type: FileType.audio,
+        allowMultiple: false,
+        allowCompression: false,
+        withData: false,
+      )
+          .timeout(
+        Duration(seconds: 30),
+        onTimeout: () {
+          print('Fallback file picker timed out');
+          return null;
+        },
+      );
+    } catch (e) {
+      print('Error in iOS file picker: $e');
+
+      // Show user-friendly error message for common iOS issues
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'File picker issue. Please try again or restart the app.',
+              style: TextStyle(color: Colors.orange),
+            ),
+            action: SnackBarAction(
+              label: 'Retry',
+              textColor: Colors.blue,
+              onPressed: () => _uploadFile(),
+            ),
+          ),
+        );
+      }
+      return null;
+    }
+  }
+
   // Method to upload a new file
   Future<void> _uploadFile() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.audio,
-        allowMultiple: false,
-      );
+      // Show instructions for iOS users first
+      bool shouldProceed = await _showUploadInstructions();
+      if (!shouldProceed) return;
+
+      // Use iOS-specific picker method for better compatibility
+      FilePickerResult? result;
+
+      if (Platform.isIOS) {
+        result = await _pickAudioFileIOS();
+      } else {
+        // Android and other platforms with timeout handling
+        result = await FilePicker.platform
+            .pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['mp3', 'wav', 'flac', 'm4a', 'aac', 'ogg', 'wma'],
+          allowMultiple: false,
+          allowCompression: false,
+          withData: false,
+          withReadStream: true,
+        )
+            .timeout(
+          Duration(seconds: 30),
+          onTimeout: () {
+            print('Android file picker timed out');
+            return null;
+          },
+        );
+      }
 
       if (result != null && result.files.single.path != null) {
         setState(() {
           _isUploading = true;
         });
 
+        // Create file object
         File file = File(result.files.single.path!);
+
+        // Verify file exists and is accessible
+        if (!await file.exists()) {
+          setState(() {
+            _isUploading = false;
+          });
+
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Selected file is not accessible. Please try again.',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          );
+          return;
+        }
 
         // Show loading dialog
         showDialog(
@@ -185,11 +290,26 @@ class _FilesScreenState extends State<FilesScreen> {
             ),
           );
         }
+      } else {
+        // User cancelled file picker or no file was selected
+        print('File picker was cancelled or no file selected');
+        // Don't show error message for cancellation, just return quietly
+        return;
       }
     } catch (e) {
       setState(() {
         _isUploading = false;
       });
+
+      // Check if the error is due to user cancellation
+      String errorMessage = e.toString().toLowerCase();
+      if (errorMessage.contains('user_canceled') ||
+          errorMessage.contains('cancelled') ||
+          errorMessage.contains('canceled')) {
+        // User cancelled, don't show error message
+        print('User cancelled file picker');
+        return;
+      }
 
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -201,6 +321,75 @@ class _FilesScreenState extends State<FilesScreen> {
         ),
       );
     }
+  }
+
+  // Method to show upload instructions for iOS users
+  Future<bool> _showUploadInstructions() async {
+    if (!Platform.isIOS) return true; // Skip instructions for non-iOS platforms
+
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Color.fromARGB(255, 42, 42, 42),
+              title: Text(
+                'Upload Audio File',
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'To upload an audio file on iOS:',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    '1. Tap "Browse" to open the file picker',
+                    style: TextStyle(color: Colors.grey[300]),
+                  ),
+                  Text(
+                    '2. Navigate to "Files" or your music app',
+                    style: TextStyle(color: Colors.grey[300]),
+                  ),
+                  Text(
+                    '3. Select your audio file (mp3, wav, m4a, etc.)',
+                    style: TextStyle(color: Colors.grey[300]),
+                  ),
+                  Text(
+                    '4. Wait for the upload to complete',
+                    style: TextStyle(color: Colors.grey[300]),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Supported formats: MP3, WAV, FLAC, M4A, AAC, OGG, WMA',
+                    style: TextStyle(color: Colors.blue[300], fontSize: 12),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text('Browse Files'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
   }
 
   @override

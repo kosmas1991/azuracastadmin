@@ -49,5 +49,40 @@
 	<true/>
 	<key>UIFileSharingEnabled</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs access to microphone to upload audio files.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs access to photo library to upload audio files.</string>
+	<key>NSDocumentStorageUsageDescription</key>
+	<string>This app needs access to documents to upload audio files.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This app needs access to your music library to upload audio files.</string>
+	<key>NSMediaLibraryUsageDescription</key>
+	<string>This app needs access to media library to upload audio files.</string>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>mp3</string>
+				<string>wav</string>
+				<string>m4a</string>
+				<string>aac</string>
+				<string>flac</string>
+				<string>ogg</string>
+				<string>wma</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>Audio Files</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+	</array>
 </dict>
 </plist>
