@@ -8,7 +8,7 @@ class ChartsScreen extends StatefulWidget {
   final String url;
   final String apiKey;
   final int stationID;
-  
+
   const ChartsScreen({
     super.key,
     required this.url,
@@ -71,19 +71,24 @@ class _ChartsScreenState extends State<ChartsScreen> {
                                 children: [
                                   // Daily Listeners Chart
                                   if (snapshot.data!.daily != null)
-                                    _buildDailyChart(snapshot.data!.daily!, screenWidth),
-                                  
+                                    _buildDailyChart(
+                                        snapshot.data!.daily!, screenWidth),
+
                                   SizedBox(height: 20),
-                                  
+
                                   // Day of Week Chart
                                   if (snapshot.data!.dayOfWeek != null)
-                                    _buildDayOfWeekChart(snapshot.data!.dayOfWeek!, screenWidth),
-                                  
+                                    _buildDayOfWeekChart(
+                                        snapshot.data!.dayOfWeek!, screenWidth),
+
                                   SizedBox(height: 20),
-                                  
+
                                   // Hourly Chart (All)
                                   if (snapshot.data!.hourly?.all != null)
-                                    _buildHourlyChart(snapshot.data!.hourly!.all!, screenWidth, 'All Days'),
+                                    _buildHourlyChart(
+                                        snapshot.data!.hourly!.all!,
+                                        screenWidth,
+                                        'All Days'),
                                 ],
                               ),
                             );
@@ -148,7 +153,8 @@ class _ChartsScreenState extends State<ChartsScreen> {
             SizedBox(height: 15),
             if (daily.alt != null && daily.alt!.isNotEmpty)
               ...daily.alt!.first.values!.map((value) {
-                DateTime date = DateTime.fromMillisecondsSinceEpoch(value.original! * 1000);
+                DateTime date =
+                    DateTime.fromMillisecondsSinceEpoch(value.original! * 1000);
                 return Padding(
                   padding: EdgeInsets.symmetric(vertical: 4),
                   child: Row(
@@ -215,7 +221,8 @@ class _ChartsScreenState extends State<ChartsScreen> {
     );
   }
 
-  Widget _buildHourlyChart(HourlyData hourlyData, double screenWidth, String title) {
+  Widget _buildHourlyChart(
+      HourlyData hourlyData, double screenWidth, String title) {
     return Card(
       color: Colors.black38,
       child: Container(
