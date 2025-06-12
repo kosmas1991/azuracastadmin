@@ -505,23 +505,22 @@ class _FilesScreenState extends State<FilesScreen> {
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.3),
+                      color: Colors.black.withAlpha(30),
                       borderRadius: BorderRadius.circular(25),
-                      border: Border.all(color: Colors.white.withOpacity(0.3)),
+                      border: Border.all(color: Colors.white.withAlpha(30)),
                     ),
                     child: TextField(
                       controller: _searchController,
                       style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Search by song title or artist...',
-                        hintStyle:
-                            TextStyle(color: Colors.white.withOpacity(0.7)),
+                        hintStyle: TextStyle(color: Colors.white.withAlpha(70)),
                         prefixIcon: Icon(Icons.search,
-                            color: Colors.white.withOpacity(0.7)),
+                            color: Colors.white.withAlpha(70)),
                         suffixIcon: _searchQuery.isNotEmpty
                             ? IconButton(
                                 icon: Icon(Icons.clear,
-                                    color: Colors.white.withOpacity(0.7)),
+                                    color: Colors.white.withAlpha(70)),
                                 onPressed: () {
                                   _searchController.clear();
                                   setState(() {
@@ -561,7 +560,7 @@ class _FilesScreenState extends State<FilesScreen> {
                                 Icon(
                                   Icons.search_off,
                                   size: 64,
-                                  color: Colors.white.withOpacity(0.5),
+                                  color: Colors.white.withAlpha(50),
                                 ),
                                 SizedBox(height: 16),
                                 Text(
@@ -576,7 +575,7 @@ class _FilesScreenState extends State<FilesScreen> {
                                 Text(
                                   'Try searching with different keywords',
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.7),
+                                    color: Colors.white.withAlpha(70),
                                     fontSize: 14,
                                   ),
                                 ),
