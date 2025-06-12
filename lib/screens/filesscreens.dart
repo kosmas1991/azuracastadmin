@@ -26,6 +26,11 @@ class _FilesScreenState extends State<FilesScreen> {
   late var timer;
   bool _isRefreshing = false;
   
+  // Search functionality
+  TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  bool _isSearchVisible = false;
+  
   @override
   void initState() {
     _refreshFilesList();
@@ -63,9 +68,36 @@ class _FilesScreenState extends State<FilesScreen> {
     }
   }
 
+  // Method to filter files based on search query
+  List<ListOfFiles> _filterFiles(List<ListOfFiles> files) {
+    if (_searchQuery.isEmpty) {
+      return files;
+    }
+    
+    return files.where((file) {
+      final title = file.title?.toLowerCase() ?? '';
+      final artist = file.artist?.toLowerCase() ?? '';
+      final query = _searchQuery.toLowerCase();
+      
+      return title.contains(query) || artist.contains(query);
+    }).toList();
+  }
+
+  // Method to toggle search visibility
+  void _toggleSearch() {
+    setState(() {
+      _isSearchVisible = !_isSearchVisible;
+      if (!_isSearchVisible) {
+        _searchController.clear();
+        _searchQuery = '';
+      }
+    });
+  }
+
   @override
   void dispose() {
     timer.cancel();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -100,8 +132,11 @@ class _FilesScreenState extends State<FilesScreen> {
                       future: listOfFiles,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
+                          final filteredFiles = _filterFiles(snapshot.data!);
                           return Text(
-                            'Number of files: ${snapshot.data!.length}',
+                            _searchQuery.isEmpty 
+                              ? 'Number of files: ${snapshot.data!.length}'
+                              : 'Found: ${filteredFiles.length} of ${snapshot.data!.length}',
                             style: TextStyle(color: Colors.white, fontSize: 20),
                           );
                         }
@@ -111,26 +146,78 @@ class _FilesScreenState extends State<FilesScreen> {
                         );
                       },
                     ),
-                    IconButton(
-                      onPressed: _isRefreshing ? null : _refreshFilesList,
-                      icon: _isRefreshing 
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Icon(
-                            Icons.refresh,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: _toggleSearch,
+                          icon: Icon(
+                            _isSearchVisible ? Icons.search_off : Icons.search,
                             color: Colors.white,
                             size: 24,
                           ),
-                      tooltip: _isRefreshing ? 'Refreshing...' : 'Refresh files list',
+                          tooltip: _isSearchVisible ? 'Hide search' : 'Search files',
+                        ),
+                        IconButton(
+                          onPressed: _isRefreshing ? null : _refreshFilesList,
+                          icon: _isRefreshing 
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Icon(
+                                Icons.refresh,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                          tooltip: _isRefreshing ? 'Refreshing...' : 'Refresh files list',
+                        ),
+                      ],
                     ),
                   ],
                 ),
+                // Search bar (conditionally visible)
+                if (_isSearchVisible) ...[
+                  SizedBox(height: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(25),
+                      border: Border.all(color: Colors.white.withOpacity(0.3)),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Search by song title or artist...',
+                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                        prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.7)),
+                        suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.clear, color: Colors.white.withOpacity(0.7)),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() {
+                                  _searchQuery = '';
+                                });
+                              },
+                            )
+                          : null,
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
+                    ),
+                  ),
+                ],
                 SizedBox(
                   height: 15,
                 ),
@@ -138,6 +225,43 @@ class _FilesScreenState extends State<FilesScreen> {
                   future: listOfFiles,
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
+                      final filteredFiles = _filterFiles(snapshot.data!);
+                      
+                      if (filteredFiles.isEmpty && _searchQuery.isNotEmpty) {
+                        // Show empty search results
+                        return Expanded(
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.search_off,
+                                  size: 64,
+                                  color: Colors.white.withOpacity(0.5),
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'No files found',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Try searching with different keywords',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.7),
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                      
                       return Expanded(
                         child: RefreshIndicator(
                           onRefresh: () async {
@@ -146,9 +270,9 @@ class _FilesScreenState extends State<FilesScreen> {
                           backgroundColor: Colors.black54,
                           color: Colors.blue,
                           child: ListView.builder(
-                            itemCount: snapshot.data!.length,
+                            itemCount: filteredFiles.length,
                             itemBuilder: (context, index) {
-                            var data = snapshot.data![index];
+                            var data = filteredFiles[index];
                             return Card(
                               color: Colors.black38,
                               child: Container(
