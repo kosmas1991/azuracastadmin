@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/listoffiles.dart';
 import 'package:azuracastadmin/screens/file_detail_screen.dart';
 import 'package:blur/blur.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -25,6 +27,7 @@ class _FilesScreenState extends State<FilesScreen> {
   late Future<List<ListOfFiles>> listOfFiles;
   late var timer;
   bool _isRefreshing = false;
+  bool _isUploading = false;
   
   // Search functionality
   TextEditingController _searchController = TextEditingController();
@@ -94,6 +97,112 @@ class _FilesScreenState extends State<FilesScreen> {
     });
   }
 
+  // Method to upload a new file
+  Future<void> _uploadFile() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.audio,
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        setState(() {
+          _isUploading = true;
+        });
+
+        File file = File(result.files.single.path!);
+        
+        // Show loading dialog
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            backgroundColor: Color.fromARGB(255, 42, 42, 42),
+            content: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  color: Colors.blue,
+                ),
+                SizedBox(width: 20),
+                Text(
+                  'Uploading file...',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        try {
+          var response = await uploadFile(
+            url: widget.url,
+            apiKey: widget.apiKey,
+            stationID: widget.stationID,
+            audioFile: file,
+          );
+
+          // Close loading dialog
+          Navigator.of(context).pop();
+
+          setState(() {
+            _isUploading = false;
+          });
+
+          // Show result
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                response.message,
+                style: TextStyle(
+                  color: response.success ? Colors.green : Colors.red,
+                ),
+              ),
+            ),
+          );
+
+          // If upload was successful, refresh the files list
+          if (response.success) {
+            await _refreshFilesList();
+          }
+        } catch (e) {
+          // Close loading dialog
+          Navigator.of(context).pop();
+
+          setState(() {
+            _isUploading = false;
+          });
+
+          // Show error
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Upload failed: $e',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isUploading = false;
+      });
+      
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Failed to pick file: $e',
+            style: TextStyle(color: Colors.red),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   void dispose() {
     timer.cancel();
@@ -149,6 +258,24 @@ class _FilesScreenState extends State<FilesScreen> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        IconButton(
+                          onPressed: _isUploading ? null : _uploadFile,
+                          icon: _isUploading 
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Icon(
+                                Icons.upload_file,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                          tooltip: _isUploading ? 'Uploading...' : 'Upload new file',
+                        ),
                         IconButton(
                           onPressed: _toggleSearch,
                           icon: Icon(

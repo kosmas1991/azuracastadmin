@@ -412,6 +412,49 @@ Future<ApiResponse> deleteFile({
   }
 }
 
+// Upload file to AzuraCast server
+Future<ApiResponse> uploadFile({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required File audioFile,
+}) async {
+  try {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$url/api/station/$stationID/files/upload'),
+    );
+
+    request.headers.addAll({
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    });
+
+    request.files.add(
+      await http.MultipartFile.fromPath('file', audioFile.path),
+    );
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+    
+    if (response.statusCode == 200) {
+      return ApiResponse.fromJson(json.decode(response.body));
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Upload failed with status code: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Upload failed: $e',
+      code: 500,
+    );
+  }
+}
+
 // Helper function to request storage permissions for Android
 Future<bool> _requestStoragePermission() async {
   if (!Platform.isAndroid) return true;
