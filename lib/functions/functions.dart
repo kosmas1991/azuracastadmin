@@ -550,19 +550,13 @@ Future<ApiResponse> downloadFile({
           }
         }
       } else if (Platform.isIOS) {
-        // For iOS, use documents directory (iOS doesn't allow direct Downloads folder access)
-        // We could also save to the app's Documents folder which appears in Files app
+        // For iOS, save directly to the Documents directory to make files visible in Files app
+        // The Info.plist has been configured with LSSupportsOpeningDocumentsInPlace and UIFileSharingEnabled
         try {
           downloadsDirectory = await getApplicationDocumentsDirectory();
-          
-          // Create a Downloads subfolder to make it clearer
-          final iosDownloadsDir = Directory('${downloadsDirectory.path}/Downloads');
-          if (!await iosDownloadsDir.exists()) {
-            await iosDownloadsDir.create(recursive: true);
-          }
-          downloadsDirectory = iosDownloadsDir;
+          // Don't create a Downloads subfolder - save directly to Documents for better visibility
         } catch (e) {
-          // Fallback to documents directory
+          // Fallback to documents directory (same as above, but explicit)
           downloadsDirectory = await getApplicationDocumentsDirectory();
         }
       } else {
@@ -580,7 +574,7 @@ Future<ApiResponse> downloadFile({
       // Determine the appropriate success message based on where the file was saved
       String platformMessage;
       if (Platform.isIOS) {
-        platformMessage = 'File saved to app documents folder';
+        platformMessage = 'File saved to Documents (visible in Files app)';
       } else if (Platform.isAndroid) {
         if (downloadsDirectory.path.contains('/storage/emulated/0/Download')) {
           platformMessage = 'File downloaded to Downloads folder';
