@@ -297,34 +297,61 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
       });
 
       if (response.success) {
-        // Update current file with new values for UI
-        currentFile = ListOfFiles(
-          id: currentFile.id,
-          uniqueId: currentFile.uniqueId,
-          songId: currentFile.songId,
-          art: currentFile.art,
-          path: currentFile.path,
-          mtime: currentFile.mtime,
-          uploadedAt: currentFile.uploadedAt,
-          artUpdatedAt: currentFile.artUpdatedAt,
-          length: currentFile.length,
-          lengthText: currentFile.lengthText,
-          customFields: currentFile.customFields,
-          extraMetadata: currentFile.extraMetadata,
-          playlists: currentFile.playlists,
-          text: _textController.text.isNotEmpty ? _textController.text : null,
-          artist:
-              _artistController.text.isNotEmpty ? _artistController.text : null,
-          title:
-              _titleController.text.isNotEmpty ? _titleController.text : null,
-          album:
-              _albumController.text.isNotEmpty ? _albumController.text : null,
-          genre:
-              _genreController.text.isNotEmpty ? _genreController.text : null,
-          isrc: currentFile.isrc,
-          lyrics: currentFile.lyrics,
-          links: currentFile.links,
-        );
+        // Fetch fresh file data from server to get updated playlists and other data
+        try {
+          ListOfFiles updatedFile = await fetchSingleFileDetails(
+            url: widget.url,
+            apiKey: widget.apiKey,
+            stationID: widget.stationID,
+            fileID: currentFile.id,
+          );
+
+          // Update the current file with fresh data from server
+          setState(() {
+            currentFile = updatedFile;
+
+            // Update text controllers with fresh data
+            _textController.text = currentFile.text ?? '';
+            _artistController.text = currentFile.artist ?? '';
+            _titleController.text = currentFile.title ?? '';
+            _albumController.text = currentFile.album ?? '';
+            _genreController.text = currentFile.genre ?? '';
+
+            // Update selected playlist IDs with fresh data
+            _initializeSelectedPlaylists();
+          });
+        } catch (e) {
+          print('Error fetching updated file details: $e');
+          // Fallback: update with local values if server fetch fails
+          currentFile = ListOfFiles(
+            id: currentFile.id,
+            uniqueId: currentFile.uniqueId,
+            songId: currentFile.songId,
+            art: currentFile.art,
+            path: currentFile.path,
+            mtime: currentFile.mtime,
+            uploadedAt: currentFile.uploadedAt,
+            artUpdatedAt: currentFile.artUpdatedAt,
+            length: currentFile.length,
+            lengthText: currentFile.lengthText,
+            customFields: currentFile.customFields,
+            extraMetadata: currentFile.extraMetadata,
+            playlists: currentFile.playlists,
+            text: _textController.text.isNotEmpty ? _textController.text : null,
+            artist: _artistController.text.isNotEmpty
+                ? _artistController.text
+                : null,
+            title:
+                _titleController.text.isNotEmpty ? _titleController.text : null,
+            album:
+                _albumController.text.isNotEmpty ? _albumController.text : null,
+            genre:
+                _genreController.text.isNotEmpty ? _genreController.text : null,
+            isrc: currentFile.isrc,
+            lyrics: currentFile.lyrics,
+            links: currentFile.links,
+          );
+        }
 
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -649,6 +676,23 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
                                               strokeWidth: 2,
                                             ),
                                           ),
+                                        ),
+                                      if (!_isEditing)
+                                        IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _isEditing = !_isEditing;
+                                            });
+                                          },
+                                          icon: Icon(
+                                            _isEditing
+                                                ? Icons.close
+                                                : Icons.edit,
+                                            color: Colors.white,
+                                          ),
+                                          tooltip: _isEditing
+                                              ? 'Cancel editing'
+                                              : 'Edit file details',
                                         ),
                                       if (_isEditing)
                                         ElevatedButton.icon(

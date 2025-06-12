@@ -682,3 +682,29 @@ Future<List<StationPlaylist>> fetchStationPlaylists({
     throw Exception('Failed to fetch playlists: $e');
   }
 }
+
+// Fetch single file details
+Future<ListOfFiles> fetchSingleFileDetails({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required int fileID,
+}) async {
+  try {
+    var response = await http.get(
+      Uri.parse('$url/api/station/$stationID/file/$fileID'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return ListOfFiles.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to fetch file details: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Failed to fetch file details: $e');
+  }
+}
