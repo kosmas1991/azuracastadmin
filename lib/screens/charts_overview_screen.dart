@@ -9,7 +9,7 @@ class ChartsOverviewScreen extends StatefulWidget {
   final String url;
   final String apiKey;
   final int stationID;
-  
+
   const ChartsOverviewScreen({
     super.key,
     required this.url,
@@ -72,23 +72,26 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                         child: Column(
                           children: [
                             SizedBox(height: 80), // For AppBar space
-                            
+
                             // Daily Listeners Line Chart
                             if (snapshot.data!.daily != null)
-                              _buildDailyLineChart(snapshot.data!.daily!, screenWidth),
-                            
+                              _buildDailyLineChart(
+                                  snapshot.data!.daily!, screenWidth),
+
                             SizedBox(height: 20),
-                            
+
                             // Day of Week Bar Chart
                             if (snapshot.data!.dayOfWeek != null)
-                              _buildDayOfWeekBarChart(snapshot.data!.dayOfWeek!, screenWidth),
-                            
+                              _buildDayOfWeekBarChart(
+                                  snapshot.data!.dayOfWeek!, screenWidth),
+
                             SizedBox(height: 20),
-                            
+
                             // Hourly Chart (All)
                             if (snapshot.data!.hourly?.all != null)
-                              _buildHourlyBarChart(snapshot.data!.hourly!.all!, screenWidth, 'All Days'),
-                            
+                              _buildHourlyBarChart(snapshot.data!.hourly!.all!,
+                                  screenWidth, 'Weelky'),
+
                             SizedBox(height: 20),
                           ],
                         ),
@@ -156,10 +159,17 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
     }
 
     List<FlSpot> spots = [];
+    List<DateTime> dates = [];
     if (daily.metrics!.first.data != null) {
       for (int i = 0; i < daily.metrics!.first.data!.length; i++) {
         var dataPoint = daily.metrics!.first.data![i];
         spots.add(FlSpot(i.toDouble(), dataPoint.y?.toDouble() ?? 0));
+        // Convert epoch timestamp to DateTime - dataPoint.x contains the epoch timestamp in milliseconds
+        int timestamp = dataPoint.x ?? 0;
+        // Timestamps are already in milliseconds, treat as UTC to get correct date
+        DateTime utcDate =
+            DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true);
+        dates.add(utcDate);
       }
     }
 
@@ -221,24 +231,18 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                             fontWeight: FontWeight.bold,
                             fontSize: 9,
                           );
-                          if (value.toInt() < spots.length) {
-                            if (daily.alt != null && 
-                                daily.alt!.isNotEmpty && 
-                                daily.alt!.first.values != null &&
-                                value.toInt() < daily.alt!.first.values!.length) {
-                              var dateValue = daily.alt!.first.values![value.toInt()];
-                              if (dateValue.original != null) {
-                                DateTime date = DateTime.fromMillisecondsSinceEpoch(dateValue.original! * 1000);
-                                String formattedDate = DateFormat.Md().format(date);
-                                
-                                // Split date into two lines - alternating positioning
-                                bool isEvenIndex = value.toInt() % 2 == 0;
-                                return Container(
-                                  padding: EdgeInsets.only(top: isEvenIndex ? 4 : 20),
-                                  child: Text(formattedDate, style: style),
-                                );
-                              }
-                            }
+                          if (value.toInt() < dates.length) {
+                            DateTime date = dates[value.toInt()];
+                            String formattedDate =
+                                DateFormat('dd/MM').format(date);
+
+                            // Split date into two lines - alternating positioning
+                            bool isEvenIndex = value.toInt() % 2 == 0;
+                            return Container(
+                              padding:
+                                  EdgeInsets.only(top: isEvenIndex ? 4 : 20),
+                              child: Text(formattedDate, style: style),
+                            );
                           }
                           return Text('', style: style);
                         },
@@ -262,13 +266,17 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                   ),
                   borderData: FlBorderData(
                     show: true,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                    border:
+                        Border.all(color: Colors.white.withValues(alpha: 0.3)),
                   ),
                   minX: 0,
                   maxX: spots.length > 0 ? spots.length - 1.0 : 0,
                   minY: 0,
-                  maxY: spots.isNotEmpty 
-                      ? spots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b) + 1 
+                  maxY: spots.isNotEmpty
+                      ? spots
+                              .map((spot) => spot.y)
+                              .reduce((a, b) => a > b ? a : b) +
+                          1
                       : 5,
                   lineBarsData: [
                     LineChartBarData(
@@ -363,20 +371,26 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
               child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
-                  maxY: barGroups.isNotEmpty 
-                      ? barGroups.map((group) => group.barRods.first.toY).reduce((a, b) => a > b ? a : b) + 1 
+                  maxY: barGroups.isNotEmpty
+                      ? barGroups
+                              .map((group) => group.barRods.first.toY)
+                              .reduce((a, b) => a > b ? a : b) +
+                          1
                       : 5,
                   barTouchData: BarTouchData(
                     touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (group) => Colors.black.withValues(alpha: 0.8),
+                      getTooltipColor: (group) =>
+                          Colors.black.withValues(alpha: 0.8),
                       tooltipMargin: 8,
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                        String weekDay = dayOfWeek.labels != null && groupIndex < dayOfWeek.labels!.length
+                        String weekDay = dayOfWeek.labels != null &&
+                                groupIndex < dayOfWeek.labels!.length
                             ? dayOfWeek.labels![groupIndex]
                             : 'Day ${groupIndex + 1}';
                         return BarTooltipItem(
                           '$weekDay\n${rod.toY.round()} listeners',
-                          TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
                         );
                       },
                     ),
@@ -398,7 +412,8 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           );
-                          if (dayOfWeek.labels != null && value.toInt() < dayOfWeek.labels!.length) {
+                          if (dayOfWeek.labels != null &&
+                              value.toInt() < dayOfWeek.labels!.length) {
                             String day = dayOfWeek.labels![value.toInt()];
                             return Padding(
                               padding: EdgeInsets.only(top: 8),
@@ -428,7 +443,8 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                   ),
                   borderData: FlBorderData(
                     show: true,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                    border:
+                        Border.all(color: Colors.white.withValues(alpha: 0.3)),
                   ),
                   barGroups: barGroups,
                   gridData: FlGridData(
@@ -451,7 +467,8 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
     );
   }
 
-  Widget _buildHourlyBarChart(HourlyData hourlyData, double screenWidth, String title) {
+  Widget _buildHourlyBarChart(
+      HourlyData hourlyData, double screenWidth, String title) {
     if (hourlyData.metrics == null || hourlyData.metrics!.isEmpty) {
       return Container();
     }
@@ -502,20 +519,26 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
               child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
-                  maxY: barGroups.isNotEmpty 
-                      ? barGroups.map((group) => group.barRods.first.toY).reduce((a, b) => a > b ? a : b) + 1 
+                  maxY: barGroups.isNotEmpty
+                      ? barGroups
+                              .map((group) => group.barRods.first.toY)
+                              .reduce((a, b) => a > b ? a : b) +
+                          1
                       : 5,
                   barTouchData: BarTouchData(
                     touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (group) => Colors.black.withValues(alpha: 0.8),
+                      getTooltipColor: (group) =>
+                          Colors.black.withValues(alpha: 0.8),
                       tooltipMargin: 8,
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                        String hour = hourlyData.labels != null && groupIndex < hourlyData.labels!.length
+                        String hour = hourlyData.labels != null &&
+                                groupIndex < hourlyData.labels!.length
                             ? hourlyData.labels![groupIndex]
                             : '${groupIndex}:00';
                         return BarTooltipItem(
                           '$hour\n${rod.toY.round()} listeners',
-                          TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
                         );
                       },
                     ),
@@ -537,13 +560,15 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                             fontWeight: FontWeight.bold,
                             fontSize: 7,
                           );
-                          if (hourlyData.labels != null && value.toInt() < hourlyData.labels!.length) {
+                          if (hourlyData.labels != null &&
+                              value.toInt() < hourlyData.labels!.length) {
                             String hour = hourlyData.labels![value.toInt()];
-                            
+
                             // Alternate positioning for better visibility
                             bool isEvenIndex = value.toInt() % 2 == 0;
                             return Container(
-                              padding: EdgeInsets.only(top: isEvenIndex ? 2 : 18),
+                              padding:
+                                  EdgeInsets.only(top: isEvenIndex ? 2 : 18),
                               child: Text(hour, style: style),
                             );
                           }
@@ -570,7 +595,8 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                   ),
                   borderData: FlBorderData(
                     show: true,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                    border:
+                        Border.all(color: Colors.white.withValues(alpha: 0.3)),
                   ),
                   barGroups: barGroups,
                   gridData: FlGridData(
