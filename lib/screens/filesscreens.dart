@@ -24,17 +24,43 @@ class FilesScreen extends StatefulWidget {
 class _FilesScreenState extends State<FilesScreen> {
   late Future<List<ListOfFiles>> listOfFiles;
   late var timer;
+  bool _isRefreshing = false;
+  
   @override
   void initState() {
-    listOfFiles =
-        fetchListOfFiles(widget.url, 'files', widget.apiKey, widget.stationID);
+    _refreshFilesList();
     timer = Timer.periodic(Duration(minutes: 2), (timer) {
-      setState(() {
-        listOfFiles = fetchListOfFiles(
-            widget.url, 'files', widget.apiKey, widget.stationID);
-      });
+      _refreshFilesList();
     });
     super.initState();
+  }
+  
+  // Method to refresh the files list
+  Future<void> _refreshFilesList() async {
+    setState(() {
+      _isRefreshing = true;
+    });
+    
+    try {
+      final newListOfFiles = fetchListOfFiles(
+          widget.url, 'files', widget.apiKey, widget.stationID);
+      
+      setState(() {
+        listOfFiles = newListOfFiles;
+      });
+      
+      // Wait for the request to complete to stop the loading indicator
+      await newListOfFiles;
+    } catch (e) {
+      // Handle error if needed
+      print('Error refreshing files: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRefreshing = false;
+        });
+      }
+    }
   }
 
   @override
@@ -67,17 +93,43 @@ class _FilesScreenState extends State<FilesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                FutureBuilder(
-                  future: listOfFiles,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return Text(
-                        'Number of files: ${snapshot.data!.length}',
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                      );
-                    }
-                    return Container();
-                  },
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    FutureBuilder(
+                      future: listOfFiles,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Text(
+                            'Number of files: ${snapshot.data!.length}',
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          );
+                        }
+                        return Text(
+                          'Loading files...',
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      onPressed: _isRefreshing ? null : _refreshFilesList,
+                      icon: _isRefreshing 
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Icon(
+                            Icons.refresh,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                      tooltip: _isRefreshing ? 'Refreshing...' : 'Refresh files list',
+                    ),
+                  ],
                 ),
                 SizedBox(
                   height: 15,
@@ -87,9 +139,15 @@ class _FilesScreenState extends State<FilesScreen> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return Expanded(
-                        child: ListView.builder(
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
+                        child: RefreshIndicator(
+                          onRefresh: () async {
+                            await _refreshFilesList();
+                          },
+                          backgroundColor: Colors.black54,
+                          color: Colors.blue,
+                          child: ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index) {
                             var data = snapshot.data![index];
                             return Card(
                               color: Colors.black38,
@@ -254,8 +312,9 @@ class _FilesScreenState extends State<FilesScreen> {
                                           tooltip: 'Download file',
                                         ),
                                         IconButton(
-                                          onPressed: () {
-                                            Navigator.push(
+                                          onPressed: () async {
+                                            // Navigate to edit screen and wait for result
+                                            await Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
@@ -267,6 +326,8 @@ class _FilesScreenState extends State<FilesScreen> {
                                                 ),
                                               ),
                                             );
+                                            // Refresh files list when returning from edit screen
+                                            await _refreshFilesList();
                                           },
                                           icon: Icon(
                                             Icons.info_outline,
@@ -283,6 +344,7 @@ class _FilesScreenState extends State<FilesScreen> {
                             );
                           },
                         ),
+                      ),
                       );
                     } else if (snapshot.hasError) {
                       return Center(
