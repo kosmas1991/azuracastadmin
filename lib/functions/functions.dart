@@ -11,6 +11,7 @@ import 'package:azuracastadmin/models/nowplaying.dart';
 import 'package:azuracastadmin/models/radiostations.dart';
 import 'package:azuracastadmin/models/requestsongdata.dart';
 import 'package:azuracastadmin/models/settings.dart';
+import 'package:azuracastadmin/models/station_playlist.dart';
 import 'package:azuracastadmin/models/stationsstatus.dart';
 import 'package:azuracastadmin/models/users.dart';
 import 'package:flutter/material.dart';
@@ -150,10 +151,8 @@ Future<List<ListOfFiles>> fetchListOfFiles(
   if (response.statusCode == 200) {
     List<ListOfFiles> listOfFiles = listOfFilesFromJson(response.body);
 
-
     return listOfFiles;
   } else {
- 
     throw Exception('Failed');
   }
 }
@@ -320,7 +319,7 @@ Future<ApiResponse> uploadFileArt({
   try {
     var streamedResponse = await request.send();
     var response = await http.Response.fromStream(streamedResponse);
-    
+
     return ApiResponse.fromJson(json.decode(response.body));
   } catch (e) {
     return ApiResponse(
@@ -436,7 +435,7 @@ Future<ApiResponse> uploadFile({
 
     var streamedResponse = await request.send();
     var response = await http.Response.fromStream(streamedResponse);
-    
+
     if (response.statusCode == 200) {
       return ApiResponse.fromJson(json.decode(response.body));
     } else {
@@ -458,11 +457,11 @@ Future<ApiResponse> uploadFile({
 // Helper function to request storage permissions for Android
 Future<bool> _requestStoragePermission() async {
   if (!Platform.isAndroid) return true;
-  
+
   try {
     // Check Android version to determine which permissions to request
     const int androidSdk = 33; // Default to newer Android for safety
-    
+
     // For Android 13+ (API 33+), we need different permissions
     if (androidSdk >= 33) {
       // For Android 13+, check media permissions
@@ -473,43 +472,45 @@ Future<bool> _requestStoragePermission() async {
           return false;
         }
       }
-      
+
       // Try to get manage external storage permission for broader access
-      PermissionStatus manageStorageStatus = await Permission.manageExternalStorage.status;
+      PermissionStatus manageStorageStatus =
+          await Permission.manageExternalStorage.status;
       if (manageStorageStatus != PermissionStatus.granted) {
         manageStorageStatus = await Permission.manageExternalStorage.request();
         // For Android 13+, this might not be granted for regular apps, that's okay
       }
-      
+
       return true; // Audio permission is sufficient for downloads on Android 13+
     } else {
       // For Android 12 and below, use traditional storage permissions
-      PermissionStatus manageStorageStatus = await Permission.manageExternalStorage.status;
-      
+      PermissionStatus manageStorageStatus =
+          await Permission.manageExternalStorage.status;
+
       if (manageStorageStatus == PermissionStatus.granted) {
         return true;
       }
-      
+
       // If manage external storage is not granted, check regular storage permission
       PermissionStatus storageStatus = await Permission.storage.status;
-      
+
       if (storageStatus == PermissionStatus.granted) {
         return true;
       }
-      
+
       // Request regular storage permission first
       storageStatus = await Permission.storage.request();
-      
+
       if (storageStatus == PermissionStatus.granted) {
         return true;
       }
-      
+
       // If regular storage permission is denied, try requesting manage external storage
       if (manageStorageStatus != PermissionStatus.permanentlyDenied) {
         manageStorageStatus = await Permission.manageExternalStorage.request();
         return manageStorageStatus == PermissionStatus.granted;
       }
-      
+
       return false;
     }
   } catch (e) {
@@ -534,7 +535,8 @@ Future<ApiResponse> downloadFile({
       if (!hasPermission) {
         return ApiResponse(
           success: false,
-          message: 'Storage permission is required to download files. Please enable storage access in app settings.',
+          message:
+              'Storage permission is required to download files. Please enable storage access in app settings.',
           code: 403,
         );
       }
@@ -542,7 +544,8 @@ Future<ApiResponse> downloadFile({
 
     // Make the HTTP request to download the file
     var response = await http.get(
-      Uri.parse('$url/api/station/$stationID/files/download?file=${Uri.encodeComponent(filePath)}'),
+      Uri.parse(
+          '$url/api/station/$stationID/files/download?file=${Uri.encodeComponent(filePath)}'),
       headers: {
         'accept': 'application/octet-stream',
         'X-API-Key': apiKey,
@@ -552,14 +555,14 @@ Future<ApiResponse> downloadFile({
     if (response.statusCode == 200) {
       // Get the downloads directory
       Directory downloadsDirectory;
-      
+
       if (Platform.isAndroid) {
         // For Android, try multiple approaches to save to Downloads folder
         try {
           // First try: Use the public Downloads directory
           const String publicDownloadsPath = '/storage/emulated/0/Download';
           Directory publicDownloads = Directory(publicDownloadsPath);
-          
+
           if (await publicDownloads.exists()) {
             // Test write access
             try {
@@ -604,7 +607,8 @@ Future<ApiResponse> downloadFile({
         }
       } else {
         // For other platforms, try to use downloads directory
-        downloadsDirectory = await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+        downloadsDirectory = await getDownloadsDirectory() ??
+            await getApplicationDocumentsDirectory();
       }
 
       // Create the full file path
@@ -648,5 +652,33 @@ Future<ApiResponse> downloadFile({
       message: 'Download failed: $e',
       code: 500,
     );
+  }
+}
+
+// Fetch station playlists
+Future<List<StationPlaylist>> fetchStationPlaylists({
+  required String url,
+  required String apiKey,
+  required int stationID,
+}) async {
+  try {
+    var response = await http.get(
+      Uri.parse('$url/api/station/$stationID/playlists'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      List<StationPlaylist> playlists = (json.decode(response.body) as List)
+          .map((i) => StationPlaylist.fromJson(i))
+          .toList();
+      return playlists;
+    } else {
+      throw Exception('Failed to fetch playlists: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Failed to fetch playlists: $e');
   }
 }

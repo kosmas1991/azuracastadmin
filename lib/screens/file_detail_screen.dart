@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/api_response.dart';
 import 'package:azuracastadmin/models/listoffiles.dart';
+import 'package:azuracastadmin/models/station_playlist.dart';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -35,6 +36,7 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
   bool _isUpdating = false;
   bool _isDeletingFile = false;
   bool _isEditing = false;
+  bool _isLoadingPlaylists = false;
   late ListOfFiles currentFile;
 
   // Text controllers for editable fields
@@ -44,10 +46,16 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
   late TextEditingController _albumController;
   late TextEditingController _genreController;
 
+  // Playlist management
+  List<StationPlaylist> _availablePlaylists = [];
+  List<int> _selectedPlaylistIds = [];
+
   @override
   void initState() {
     currentFile = widget.file;
     _initControllers();
+    _loadPlaylists();
+    _initializeSelectedPlaylists();
     super.initState();
   }
 
@@ -57,6 +65,36 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
     _titleController = TextEditingController(text: currentFile.title ?? '');
     _albumController = TextEditingController(text: currentFile.album ?? '');
     _genreController = TextEditingController(text: currentFile.genre ?? '');
+  }
+
+  void _initializeSelectedPlaylists() {
+    if (currentFile.playlists != null) {
+      _selectedPlaylistIds = currentFile.playlists!.map((p) => p.id).toList();
+    }
+  }
+
+  Future<void> _loadPlaylists() async {
+    setState(() {
+      _isLoadingPlaylists = true;
+    });
+
+    try {
+      List<StationPlaylist> playlists = await fetchStationPlaylists(
+        url: widget.url,
+        apiKey: widget.apiKey,
+        stationID: widget.stationID,
+      );
+
+      setState(() {
+        _availablePlaylists = playlists;
+        _isLoadingPlaylists = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingPlaylists = false;
+      });
+      print('Error loading playlists: $e');
+    }
   }
 
   @override
@@ -242,6 +280,7 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
         'title': _titleController.text.isNotEmpty ? _titleController.text : "",
         'album': _albumController.text.isNotEmpty ? _albumController.text : "",
         'genre': _genreController.text.isNotEmpty ? _genreController.text : "",
+        'playlists': _selectedPlaylistIds.map((id) => {'id': id}).toList(),
       };
 
       ApiResponse response = await updateFileDetails(
@@ -576,7 +615,7 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
 
                       SizedBox(height: 20),
 
-                      // File Information (Editable)
+                      // Song Information & Playlists (Merged Section)
                       Card(
                         color: Colors.black38,
                         child: Container(
@@ -597,31 +636,60 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  if (_isEditing)
-                                    ElevatedButton.icon(
-                                      onPressed: _isUpdating
-                                          ? null
-                                          : _updateFileDetails,
-                                      icon: _isUpdating
-                                          ? SizedBox(
-                                              width: 16,
-                                              height: 16,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                color: Colors.white,
-                                              ),
-                                            )
-                                          : Icon(Icons.save),
-                                      label: Text(
-                                          _isUpdating ? 'Saving...' : 'Save'),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.green,
-                                        foregroundColor: Colors.white,
-                                      ),
-                                    ),
+                                  Row(
+                                    children: [
+                                      if (_isLoadingPlaylists)
+                                        Padding(
+                                          padding: EdgeInsets.only(right: 10),
+                                          child: SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      if (_isEditing)
+                                        ElevatedButton.icon(
+                                          onPressed: _isUpdating
+                                              ? null
+                                              : _updateFileDetails,
+                                          icon: _isUpdating
+                                              ? SizedBox(
+                                                  width: 16,
+                                                  height: 16,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    color: Colors.white,
+                                                  ),
+                                                )
+                                              : Icon(Icons.save),
+                                          label: Text(_isUpdating
+                                              ? 'Saving...'
+                                              : 'Save'),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.green,
+                                            foregroundColor: Colors.white,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ],
                               ),
                               SizedBox(height: 15),
+
+                              // Song Information Subsection
+                              Text(
+                                'Song Details',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(height: 10),
                               _buildEditableInfoRow(
                                   'Text:', _textController, _isEditing),
                               _buildEditableInfoRow(
@@ -637,6 +705,91 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
                                     currentFile.lengthText ?? 'Unknown'),
                                 if (currentFile.isrc != null)
                                   _buildInfoRow('ISRC:', currentFile.isrc!),
+                              ],
+
+                              SizedBox(height: 20),
+
+                              // Playlists Subsection
+                              Text(
+                                'Playlists',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              if (_isEditing &&
+                                  _availablePlaylists.isNotEmpty) ...[
+                                // Editable playlist selection
+                                Text(
+                                  'Select playlists for this file:',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                ..._availablePlaylists.map((playlist) {
+                                  final isSelected = _selectedPlaylistIds
+                                      .contains(playlist.id);
+                                  return CheckboxListTile(
+                                    title: Text(
+                                      '${playlist.name} (${playlist.numSongs} songs)',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    value: isSelected,
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        if (value == true) {
+                                          _selectedPlaylistIds.add(playlist.id);
+                                        } else {
+                                          _selectedPlaylistIds
+                                              .remove(playlist.id);
+                                        }
+                                      });
+                                    },
+                                    activeColor: Colors.blue,
+                                    checkColor: Colors.white,
+                                    controlAffinity:
+                                        ListTileControlAffinity.leading,
+                                    contentPadding: EdgeInsets.zero,
+                                  );
+                                }).toList(),
+                              ] else if (!_isEditing &&
+                                  currentFile.playlists != null &&
+                                  currentFile.playlists!.isNotEmpty) ...[
+                                // Display current playlists (read-only)
+                                ...currentFile.playlists!
+                                    .map(
+                                      (playlist) => Padding(
+                                        padding: EdgeInsets.only(bottom: 8),
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.queue_music,
+                                                color: Colors.blue, size: 20),
+                                            SizedBox(width: 10),
+                                            Expanded(
+                                              child: Text(
+                                                '${playlist.name} (${playlist.count} songs)',
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ] else if (!_isEditing) ...[
+                                // No playlists message
+                                Text(
+                                  'This file is not in any playlists',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
                               ],
                             ],
                           ),
@@ -680,58 +833,6 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
                           ),
                         ),
                       ),
-
-                      // Playlists if available
-                      if (currentFile.playlists != null &&
-                          currentFile.playlists!.isNotEmpty)
-                        Column(
-                          children: [
-                            SizedBox(height: 20),
-                            Card(
-                              color: Colors.black38,
-                              child: Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.all(20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Playlists',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(height: 15),
-                                    ...currentFile.playlists!
-                                        .map(
-                                          (playlist) => Padding(
-                                            padding: EdgeInsets.only(bottom: 8),
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.queue_music,
-                                                    color: Colors.blue,
-                                                    size: 20),
-                                                SizedBox(width: 10),
-                                                Expanded(
-                                                  child: Text(
-                                                    '${playlist.name} (${playlist.count} songs)',
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                     ],
                   ),
                 ),
