@@ -75,19 +75,8 @@ class _FilesScreenState extends State<FilesScreen> {
                         'Number of files: ${snapshot.data!.length}',
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       );
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.blue,
-                        ),
-                      );
-                    } else {
-                      return Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.blue,
-                        ),
-                      );
                     }
+                    return Container();
                   },
                 ),
                 SizedBox(
@@ -293,6 +282,13 @@ class _FilesScreenState extends State<FilesScreen> {
                               ),
                             );
                           },
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: TextStyle(color: Colors.red, fontSize: 16),
                         ),
                       );
                     } else {
