@@ -5,7 +5,7 @@ import 'package:azuracastadmin/widgets/backendactions.dart';
 import 'package:azuracastadmin/widgets/frontendactions.dart';
 import 'package:azuracastadmin/widgets/otherinfo.dart';
 import 'package:azuracastadmin/widgets/station_status.dart';
-import 'package:azuracastadmin/widgets/title_and_settings_icon_button.dart';
+import 'package:azuracastadmin/widgets/title_settings_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../widgets/c_p_u_stats_widget.dart';
@@ -30,7 +30,7 @@ class _WidgetsScreenState extends State<WidgetsScreen> {
         padding: EdgeInsets.all(10),
         child: Column(
           children: [
-            TitleAndSettingsIconButton(context: context),
+            TitleSettingsAvatarWidget(context: context),
             SizedBox(
               height: 10,
             ),

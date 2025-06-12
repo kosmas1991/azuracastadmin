@@ -14,6 +14,7 @@ import 'package:azuracastadmin/models/requestsongdata.dart';
 import 'package:azuracastadmin/models/settings.dart';
 import 'package:azuracastadmin/models/station_playlist.dart';
 import 'package:azuracastadmin/models/stationsstatus.dart';
+import 'package:azuracastadmin/models/user_account.dart';
 import 'package:azuracastadmin/models/users.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -723,5 +724,26 @@ Future<ListOfFiles> fetchSingleFileDetails({
     }
   } catch (e) {
     throw Exception('Failed to fetch file details: $e');
+  }
+}
+
+// Fetch user account information
+Future<UserAccount> fetchUserAccount(String url, String apiKey) async {
+  try {
+    var response = await http.get(
+      Uri.parse('$url/api/frontend/account/me'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return UserAccount.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to fetch user account: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Failed to fetch user account: $e');
   }
 }
