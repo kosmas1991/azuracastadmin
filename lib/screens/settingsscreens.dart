@@ -378,8 +378,10 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
       int? maxLines,
       String? hintText}) {
     if (!_isEditMode) {
-      String displayValue = controller.text.isEmpty ? 'Not set' : controller.text;
-      return _buildSettingRow(label, displayValue, icon: icon, copyable: displayValue != 'Not set');
+      String displayValue =
+          controller.text.isEmpty ? 'Not set' : controller.text;
+      return _buildSettingRow(label, displayValue,
+          icon: icon, copyable: displayValue != 'Not set');
     }
 
     return Padding(
@@ -716,6 +718,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
+          centerTitle: true,
           backgroundColor: Colors.black.withAlpha(204),
           foregroundColor: Colors.white,
           elevation: 0,
@@ -865,7 +868,8 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
 
                   // Populate controllers when data is first loaded or when entering edit mode
                   if (_instanceNameController.text.isEmpty ||
-                      _instanceNameController.text != (data.instanceName ?? '')) {
+                      _instanceNameController.text !=
+                          (data.instanceName ?? '')) {
                     _populateControllers(data);
                   }
 

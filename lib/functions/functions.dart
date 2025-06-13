@@ -847,3 +847,84 @@ Future<ApiResponse> updateUser({
     );
   }
 }
+
+Future<ApiResponse> deleteUser({
+  required String url,
+  required String apiKey,
+  required int userId,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    final response = await http.delete(
+      Uri.parse('$url/api/admin/user/$userId'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: responseData['success'] ?? false,
+        message: responseData['message'] ?? 'User deleted successfully',
+        code: response.statusCode,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to delete user: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Delete failed: $e',
+      code: 500,
+    );
+  }
+}
+
+Future<ApiResponse> createUser({
+  required String url,
+  required String apiKey,
+  required Map<String, dynamic> userData,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+      'Content-Type': 'application/json',
+    };
+
+    final response = await http.post(
+      Uri.parse('$url/api/admin/users'),
+      headers: headers,
+      body: json.encode(userData),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: true,
+        message: 'User created successfully',
+        code: response.statusCode,
+        extraData: responseData,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to create user: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Create failed: $e',
+      code: 500,
+    );
+  }
+}

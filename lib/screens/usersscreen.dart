@@ -66,6 +66,7 @@ class _UsersScreenState extends State<UsersScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
+          centerTitle: true,
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
           title: Text(
@@ -73,6 +74,14 @@ class _UsersScreenState extends State<UsersScreen> {
             style: TextStyle(color: Colors.white),
           ),
           actions: [
+            IconButton(
+              onPressed: () => _showCreateUserDialog(),
+              icon: Icon(
+                Icons.person_add,
+                color: Colors.white,
+              ),
+              tooltip: 'Create User',
+            ),
             IconButton(
               onPressed: _isLoading ? null : _refreshUsers,
               icon: _isLoading
@@ -418,6 +427,21 @@ class _UsersScreenState extends State<UsersScreen> {
                         ),
                       ),
                     ),
+                    SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: () => _showDeleteUserDialog(user),
+                      icon: Icon(Icons.delete, size: 16),
+                      label: Text('Delete'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -730,6 +754,526 @@ class _UsersScreenState extends State<UsersScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showCreateUserDialog() {
+    TextEditingController emailController = TextEditingController();
+    TextEditingController nameController = TextEditingController();
+    TextEditingController passwordController = TextEditingController();
+    TextEditingController localeController =
+        TextEditingController(text: 'en_US');
+    bool show24HourTime = false;
+    Set<String> selectedRoleIds = {};
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: Color.fromARGB(255, 42, 42, 42),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.person_add, color: Colors.green),
+              SizedBox(width: 8),
+              Text(
+                'Create User',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+          content: Container(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Email field (required)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black38,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.withAlpha(76)),
+                    ),
+                    child: TextField(
+                      controller: emailController,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Email *',
+                        labelStyle: TextStyle(color: Colors.green.shade300),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(16),
+                        prefixIcon: Icon(Icons.email, color: Colors.green),
+                        hintText: 'user@example.com',
+                        hintStyle: TextStyle(color: Colors.grey.shade600),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 16),
+
+                  // Password field (required)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black38,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.withAlpha(76)),
+                    ),
+                    child: TextField(
+                      controller: passwordController,
+                      obscureText: true,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Password *',
+                        labelStyle: TextStyle(color: Colors.green.shade300),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(16),
+                        prefixIcon: Icon(Icons.lock, color: Colors.green),
+                        hintText: 'Minimum 8 characters',
+                        hintStyle: TextStyle(color: Colors.grey.shade600),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 16),
+
+                  // Name field
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black38,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.withAlpha(76)),
+                    ),
+                    child: TextField(
+                      controller: nameController,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Name',
+                        labelStyle: TextStyle(color: Colors.green.shade300),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(16),
+                        prefixIcon: Icon(Icons.person, color: Colors.green),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 16),
+
+                  // Locale field
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black38,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.withAlpha(76)),
+                    ),
+                    child: TextField(
+                      controller: localeController,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Locale',
+                        labelStyle: TextStyle(color: Colors.green.shade300),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(16),
+                        prefixIcon: Icon(Icons.language, color: Colors.green),
+                        hintText: 'e.g., en_US',
+                        hintStyle: TextStyle(color: Colors.grey.shade600),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 16),
+
+                  // 24 hour time toggle
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black38,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.withAlpha(76)),
+                    ),
+                    child: SwitchListTile(
+                      title: Text(
+                        '24 Hour Time Format',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      subtitle: Text(
+                        'Use 24-hour time display',
+                        style: TextStyle(color: Colors.grey.shade400),
+                      ),
+                      value: show24HourTime,
+                      onChanged: (value) {
+                        setState(() {
+                          show24HourTime = value;
+                        });
+                      },
+                      activeColor: Colors.green,
+                      contentPadding: EdgeInsets.all(16),
+                    ),
+                  ),
+
+                  SizedBox(height: 16),
+
+                  // Roles multi-selection
+                  FutureBuilder<List<RoleModel>>(
+                    future: roles,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black38,
+                            borderRadius: BorderRadius.circular(8),
+                            border:
+                                Border.all(color: Colors.green.withAlpha(76)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.admin_panel_settings,
+                                        color: Colors.green),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Roles',
+                                      style: TextStyle(
+                                        color: Colors.green.shade300,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              ...snapshot.data!.map((role) {
+                                String roleId = role.id.toString();
+                                bool isSelected =
+                                    selectedRoleIds.contains(roleId);
+
+                                return CheckboxListTile(
+                                  title: Text(
+                                    role.name ?? 'Unknown Role',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  subtitle: role.isSuperAdmin == true
+                                      ? Text(
+                                          'Super Administrator',
+                                          style: TextStyle(
+                                              color: Colors.red.shade300,
+                                              fontSize: 12),
+                                        )
+                                      : null,
+                                  value: isSelected,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      if (value == true) {
+                                        selectedRoleIds.add(roleId);
+                                      } else {
+                                        selectedRoleIds.remove(roleId);
+                                      }
+                                    });
+                                  },
+                                  activeColor: Colors.green,
+                                  checkColor: Colors.white,
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 16),
+                                );
+                              }).toList(),
+                              SizedBox(height: 8),
+                            ],
+                          ),
+                        );
+                      } else {
+                        return Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.black38,
+                            borderRadius: BorderRadius.circular(8),
+                            border:
+                                Border.all(color: Colors.green.withAlpha(76)),
+                          ),
+                          child: Row(
+                            children: [
+                              CircularProgressIndicator(
+                                  color: Colors.green, strokeWidth: 2),
+                              SizedBox(width: 16),
+                              Text(
+                                'Loading roles...',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => _createUser(
+                emailController.text,
+                passwordController.text,
+                nameController.text,
+                localeController.text,
+                show24HourTime,
+                selectedRoleIds,
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              child: Text(
+                'Create',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _createUser(
+    String email,
+    String password,
+    String name,
+    String locale,
+    bool show24HourTime,
+    Set<String> selectedRoleIds,
+  ) async {
+    // Validation
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Email is required'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Password is required'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (!email.contains('@') || !email.contains('.')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter a valid email address'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (password.length < 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Password must be at least 8 characters'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    Map<String, dynamic> userData = {
+      'email': email,
+      'new_password': password,
+      'name': name.isNotEmpty ? name : null,
+      'locale': locale.isNotEmpty ? locale : null,
+      'show_24_hour_time': show24HourTime,
+    };
+
+    if (selectedRoleIds.isNotEmpty) {
+      userData['roles'] = selectedRoleIds.toList();
+    }
+
+    try {
+      var response = await createUser(
+        url: widget.url,
+        apiKey: widget.apiKey,
+        userData: userData,
+      );
+
+      Navigator.pop(context);
+
+      if (response.success == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('User created successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _refreshUsers();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to create user: ${response.message}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error creating user: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _deleteUser(Users user) async {
+    if (user.id == null) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Invalid user ID'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      var response = await deleteUser(
+        url: widget.url,
+        apiKey: widget.apiKey,
+        userId: user.id!,
+      );
+
+      Navigator.pop(context);
+
+      if (response.success == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('User deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _refreshUsers();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete user: ${response.message}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error deleting user: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _showDeleteUserDialog(Users user) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Color.fromARGB(255, 42, 42, 42),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red),
+            SizedBox(width: 8),
+            Text(
+              'Delete User',
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Are you sure you want to delete this user?',
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            SizedBox(height: 16),
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withAlpha(25),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red.withAlpha(76)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Email: ${user.email ?? 'N/A'}',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  if (user.name != null && user.name!.isNotEmpty)
+                    Text(
+                      'Name: ${user.name}',
+                      style: TextStyle(color: Colors.grey.shade300),
+                    ),
+                  Text(
+                    'ID: ${user.id?.toString() ?? 'N/A'}',
+                    style: TextStyle(color: Colors.grey.shade300),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16),
+            Text(
+              '⚠️ This action cannot be undone!',
+              style: TextStyle(
+                color: Colors.red.shade300,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => _deleteUser(user),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: Text(
+              'Delete',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
