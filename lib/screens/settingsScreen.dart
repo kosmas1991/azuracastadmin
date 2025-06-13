@@ -168,7 +168,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       SizedBox(height: 30),
                       // Disclaimer Card
                       Card(
-                        color: Colors.amber.withOpacity(0.1),
+                        color: Colors.amber.withAlpha(10),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
                           side: BorderSide(color: Colors.amber, width: 1),
