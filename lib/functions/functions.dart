@@ -257,6 +257,44 @@ Future<SettingsModel> fetchSettings(
   }
 }
 
+Future<ApiResponse> updateSettings({
+  required String url,
+  required String apiKey,
+  required Map<String, dynamic> settingsData,
+}) async {
+  try {
+    var response = await http.put(
+      Uri.parse('$url/api/admin/settings'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(settingsData),
+    );
+
+    if (response.statusCode == 200) {
+      return ApiResponse(
+        success: true,
+        message: 'Settings updated successfully',
+        code: 200,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to update settings: ${response.body}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Update failed: $e',
+      code: 500,
+    );
+  }
+}
+
 void requestNewSong(String theURL, String url, BuildContext context) async {
   var response = await http.get(Uri.parse('${theURL}${url}'));
   if (response.body.contains('"success":true')) {
