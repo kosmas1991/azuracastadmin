@@ -248,8 +248,8 @@ class UpdateResults {
     });
 
     factory UpdateResults.fromJson(Map<String, dynamic> json) => UpdateResults(
-        currentRelease: json["currentRelease"],
-        latestRelease: json["latestRelease"],
+        currentRelease: json["current_release"],
+        latestRelease: json["latest_release"],
         needsRollingUpdate: json["needs_rolling_update"],
         rollingUpdatesAvailable: json["rolling_updates_available"],
         rollingUpdatesList: json["rolling_updates_list"] == null ? [] : List<dynamic>.from(json["rolling_updates_list"]!.map((x) => x)),
@@ -258,8 +258,8 @@ class UpdateResults {
     );
 
     Map<String, dynamic> toJson() => {
-        "currentRelease": currentRelease,
-        "latestRelease": latestRelease,
+        "current_release": currentRelease,
+        "latest_release": latestRelease,
         "needs_rolling_update": needsRollingUpdate,
         "rolling_updates_available": rollingUpdatesAvailable,
         "rolling_updates_list": rollingUpdatesList == null ? [] : List<dynamic>.from(rollingUpdatesList!.map((x) => x)),
