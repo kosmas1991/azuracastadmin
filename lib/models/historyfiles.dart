@@ -10,7 +10,7 @@ class HistoryFiles {
   int? shId;
   int? playedAt;
   int? duration;
-
+  String? playlist;
   String? streamer;
   bool? isRequest;
   Song? song;
@@ -23,6 +23,7 @@ class HistoryFiles {
     this.shId,
     this.playedAt,
     this.duration,
+    this.playlist,
     this.streamer,
     this.isRequest,
     this.song,
@@ -36,6 +37,7 @@ class HistoryFiles {
         shId: json["sh_id"],
         playedAt: json["played_at"],
         duration: json["duration"],
+        playlist: json["playlist"],
         streamer: json["streamer"],
         isRequest: json["is_request"],
         song: json["song"] == null ? null : Song.fromJson(json["song"]),
@@ -49,6 +51,7 @@ class HistoryFiles {
         "sh_id": shId,
         "played_at": playedAt,
         "duration": duration,
+        "playlist": playlist,
         "streamer": streamer,
         "is_request": isRequest,
         "song": song?.toJson(),
