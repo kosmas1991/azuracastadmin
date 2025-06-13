@@ -35,19 +35,15 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
           title: Text(
             'Charts',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(color: Colors.white),
           ),
         ),
-        extendBodyBehindAppBar: true,
         body: Container(
           height: double.infinity,
           width: double.infinity,
@@ -71,8 +67,6 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                       return SingleChildScrollView(
                         child: Column(
                           children: [
-                            SizedBox(height: 80), // For AppBar space
-
                             // Daily Listeners Line Chart
                             if (snapshot.data!.daily != null)
                               _buildDailyLineChart(

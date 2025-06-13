@@ -405,6 +405,60 @@ class _FilesScreenState extends State<FilesScreen> {
 
     return SafeArea(
         child: Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        title: Text(
+          'Files',
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          IconButton(
+            onPressed: _isUploading ? null : _uploadFile,
+            icon: _isUploading
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Icon(
+                    Icons.upload_file,
+                    color: Colors.white,
+                  ),
+            tooltip: _isUploading ? 'Uploading...' : 'Upload new file',
+          ),
+          IconButton(
+            onPressed: _toggleSearch,
+            icon: Icon(
+              _isSearchVisible ? Icons.search_off : Icons.search,
+              color: Colors.white,
+            ),
+            tooltip: _isSearchVisible ? 'Hide search' : 'Search files',
+          ),
+          IconButton(
+            onPressed: _isRefreshing ? null : _refreshFilesList,
+            icon: _isRefreshing
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Icon(
+                    Icons.refresh,
+                    color: Colors.white,
+                  ),
+            tooltip: _isRefreshing ? 'Refreshing...' : 'Refresh files list',
+          ),
+        ],
+      ),
       body: Container(
         height: double.infinity,
         width: double.infinity,
@@ -423,82 +477,24 @@ class _FilesScreenState extends State<FilesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    FutureBuilder(
-                      future: listOfFiles,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          final filteredFiles = _filterFiles(snapshot.data!);
-                          return Text(
-                            _searchQuery.isEmpty
-                                ? 'Number of files: ${snapshot.data!.length}'
-                                : 'Found: ${filteredFiles.length} of ${snapshot.data!.length}',
-                            style: TextStyle(color: Colors.white, fontSize: 20),
-                          );
-                        }
-                        return Text(
-                          'Loading files...',
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        );
-                      },
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: _isUploading ? null : _uploadFile,
-                          icon: _isUploading
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Icon(
-                                  Icons.upload_file,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                          tooltip:
-                              _isUploading ? 'Uploading...' : 'Upload new file',
-                        ),
-                        IconButton(
-                          onPressed: _toggleSearch,
-                          icon: Icon(
-                            _isSearchVisible ? Icons.search_off : Icons.search,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          tooltip:
-                              _isSearchVisible ? 'Hide search' : 'Search files',
-                        ),
-                        IconButton(
-                          onPressed: _isRefreshing ? null : _refreshFilesList,
-                          icon: _isRefreshing
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Icon(
-                                  Icons.refresh,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                          tooltip: _isRefreshing
-                              ? 'Refreshing...'
-                              : 'Refresh files list',
-                        ),
-                      ],
-                    ),
-                  ],
+                // File count display
+                FutureBuilder(
+                  future: listOfFiles,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final filteredFiles = _filterFiles(snapshot.data!);
+                      return Text(
+                        _searchQuery.isEmpty
+                            ? 'Number of files: ${snapshot.data!.length}'
+                            : 'Found: ${filteredFiles.length} of ${snapshot.data!.length}',
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      );
+                    }
+                    return Text(
+                      'Loading files...',
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    );
+                  },
                 ),
                 // Search bar (conditionally visible)
                 if (_isSearchVisible) ...[

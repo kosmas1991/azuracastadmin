@@ -34,6 +34,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
     return SafeArea(
         child: Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        title: Text(
+          'History',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
       body: Container(
         height: double.infinity,
         width: double.infinity,

@@ -46,6 +46,15 @@ class _ListenersScreenState extends State<ListenersScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        title: Text(
+          'Active Listeners',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
       body: Container(
         height: double.infinity,
         width: double.infinity,

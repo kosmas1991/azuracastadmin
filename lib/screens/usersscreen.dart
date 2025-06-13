@@ -33,6 +33,15 @@ class _UsersScreenState extends State<UsersScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
     return SafeArea(
         child: Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        title: Text(
+          'Users',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
       body: Container(
         height: double.infinity,
         width: double.infinity,

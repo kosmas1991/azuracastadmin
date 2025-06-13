@@ -91,6 +91,15 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
   Widget build(BuildContext screenContext) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          title: Text(
+            'Play Station',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
         body: Stack(children: [
           Container(
                   width: double.infinity,
