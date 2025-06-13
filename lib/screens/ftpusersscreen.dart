@@ -36,6 +36,7 @@ class _FTPUsersScreenState extends State<FTPUsersScreen> {
         child: Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         title: Text(

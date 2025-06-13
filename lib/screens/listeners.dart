@@ -78,7 +78,7 @@ class _ListenersScreenState extends State<ListenersScreen>
       // Fetch new data in background
       final newListeners = await fetchListeners(
           widget.url, 'listeners', widget.apiKey, widget.stationID);
-      
+
       // Update the current listeners without rebuilding
       if (mounted) {
         setState(() {
@@ -396,6 +396,7 @@ class _ListenersScreenState extends State<ListenersScreen>
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
+          centerTitle: true,
           backgroundColor: Colors.black.withAlpha(80),
           foregroundColor: Colors.white,
           elevation: 0,
@@ -454,9 +455,11 @@ class _ListenersScreenState extends State<ListenersScreen>
                 future: activeListeners,
                 builder: (context, snapshot) {
                   // Use current listeners if available, otherwise use snapshot data
-                  List<ActiveListeners>? listenersToShow = _currentListeners ?? snapshot.data;
-                  
-                  if (snapshot.connectionState == ConnectionState.waiting && _currentListeners == null) {
+                  List<ActiveListeners>? listenersToShow =
+                      _currentListeners ?? snapshot.data;
+
+                  if (snapshot.connectionState == ConnectionState.waiting &&
+                      _currentListeners == null) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -563,7 +566,8 @@ class _ListenersScreenState extends State<ListenersScreen>
                           padding: EdgeInsets.only(bottom: 16),
                           itemCount: listenersToShow.length,
                           itemBuilder: (context, index) {
-                            return _buildListenerCard(listenersToShow[index], index);
+                            return _buildListenerCard(
+                                listenersToShow[index], index);
                           },
                         ),
                       ),

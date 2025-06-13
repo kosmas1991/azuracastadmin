@@ -28,6 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
+          centerTitle: true,
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
           title: Text(
@@ -161,9 +162,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     ),
                                     suffixIcon: IconButton(
                                       icon: Icon(
-                                        _obscureApiKey 
-                                          ? Icons.visibility 
-                                          : Icons.visibility_off,
+                                        _obscureApiKey
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
                                         color: Colors.white70,
                                       ),
                                       onPressed: () {
@@ -269,19 +270,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ElevatedButton.icon(
                                 onPressed: () async {
                                   try {
-                                    final Uri url = Uri.parse('https://ko-fi.com/kosmas1991');
-                                    
+                                    final Uri url = Uri.parse(
+                                        'https://ko-fi.com/kosmas1991');
+
                                     // Try to launch with external application mode first
                                     bool launched = await launchUrl(
-                                      url, 
+                                      url,
                                       mode: LaunchMode.externalApplication,
                                     );
-                                    
+
                                     if (!launched) {
                                       // Fallback to platform default mode
                                       launched = await launchUrl(url);
                                     }
-                                    
+
                                     if (!launched) {
                                       // Final fallback - show error message
                                       throw Exception('Could not launch URL');
@@ -292,9 +294,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       SnackBar(
                                         content: Column(
                                           mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Text('Could not open Ko-fi link automatically'),
+                                            Text(
+                                                'Could not open Ko-fi link automatically'),
                                             SizedBox(height: 4),
                                             Text(
                                               'Please copy this URL: https://ko-fi.com/kosmas1991',
@@ -309,7 +313,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           textColor: Colors.white,
                                           onPressed: () {
                                             Clipboard.setData(
-                                              ClipboardData(text: 'https://ko-fi.com/kosmas1991'),
+                                              ClipboardData(
+                                                  text:
+                                                      'https://ko-fi.com/kosmas1991'),
                                             );
                                           },
                                         ),
@@ -331,7 +337,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.pink,
-                                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 24, vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(25),
                                   ),

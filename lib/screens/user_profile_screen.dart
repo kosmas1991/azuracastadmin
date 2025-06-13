@@ -33,6 +33,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
+          centerTitle: true,
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
           title: Text(

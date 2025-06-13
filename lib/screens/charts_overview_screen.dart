@@ -37,6 +37,7 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
+          centerTitle: true,
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
           title: Text(
