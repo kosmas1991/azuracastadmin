@@ -4,6 +4,7 @@ import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,6 +15,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   Future<SharedPreferences> _preferences = SharedPreferences.getInstance();
+  bool _obscureApiKey = true;
 
   @override
   Widget build(BuildContext context) {
@@ -156,9 +158,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       Icons.key,
                                       color: Colors.white70,
                                     ),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscureApiKey 
+                                          ? Icons.visibility 
+                                          : Icons.visibility_off,
+                                        color: Colors.white70,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _obscureApiKey = !_obscureApiKey;
+                                        });
+                                      },
+                                    ),
                                   ),
                                   cursorColor: Colors.blue,
-                                  obscureText: true,
+                                  obscureText: _obscureApiKey,
                                 ),
                               ),
                             ],
@@ -204,6 +219,85 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   height: 1.4,
                                 ),
                                 textAlign: TextAlign.left,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      // Ko-fi Donate Button
+                      Card(
+                        color: Colors.pink.withAlpha(25),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          side: BorderSide(color: Colors.pink, width: 1),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.favorite,
+                                    color: Colors.pink,
+                                    size: 24,
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    'Support the Developer',
+                                    style: TextStyle(
+                                      color: Colors.pink,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 15),
+                              Text(
+                                'If you find this app useful, consider supporting the developer with a small donation. Your support helps keep the app updated and maintained!',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  height: 1.4,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 20),
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  final Uri url = Uri.parse('https://ko-fi.com/kosmas1991');
+                                  if (await canLaunchUrl(url)) {
+                                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Could not open Ko-fi link'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.coffee,
+                                  color: Colors.white,
+                                ),
+                                label: Text(
+                                  'Buy me a coffee ☕',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.pink,
+                                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
