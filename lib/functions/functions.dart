@@ -16,6 +16,7 @@ import 'package:azuracastadmin/models/station_playlist.dart';
 import 'package:azuracastadmin/models/stationsstatus.dart';
 import 'package:azuracastadmin/models/user_account.dart';
 import 'package:azuracastadmin/models/users.dart';
+import 'package:azuracastadmin/models/roles.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -202,6 +203,7 @@ Future<List<Users>> fetchUsers(String url, String path, String apiKey) async {
     List<Users> users = (json.decode(response.body) as List)
         .map((i) => Users.fromJson(i))
         .toList();
+
     return users;
   } else {
     throw Exception('Failed');
@@ -783,5 +785,65 @@ Future<UserAccount> fetchUserAccount(String url, String apiKey) async {
     }
   } catch (e) {
     throw Exception('Failed to fetch user account: $e');
+  }
+}
+
+// Fetch roles
+Future<List<RoleModel>> fetchRoles(String url, String apiKey) async {
+  try {
+    var response = await http.get(
+      Uri.parse('$url/api/admin/roles'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      List<RoleModel> roles = (json.decode(response.body) as List)
+          .map((i) => RoleModel.fromJson(i))
+          .toList();
+      return roles;
+    } else {
+      throw Exception('Failed to fetch roles: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Failed to fetch roles: $e');
+  }
+}
+
+// Update user
+Future<ApiResponse> updateUser({
+  required String url,
+  required String apiKey,
+  required int userId,
+  required Map<String, dynamic> userData,
+}) async {
+  try {
+    var response = await http.put(
+      Uri.parse('$url/api/admin/user/$userId'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(userData),
+    );
+
+    if (response.statusCode == 200) {
+      return ApiResponse.fromJson(json.decode(response.body));
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Update failed with status code: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Update failed: $e',
+      code: 500,
+    );
   }
 }
