@@ -12,6 +12,29 @@
 <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 <!-- Add request install packages permission for downloading files -->
 <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+<!-- Queries for URL launcher to work properly on Android 11+ -->
+<queries>
+    <!-- Query to handle web URLs -->
+    <intent>
+        <action android:name="android.intent.action.VIEW" />
+        <data android:scheme="http" />
+    </intent>
+    <intent>
+        <action android:name="android.intent.action.VIEW" />
+        <data android:scheme="https" />
+    </intent>
+    <!-- Query to handle email -->
+    <intent>
+        <action android:name="android.intent.action.SENDTO" />
+        <data android:scheme="mailto" />
+    </intent>
+    <!-- Query to handle phone calls -->
+    <intent>
+        <action android:name="android.intent.action.DIAL" />
+        <data android:scheme="tel" />
+    </intent>
+</queries>
     <application
         android:label="azuracast admin"
         android:name="${applicationName}"

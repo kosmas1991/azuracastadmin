@@ -2,6 +2,7 @@ import 'package:azuracastadmin/cubits/api/api_cubit.dart';
 import 'package:azuracastadmin/cubits/url/url_cubit.dart';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -267,14 +268,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               SizedBox(height: 20),
                               ElevatedButton.icon(
                                 onPressed: () async {
-                                  final Uri url = Uri.parse('https://ko-fi.com/kosmas1991');
-                                  if (await canLaunchUrl(url)) {
-                                    await launchUrl(url, mode: LaunchMode.externalApplication);
-                                  } else {
+                                  try {
+                                    final Uri url = Uri.parse('https://ko-fi.com/kosmas1991');
+                                    
+                                    // Try to launch with external application mode first
+                                    bool launched = await launchUrl(
+                                      url, 
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                    
+                                    if (!launched) {
+                                      // Fallback to platform default mode
+                                      launched = await launchUrl(url);
+                                    }
+                                    
+                                    if (!launched) {
+                                      // Final fallback - show error message
+                                      throw Exception('Could not launch URL');
+                                    }
+                                  } catch (e) {
+                                    // Show error message with the URL so user can copy it
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Could not open Ko-fi link'),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text('Could not open Ko-fi link automatically'),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              'Please copy this URL: https://ko-fi.com/kosmas1991',
+                                              style: TextStyle(fontSize: 12),
+                                            ),
+                                          ],
+                                        ),
                                         backgroundColor: Colors.red,
+                                        duration: Duration(seconds: 5),
+                                        action: SnackBarAction(
+                                          label: 'Copy URL',
+                                          textColor: Colors.white,
+                                          onPressed: () {
+                                            Clipboard.setData(
+                                              ClipboardData(text: 'https://ko-fi.com/kosmas1991'),
+                                            );
+                                          },
+                                        ),
                                       ),
                                     );
                                   }
