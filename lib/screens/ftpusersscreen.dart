@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/ftpusers.dart';
 import 'package:azuracastadmin/models/api_response.dart';
@@ -76,8 +77,9 @@ class _FTPUsersScreenState extends State<FTPUsersScreen>
   }
 
   void _showEditUserDialog(FtpUsers user) {
-    TextEditingController usernameController =
-        TextEditingController(text: user.username ?? '');
+    TextEditingController usernameController = TextEditingController(
+        text:
+            user.username != null ? utf8.decode(user.username!.codeUnits) : '');
     TextEditingController passwordController = TextEditingController();
     bool obscurePassword = true;
     final _formKey = GlobalKey<FormState>();
@@ -258,7 +260,7 @@ class _FTPUsersScreenState extends State<FTPUsersScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Are you sure you want to delete the FTP user "${user.username}"?',
+              'Are you sure you want to delete the FTP user "${utf8.decode(user.username!.codeUnits)}"?',
               style: TextStyle(color: Colors.white, fontSize: 16),
             ),
             SizedBox(height: 12),
@@ -861,7 +863,9 @@ class _FTPUsersScreenState extends State<FTPUsersScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        user.username ?? 'Unknown',
+                        user.username != null
+                            ? utf8.decode(user.username!.codeUnits)
+                            : 'Unknown',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:azuracastadmin/cubits/radioID/radio_id_cubit.dart';
 import 'package:azuracastadmin/functions/functions.dart';
@@ -49,7 +50,10 @@ class _SelectRadioStationState extends State<SelectRadioStation> {
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
                 DropdownButton<String>(
-                  value: dropDownValue ?? snapshot.data![0].name,
+                  value: dropDownValue ??
+                      (snapshot.data![0].name != null
+                          ? utf8.decode(snapshot.data![0].name!.codeUnits)
+                          : snapshot.data![0].name),
                   underline: Container(),
                   style: TextStyle(
                     fontFamily: 'Schyler',
@@ -64,8 +68,12 @@ class _SelectRadioStationState extends State<SelectRadioStation> {
                         isTheFirstElement = false;
                       }
                       return DropdownMenuItem<String>(
-                        value: e.name,
-                        child: Text(e.name!),
+                        value: e.name != null
+                            ? utf8.decode(e.name!.codeUnits)
+                            : e.name,
+                        child: Text(e.name != null
+                            ? utf8.decode(e.name!.codeUnits)
+                            : 'Unknown'),
                       );
                     }).toList()
                   ],
@@ -74,7 +82,10 @@ class _SelectRadioStationState extends State<SelectRadioStation> {
                       dropDownValue = value;
                       RadioStations radio;
                       radio = snapshot.data!.firstWhere((element) {
-                        if (element.name == value) {
+                        String decodedName = element.name != null
+                            ? utf8.decode(element.name!.codeUnits)
+                            : '';
+                        if (decodedName == value) {
                           return true;
                         } else {
                           return false;

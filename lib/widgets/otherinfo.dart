@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/nowplaying.dart';
@@ -89,7 +90,8 @@ class _OtherInfoState extends State<OtherInfo> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => PlayStationScreen(
-                                radio_name: snapshot.data!.station!.name!,
+                                radio_name: utf8.decode(
+                                    snapshot.data!.station!.name!.codeUnits),
                                 playURL: snapshot.data!.station!.listenUrl ??
                                     snapshot.data!.station!.hlsUrl,
                                 stationID: widget.stationID,

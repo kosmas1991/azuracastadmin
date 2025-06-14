@@ -462,7 +462,7 @@ class _StationInfoState extends State<StationInfo> {
                   width: 180,
                   child: AutoSizeText(
                     maxLines: 2,
-                    '${snapshot.data!.station!.name}',
+                    '${utf8.decode(snapshot.data!.station!.name!.codeUnits)}',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,

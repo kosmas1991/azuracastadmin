@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/users.dart';
 import 'package:azuracastadmin/models/roles.dart';
@@ -292,7 +293,7 @@ class _UsersScreenState extends State<UsersScreen> {
                         if (user.name != null && user.name!.isNotEmpty) ...[
                           SizedBox(height: 4),
                           Text(
-                            user.name!,
+                            utf8.decode(user.name!.codeUnits),
                             style: TextStyle(
                               color: Colors.grey.shade300,
                               fontSize: 14,
