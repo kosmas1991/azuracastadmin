@@ -60,11 +60,26 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
   }
 
   void _initControllers() {
-    _textController = TextEditingController(text: currentFile.text ?? '');
-    _artistController = TextEditingController(text: currentFile.artist ?? '');
-    _titleController = TextEditingController(text: currentFile.title ?? '');
-    _albumController = TextEditingController(text: currentFile.album ?? '');
-    _genreController = TextEditingController(text: currentFile.genre ?? '');
+    _textController = TextEditingController(
+        text: currentFile.text != null
+            ? utf8.decode(currentFile.text!.codeUnits)
+            : '');
+    _artistController = TextEditingController(
+        text: currentFile.artist != null
+            ? utf8.decode(currentFile.artist!.codeUnits)
+            : '');
+    _titleController = TextEditingController(
+        text: currentFile.title != null
+            ? utf8.decode(currentFile.title!.codeUnits)
+            : '');
+    _albumController = TextEditingController(
+        text: currentFile.album != null
+            ? utf8.decode(currentFile.album!.codeUnits)
+            : '');
+    _genreController = TextEditingController(
+        text: currentFile.genre != null
+            ? utf8.decode(currentFile.genre!.codeUnits)
+            : '');
   }
 
   void _initializeSelectedPlaylists() {
@@ -311,11 +326,21 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
             currentFile = updatedFile;
 
             // Update text controllers with fresh data
-            _textController.text = currentFile.text ?? '';
-            _artistController.text = currentFile.artist ?? '';
-            _titleController.text = currentFile.title ?? '';
-            _albumController.text = currentFile.album ?? '';
-            _genreController.text = currentFile.genre ?? '';
+            _textController.text = currentFile.text != null
+                ? utf8.decode(currentFile.text!.codeUnits)
+                : '';
+            _artistController.text = currentFile.artist != null
+                ? utf8.decode(currentFile.artist!.codeUnits)
+                : '';
+            _titleController.text = currentFile.title != null
+                ? utf8.decode(currentFile.title!.codeUnits)
+                : '';
+            _albumController.text = currentFile.album != null
+                ? utf8.decode(currentFile.album!.codeUnits)
+                : '';
+            _genreController.text = currentFile.genre != null
+                ? utf8.decode(currentFile.genre!.codeUnits)
+                : '';
 
             // Update selected playlist IDs with fresh data
             _initializeSelectedPlaylists();
@@ -779,7 +804,7 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
                                       .contains(playlist.id);
                                   return CheckboxListTile(
                                     title: Text(
-                                      '${playlist.name} (${playlist.numSongs} songs)',
+                                      '${utf8.decode(playlist.name.codeUnits)} (${playlist.numSongs} songs)',
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     value: isSelected,
@@ -815,7 +840,7 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
                                             SizedBox(width: 10),
                                             Expanded(
                                               child: Text(
-                                                '${playlist.name} (${playlist.count} songs)',
+                                                '${utf8.decode(playlist.name.codeUnits)} (${playlist.count} songs)',
                                                 style: TextStyle(
                                                     color: Colors.white),
                                               ),
@@ -950,9 +975,7 @@ class _FileDetailScreenState extends State<FileDetailScreen> {
                     ),
                   )
                 : Text(
-                    controller.text.isNotEmpty
-                        ? utf8.decode(controller.text.codeUnits)
-                        : 'Unknown',
+                    controller.text.isNotEmpty ? controller.text : 'Unknown',
                     style: TextStyle(color: Colors.white),
                   ),
           ),

@@ -485,7 +485,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           TextField(
                             controller: _searchController,
                             decoration: InputDecoration(
-                              hintText: 'Search by artist or song name...',
+                              hintText:
+                                  'Search by artist, song name, or playlist...',
                               hintStyle: TextStyle(color: Colors.grey.shade400),
                               prefixIcon: Icon(Icons.search,
                                   color: Colors.grey.shade400),
@@ -616,9 +617,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         String artist = utf8
                             .decode(item.song!.artist!.codeUnits)
                             .toLowerCase();
+                        String playlist =
+                            item.playlist != null && item.playlist!.isNotEmpty
+                                ? utf8
+                                    .decode(item.playlist!.codeUnits)
+                                    .toLowerCase()
+                                : '';
 
                         return title.contains(_searchQuery) ||
-                            artist.contains(_searchQuery);
+                            artist.contains(_searchQuery) ||
+                            playlist.contains(_searchQuery);
                       }).toList();
 
                       // Apply sorting
@@ -1047,7 +1055,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                       ),
                                                       SizedBox(width: 5),
                                                       Text(
-                                                        'Playlist: ${item.playlist!}',
+                                                        'Playlist: ${utf8.decode(item.playlist!.codeUnits)}',
                                                         style: TextStyle(
                                                             color: Colors
                                                                 .grey[300],
