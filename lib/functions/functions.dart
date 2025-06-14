@@ -211,41 +211,167 @@ Future<List<Users>> fetchUsers(String url, String path, String apiKey) async {
 }
 
 Future<List<FtpUsers>> fetchFTPUsers(
-    String url, int id, String path, String apiKey) async {
-  Response response =
-      await getResponse(url: url, id: id, path: path, apiKey: apiKey);
-  if (response.statusCode == 200) {
-    List<FtpUsers> FTPusers = (json.decode(response.body) as List)
-        .map((i) => FtpUsers.fromJson(i))
-        .toList();
-    return FTPusers;
-  } else {
-    throw Exception('Failed');
+    String url, int stationID, String path, String apiKey) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    final response = await http.get(
+      Uri.parse('$url/api/station/$stationID/$path'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      List<FtpUsers> ftpUsers = (json.decode(response.body) as List)
+          .map((i) => FtpUsers.fromJson(i))
+          .toList();
+      return ftpUsers;
+    } else {
+      throw Exception('Failed to fetch FTP users: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Failed to fetch FTP users: $e');
   }
 }
 
-Future<Response> putFTPUser(
-    {required String url,
-    required String path,
-    required String apiKey,
-    required int stationID,
-    required int userID,
-    required String pass,
-    required String username}) async {
-  var response = await http.put(
-      body: jsonEncode(<String, dynamic>{
-        "id": userID,
-        "username": username,
-        "password": pass,
-        "publicKeys": "",
-      }),
-      headers: <String, String>{
-        'accept': 'application/json',
-        'X-API-Key': '${apiKey}',
-      },
-      Uri.parse('${url}/api/station/${stationID}/${path}/${userID}'));
+Future<ApiResponse> updateFTPUser({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required int userID,
+  required String username,
+  required String password,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+      'Content-Type': 'application/json',
+    };
 
-  return response;
+    final body = {
+      'username': username,
+      'password': password,
+    };
+
+    final response = await http.put(
+      Uri.parse('$url/api/station/$stationID/sftp-user/$userID'),
+      headers: headers,
+      body: json.encode(body),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: responseData['success'] ?? true,
+        message: responseData['message'] ?? 'User updated successfully',
+        code: response.statusCode,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to update user: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Update failed: $e',
+      code: 500,
+    );
+  }
+}
+
+Future<ApiResponse> deleteFTPUser({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required int userID,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    final response = await http.delete(
+      Uri.parse('$url/api/station/$stationID/sftp-user/$userID'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: responseData['success'] ?? true,
+        message: responseData['message'] ?? 'User deleted successfully',
+        code: response.statusCode,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to delete user: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Delete failed: $e',
+      code: 500,
+    );
+  }
+}
+
+Future<ApiResponse> createFTPUser({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String username,
+  required String password,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+      'Content-Type': 'application/json',
+    };
+
+    final body = {
+      'username': username,
+      'password': password,
+    };
+
+    final response = await http.post(
+      Uri.parse('$url/api/station/$stationID/sftp-users'),
+      headers: headers,
+      body: json.encode(body),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: true,
+        message: 'User "${responseData['username']}" created successfully',
+        code: response.statusCode,
+        extraData: responseData,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to create user: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Create failed: $e',
+      code: 500,
+    );
+  }
 }
 
 Future<SettingsModel> fetchSettings(
