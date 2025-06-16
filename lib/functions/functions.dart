@@ -1057,7 +1057,8 @@ Future<ApiResponse> createUser({
 }
 
 // Function to fetch notifications from the dashboard endpoint
-Future<List<NotificationItem>> fetchNotifications(String url, String apiKey) async {
+Future<List<NotificationItem>> fetchNotifications(
+    String url, String apiKey) async {
   try {
     final response = await http.get(
       Uri.parse('$url/api/frontend/dashboard/notifications'),
@@ -1074,5 +1075,44 @@ Future<List<NotificationItem>> fetchNotifications(String url, String apiKey) asy
     }
   } catch (e) {
     throw Exception('Error fetching notifications: $e');
+  }
+}
+
+// Function to change user password
+Future<Map<String, dynamic>> changePassword(String url, String apiKey,
+    String currentPassword, String newPassword) async {
+  try {
+    final response = await http.put(
+      Uri.parse('$url/api/frontend/account/password'),
+      headers: <String, String>{
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'current_password': currentPassword,
+        'new_password': newPassword,
+      }),
+    );
+
+    final responseData = json.decode(response.body);
+
+    if (response.statusCode == 200 && responseData['success'] == true) {
+      return {
+        'success': true,
+        'message': responseData['message'] ?? 'Password changed successfully',
+      };
+    } else {
+      return {
+        'success': false,
+        'message': responseData['message'] ?? 'Failed to change password',
+        'code': responseData['code'],
+      };
+    }
+  } catch (e) {
+    return {
+      'success': false,
+      'message': 'Network error: $e',
+    };
   }
 }
