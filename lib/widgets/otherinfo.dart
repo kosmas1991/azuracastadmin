@@ -10,6 +10,7 @@ import 'package:azuracastadmin/screens/historyscreen.dart';
 import 'package:azuracastadmin/screens/listeners.dart';
 import 'package:azuracastadmin/screens/playstationscreen.dart';
 import 'package:azuracastadmin/screens/settingsscreens.dart';
+import 'package:azuracastadmin/screens/stations_management_screen.dart';
 import 'package:azuracastadmin/screens/usersscreen.dart';
 import 'package:flutter/material.dart';
 
@@ -220,6 +221,22 @@ class _OtherInfoState extends State<OtherInfo> {
               },
               child: Text(
                 'Charts',
+                style: TextStyle(color: Colors.white),
+              )),
+          FilledButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StationsManagementScreen(
+                          apiKey: widget.apiKey, url: widget.url),
+                    ));
+              },
+              child: Text(
+                'Stations',
                 style: TextStyle(color: Colors.white),
               )),
         ],

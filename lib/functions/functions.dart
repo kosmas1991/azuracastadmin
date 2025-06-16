@@ -1174,3 +1174,197 @@ Future<Map<String, dynamic>> deleteApiKey(
     };
   }
 }
+
+// Station management functions
+Future<List<dynamic>> fetchStations(String url, String apiKey) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    final response = await http.get(
+      Uri.parse('$url/api/admin/stations'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data;
+    } else {
+      throw Exception('Failed to load stations: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Network error: $e');
+  }
+}
+
+Future<Map<String, dynamic>> createStation(
+  String url,
+  String apiKey,
+  Map<String, dynamic> stationData,
+) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+      'Content-Type': 'application/json',
+    };
+
+    final response = await http.post(
+      Uri.parse('$url/api/admin/stations'),
+      headers: headers,
+      body: json.encode(stationData),
+    );
+
+    final responseData = json.decode(response.body);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return {
+        'success': true,
+        'message': responseData['message'] ?? 'Station created successfully',
+        'data': responseData,
+      };
+    } else {
+      return {
+        'success': false,
+        'message': responseData['message'] ?? 'Failed to create station',
+        'code': responseData['code'],
+      };
+    }
+  } catch (e) {
+    return {
+      'success': false,
+      'message': 'Network error: $e',
+    };
+  }
+}
+
+Future<Map<String, dynamic>> updateStation(
+  String url,
+  String apiKey,
+  int stationId,
+  Map<String, dynamic> stationData,
+) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+      'Content-Type': 'application/json',
+    };
+
+    final response = await http.put(
+      Uri.parse('$url/api/admin/station/$stationId'),
+      headers: headers,
+      body: json.encode(stationData),
+    );
+
+    final responseData = json.decode(response.body);
+
+    if (response.statusCode == 200) {
+      return {
+        'success': true,
+        'message': responseData['message'] ?? 'Station updated successfully',
+        'data': responseData,
+      };
+    } else {
+      return {
+        'success': false,
+        'message': responseData['message'] ?? 'Failed to update station',
+        'code': responseData['code'],
+      };
+    }
+  } catch (e) {
+    return {
+      'success': false,
+      'message': 'Network error: $e',
+    };
+  }
+}
+
+Future<Map<String, dynamic>> cloneStation(
+  String url,
+  String apiKey,
+  int stationId,
+  String name,
+  String description,
+) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+      'Content-Type': 'application/json',
+    };
+
+    final cloneData = {
+      'name': name,
+      'description': description,
+      'clone': ['media_storage'], // Fixed as per requirements
+    };
+
+    final response = await http.post(
+      Uri.parse('$url/api/admin/station/$stationId/clone'),
+      headers: headers,
+      body: json.encode(cloneData),
+    );
+
+    final responseData = json.decode(response.body);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return {
+        'success': true,
+        'message': responseData['message'] ?? 'Station cloned successfully',
+        'data': responseData,
+      };
+    } else {
+      return {
+        'success': false,
+        'message': responseData['message'] ?? 'Failed to clone station',
+        'code': responseData['code'],
+      };
+    }
+  } catch (e) {
+    return {
+      'success': false,
+      'message': 'Network error: $e',
+    };
+  }
+}
+
+Future<Map<String, dynamic>> deleteStation(
+  String url,
+  String apiKey,
+  int stationId,
+) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    final response = await http.delete(
+      Uri.parse('$url/api/admin/station/$stationId'),
+      headers: headers,
+    );
+
+    final responseData = json.decode(response.body);
+
+    if (response.statusCode == 200) {
+      return {
+        'success': true,
+        'message': responseData['message'] ?? 'Station deleted successfully',
+      };
+    } else {
+      return {
+        'success': false,
+        'message': responseData['message'] ?? 'Failed to delete station',
+        'code': responseData['code'],
+      };
+    }
+  } catch (e) {
+    return {
+      'success': false,
+      'message': 'Network error: $e',
+    };
+  }
+}
