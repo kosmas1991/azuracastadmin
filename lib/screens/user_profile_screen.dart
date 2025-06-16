@@ -1,5 +1,7 @@
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/user_account.dart';
+import 'package:azuracastadmin/models/notification.dart';
+import 'package:azuracastadmin/widgets/notification_popup.dart';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -20,11 +22,34 @@ class UserProfileScreen extends StatefulWidget {
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
   late Future<UserAccount> userAccount;
+  late Future<List<NotificationItem>> notifications;
 
   @override
   void initState() {
     userAccount = fetchUserAccount(widget.url, widget.apiKey);
+    notifications = fetchNotifications(widget.url, widget.apiKey);
     super.initState();
+  }
+
+  void _showNotifications() async {
+    try {
+      final notificationList = await notifications;
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => NotificationPopup(notifications: notificationList),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load notifications: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -40,6 +65,56 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             'User Profile',
             style: TextStyle(color: Colors.white),
           ),
+          actions: [
+            FutureBuilder<List<NotificationItem>>(
+              future: notifications,
+              builder: (context, snapshot) {
+                int notificationCount = 0;
+                if (snapshot.hasData) {
+                  notificationCount = snapshot.data!.length;
+                }
+
+                return Stack(
+                  children: [
+                    IconButton(
+                      onPressed: _showNotifications,
+                      icon: Icon(
+                        Icons.notifications,
+                        color: Colors.white,
+                      ),
+                    ),
+                    if (notificationCount > 0)
+                      Positioned(
+                        right: 6,
+                        top: 6,
+                        child: Container(
+                          padding: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.white, width: 1),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 20,
+                            minHeight: 20,
+                          ),
+                          child: Center(
+                            child: Text(
+                              '$notificationCount',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ],
         ),
         body: Container(
           height: double.infinity,

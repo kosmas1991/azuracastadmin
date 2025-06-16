@@ -8,6 +8,7 @@ import 'package:azuracastadmin/models/historyfiles.dart';
 import 'package:azuracastadmin/models/listeners.dart';
 import 'package:azuracastadmin/models/listoffiles.dart';
 import 'package:azuracastadmin/models/nextsongs.dart';
+import 'package:azuracastadmin/models/notification.dart';
 import 'package:azuracastadmin/models/nowplaying.dart';
 import 'package:azuracastadmin/models/radiostations.dart';
 import 'package:azuracastadmin/models/requestsongdata.dart';
@@ -1052,5 +1053,26 @@ Future<ApiResponse> createUser({
       message: 'Create failed: $e',
       code: 500,
     );
+  }
+}
+
+// Function to fetch notifications from the dashboard endpoint
+Future<List<NotificationItem>> fetchNotifications(String url, String apiKey) async {
+  try {
+    final response = await http.get(
+      Uri.parse('$url/api/frontend/dashboard/notifications'),
+      headers: <String, String>{
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return notificationFromJson(response.body);
+    } else {
+      throw Exception('Failed to load notifications: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Error fetching notifications: $e');
   }
 }
