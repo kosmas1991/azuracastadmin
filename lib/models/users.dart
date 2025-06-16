@@ -90,23 +90,44 @@ class ApiKey {
   String? user;
   String? comment;
   String? id;
+  ApiKeyLinks? links;
 
   ApiKey({
     this.user,
     this.comment,
     this.id,
+    this.links,
   });
 
   factory ApiKey.fromJson(Map<String, dynamic> json) => ApiKey(
         user: json["user"],
         comment: json["comment"],
         id: json["id"],
+        links:
+            json["links"] == null ? null : ApiKeyLinks.fromJson(json["links"]),
       );
 
   Map<String, dynamic> toJson() => {
         "user": user,
         "comment": comment,
         "id": id,
+        "links": links?.toJson(),
+      };
+}
+
+class ApiKeyLinks {
+  String? self;
+
+  ApiKeyLinks({
+    this.self,
+  });
+
+  factory ApiKeyLinks.fromJson(Map<String, dynamic> json) => ApiKeyLinks(
+        self: json["self"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "self": self,
       };
 }
 

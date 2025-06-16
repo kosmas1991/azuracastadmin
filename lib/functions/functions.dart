@@ -1116,3 +1116,61 @@ Future<Map<String, dynamic>> changePassword(String url, String apiKey,
     };
   }
 }
+
+// Fetch API keys for the user
+Future<List<ApiKey>> fetchApiKeys(String url, String apiKey) async {
+  try {
+    final response = await http.get(
+      Uri.parse('$url/api/frontend/account/api-keys'),
+      headers: <String, String>{
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      List<ApiKey> apiKeys = (json.decode(response.body) as List)
+          .map((i) => ApiKey.fromJson(i))
+          .toList();
+      return apiKeys;
+    } else {
+      throw Exception('Failed to load API keys: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Error fetching API keys: $e');
+  }
+}
+
+// Function to delete an API key
+Future<Map<String, dynamic>> deleteApiKey(
+    String url, String apiKey, String keyId) async {
+  try {
+    final response = await http.delete(
+      Uri.parse('$url/api/frontend/account/api-key/$keyId'),
+      headers: <String, String>{
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    final responseData = json.decode(response.body);
+
+    if (response.statusCode == 200 && responseData['success'] == true) {
+      return {
+        'success': true,
+        'message': responseData['message'] ?? 'API key deleted successfully',
+      };
+    } else {
+      return {
+        'success': false,
+        'message': responseData['message'] ?? 'Failed to delete API key',
+        'code': responseData['code'],
+      };
+    }
+  } catch (e) {
+    return {
+      'success': false,
+      'message': 'Network error: $e',
+    };
+  }
+}

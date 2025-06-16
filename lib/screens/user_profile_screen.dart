@@ -1,6 +1,7 @@
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/user_account.dart';
 import 'package:azuracastadmin/models/notification.dart';
+import 'package:azuracastadmin/models/users.dart';
 import 'package:azuracastadmin/widgets/notification_popup.dart';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ class UserProfileScreen extends StatefulWidget {
 class _UserProfileScreenState extends State<UserProfileScreen> {
   late Future<UserAccount> userAccount;
   late Future<List<NotificationItem>> notifications;
+  late Future<List<ApiKey>> apiKeys;
 
   // Password change controllers and state
   final TextEditingController _currentPasswordController =
@@ -35,10 +37,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   bool _obscureConfirmPassword = true;
   bool _isChangingPassword = false;
 
+  // API Keys section state
+  bool _isApiKeysExpanded = false;
+
   @override
   void initState() {
     userAccount = fetchUserAccount(widget.url, widget.apiKey);
     notifications = fetchNotifications(widget.url, widget.apiKey);
+    apiKeys = fetchApiKeys(widget.url, widget.apiKey);
     super.initState();
   }
 
@@ -326,6 +332,65 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
+  void _deleteApiKey(String keyId, String? keyComment) async {
+    // Check if this is the currently used API key
+    if (widget.apiKey.startsWith(keyId)) {
+      _showSnackBar('Cannot delete the currently used API key', Colors.orange);
+      return;
+    }
+
+    // Show confirmation dialog
+    bool? shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Color.fromARGB(255, 42, 42, 42),
+        title: Text(
+          'Delete API Key',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          'Are you sure you want to delete the API key "${keyComment ?? 'Unnamed'}"?\n\nThis action cannot be undone.',
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true) {
+      try {
+        final result = await deleteApiKey(widget.url, widget.apiKey, keyId);
+
+        if (result['success'] == true) {
+          _showSnackBar(result['message'], Colors.green);
+          // Refresh the API keys list
+          setState(() {
+            apiKeys = fetchApiKeys(widget.url, widget.apiKey);
+          });
+        } else {
+          _showSnackBar(result['message'], Colors.red);
+        }
+      } catch (e) {
+        _showSnackBar('Error deleting API key: $e', Colors.red);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -585,6 +650,427 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               ),
                             ),
                             SizedBox(height: 20),
+                            // API Keys Card
+                            Card(
+                              color: Colors.black38,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _isApiKeysExpanded =
+                                              !_isApiKeysExpanded;
+                                        });
+                                      },
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'API Keys',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              FutureBuilder<List<ApiKey>>(
+                                                future: apiKeys,
+                                                builder: (context, snapshot) {
+                                                  if (snapshot.hasData) {
+                                                    return Container(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal: 8,
+                                                              vertical: 4),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.blue
+                                                            .withValues(
+                                                                alpha: 0.2),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                        border: Border.all(
+                                                          color: Colors.blue
+                                                              .withValues(
+                                                                  alpha: 0.3),
+                                                        ),
+                                                      ),
+                                                      child: Text(
+                                                        '${snapshot.data!.length}',
+                                                        style: TextStyle(
+                                                          color: Colors
+                                                              .blue.shade300,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                                  return SizedBox.shrink();
+                                                },
+                                              ),
+                                              SizedBox(width: 10),
+                                              Icon(
+                                                _isApiKeysExpanded
+                                                    ? Icons.keyboard_arrow_up
+                                                    : Icons.keyboard_arrow_down,
+                                                color: Colors.white,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (_isApiKeysExpanded) ...[
+                                      SizedBox(height: 15),
+                                      FutureBuilder<List<ApiKey>>(
+                                        future: apiKeys,
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            if (snapshot.data!.isEmpty) {
+                                              return Container(
+                                                padding: EdgeInsets.all(16),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey
+                                                      .withValues(alpha: 0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  border: Border.all(
+                                                    color: Colors.grey
+                                                        .withValues(alpha: 0.3),
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.info_outline,
+                                                      color:
+                                                          Colors.grey.shade400,
+                                                      size: 20,
+                                                    ),
+                                                    SizedBox(width: 10),
+                                                    Expanded(
+                                                      child: Text(
+                                                        'No API keys found',
+                                                        style: TextStyle(
+                                                          color: Colors
+                                                              .grey.shade400,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }
+
+                                            return Column(
+                                              children: snapshot.data!
+                                                  .map((apiKey) => Container(
+                                                        margin: EdgeInsets.only(
+                                                            bottom: 12),
+                                                        padding:
+                                                            EdgeInsets.all(16),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.black38,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                          border: Border.all(
+                                                            color: Colors.blue
+                                                                .withValues(
+                                                                    alpha: 0.3),
+                                                          ),
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            Container(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(8),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .blue
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.2),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            6),
+                                                              ),
+                                                              child: Icon(
+                                                                Icons.key,
+                                                                color:
+                                                                    Colors.blue,
+                                                                size: 20,
+                                                              ),
+                                                            ),
+                                                            SizedBox(width: 12),
+                                                            Expanded(
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Text(
+                                                                    apiKey.comment ??
+                                                                        'Unnamed API Key',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                      height:
+                                                                          4),
+                                                                  Row(
+                                                                    children: [
+                                                                      Text(
+                                                                        'ID: ',
+                                                                        style:
+                                                                            TextStyle(
+                                                                          color: Colors
+                                                                              .grey
+                                                                              .shade400,
+                                                                          fontSize:
+                                                                              12,
+                                                                        ),
+                                                                      ),
+                                                                      Expanded(
+                                                                        child:
+                                                                            Text(
+                                                                          apiKey.id ??
+                                                                              'N/A',
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                Colors.blue.shade300,
+                                                                            fontSize:
+                                                                                12,
+                                                                            fontFamily:
+                                                                                'monospace',
+                                                                          ),
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: [
+                                                                Container(
+                                                                  padding: EdgeInsets
+                                                                      .symmetric(
+                                                                          horizontal:
+                                                                              8,
+                                                                          vertical:
+                                                                              4),
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    color: widget
+                                                                            .apiKey
+                                                                            .startsWith(apiKey.id ??
+                                                                                '')
+                                                                        ? Colors.orange.withValues(
+                                                                            alpha:
+                                                                                0.2)
+                                                                        : Colors
+                                                                            .green
+                                                                            .withValues(alpha: 0.2),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            12),
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: widget.apiKey.startsWith(apiKey.id ??
+                                                                              '')
+                                                                          ? Colors.orange.withValues(
+                                                                              alpha:
+                                                                                  0.3)
+                                                                          : Colors
+                                                                              .green
+                                                                              .withValues(alpha: 0.3),
+                                                                    ),
+                                                                  ),
+                                                                  child: Text(
+                                                                    widget.apiKey.startsWith(
+                                                                            apiKey.id ??
+                                                                                '')
+                                                                        ? 'Current'
+                                                                        : 'Active',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: widget.apiKey.startsWith(apiKey.id ??
+                                                                              '')
+                                                                          ? Colors
+                                                                              .orange
+                                                                              .shade300
+                                                                          : Colors
+                                                                              .green
+                                                                              .shade300,
+                                                                      fontSize:
+                                                                          10,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                    width: 8),
+                                                                widget.apiKey.startsWith(
+                                                                        apiKey.id ??
+                                                                            '')
+                                                                    ? Tooltip(
+                                                                        message:
+                                                                            'Cannot delete current API key',
+                                                                        child:
+                                                                            Container(
+                                                                          width:
+                                                                              32,
+                                                                          height:
+                                                                              32,
+                                                                          child:
+                                                                              Icon(
+                                                                            Icons.lock,
+                                                                            color:
+                                                                                Colors.grey.shade600,
+                                                                            size:
+                                                                                16,
+                                                                          ),
+                                                                        ),
+                                                                      )
+                                                                    : IconButton(
+                                                                        onPressed: () => _deleteApiKey(
+                                                                            apiKey.id ??
+                                                                                '',
+                                                                            apiKey.comment),
+                                                                        icon:
+                                                                            Icon(
+                                                                          Icons
+                                                                              .delete_outline,
+                                                                          color: Colors
+                                                                              .red
+                                                                              .shade400,
+                                                                          size:
+                                                                              20,
+                                                                        ),
+                                                                        tooltip:
+                                                                            'Delete API key',
+                                                                        constraints:
+                                                                            BoxConstraints(
+                                                                          minWidth:
+                                                                              32,
+                                                                          minHeight:
+                                                                              32,
+                                                                        ),
+                                                                      ),
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ))
+                                                  .toList(),
+                                            );
+                                          } else if (snapshot.hasError) {
+                                            return Container(
+                                              padding: EdgeInsets.all(16),
+                                              decoration: BoxDecoration(
+                                                color: Colors.red
+                                                    .withValues(alpha: 0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: Colors.red
+                                                      .withValues(alpha: 0.3),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.error_outline,
+                                                    color: Colors.red.shade400,
+                                                    size: 20,
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Expanded(
+                                                    child: Text(
+                                                      'Failed to load API keys: ${snapshot.error}',
+                                                      style: TextStyle(
+                                                        color:
+                                                            Colors.red.shade400,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          } else {
+                                            return Center(
+                                              child: Padding(
+                                                padding: EdgeInsets.all(16),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 20,
+                                                      height: 20,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        color: Colors.blue,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 12),
+                                                    Text(
+                                                      'Loading API keys...',
+                                                      style: TextStyle(
+                                                        color: Colors
+                                                            .grey.shade400,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 20),
                             // Avatar Service Info Card
                             if (user.avatar != null)
                               Card(
@@ -652,6 +1138,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 setState(() {
                                   userAccount = fetchUserAccount(
                                       widget.url, widget.apiKey);
+                                  apiKeys =
+                                      fetchApiKeys(widget.url, widget.apiKey);
                                 });
                               },
                               child: Text('Retry'),
