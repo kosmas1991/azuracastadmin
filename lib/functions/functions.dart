@@ -18,6 +18,7 @@ import 'package:azuracastadmin/models/stationsstatus.dart';
 import 'package:azuracastadmin/models/user_account.dart';
 import 'package:azuracastadmin/models/users.dart';
 import 'package:azuracastadmin/models/roles.dart';
+import 'package:azuracastadmin/models/permissions.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -1366,5 +1367,149 @@ Future<Map<String, dynamic>> deleteStation(
       'success': false,
       'message': 'Network error: $e',
     };
+  }
+}
+
+// Role Management Functions
+
+// Fetch all available permissions
+Future<PermissionsModel> fetchPermissions(String url, String apiKey) async {
+  try {
+    var response = await http.get(
+      Uri.parse('$url/api/admin/permissions'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return PermissionsModel.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to fetch permissions: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Failed to fetch permissions: $e');
+  }
+}
+
+// Create a new role
+Future<ApiResponse> createRole({
+  required String url,
+  required String apiKey,
+  required String name,
+  required RolePermissions permissions,
+}) async {
+  try {
+    final roleData = {
+      'name': name,
+      'permissions': permissions.toJson(),
+    };
+
+    var response = await http.post(
+      Uri.parse('$url/api/admin/roles'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(roleData),
+    );
+
+    if (response.statusCode == 200) {
+      return ApiResponse(
+        success: true,
+        message: 'Role created successfully',
+        code: response.statusCode,
+        extraData: json.decode(response.body),
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to create role: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Create role failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Update an existing role
+Future<ApiResponse> updateRole({
+  required String url,
+  required String apiKey,
+  required int roleId,
+  required String name,
+  required RolePermissions permissions,
+}) async {
+  try {
+    final roleData = {
+      'name': name,
+      'permissions': permissions.toJson(),
+    };
+
+    var response = await http.put(
+      Uri.parse('$url/api/admin/role/$roleId'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(roleData),
+    );
+
+    if (response.statusCode == 200) {
+      return ApiResponse.fromJson(json.decode(response.body));
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to update role: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Update role failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Delete a role
+Future<ApiResponse> deleteRole({
+  required String url,
+  required String apiKey,
+  required int roleId,
+}) async {
+  try {
+    var response = await http.delete(
+      Uri.parse('$url/api/admin/role/$roleId'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return ApiResponse.fromJson(json.decode(response.body));
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to delete role: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Delete role failed: $e',
+      code: 500,
+    );
   }
 }

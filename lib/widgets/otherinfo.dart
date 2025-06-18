@@ -9,6 +9,7 @@ import 'package:azuracastadmin/screens/ftpusersscreen.dart';
 import 'package:azuracastadmin/screens/historyscreen.dart';
 import 'package:azuracastadmin/screens/listeners.dart';
 import 'package:azuracastadmin/screens/playstationscreen.dart';
+import 'package:azuracastadmin/screens/role_management_screen.dart';
 import 'package:azuracastadmin/screens/settingsscreens.dart';
 import 'package:azuracastadmin/screens/stations_management_screen.dart';
 import 'package:azuracastadmin/screens/usersscreen.dart';
@@ -237,6 +238,22 @@ class _OtherInfoState extends State<OtherInfo> {
               },
               child: Text(
                 'Stations',
+                style: TextStyle(color: Colors.white),
+              )),
+          FilledButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RoleManagementScreen(
+                          apiKey: widget.apiKey, url: widget.url),
+                    ));
+              },
+              child: Text(
+                'Roles',
                 style: TextStyle(color: Colors.white),
               )),
         ],
