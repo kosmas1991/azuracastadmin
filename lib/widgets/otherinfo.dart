@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/nowplaying.dart';
+import 'package:azuracastadmin/screens/backupsscreen.dart';
 import 'package:azuracastadmin/screens/charts_overview_screen.dart';
 import 'package:azuracastadmin/screens/filesscreens.dart';
 import 'package:azuracastadmin/screens/ftpusersscreen.dart';
@@ -254,6 +255,22 @@ class _OtherInfoState extends State<OtherInfo> {
               },
               child: Text(
                 'Roles',
+                style: TextStyle(color: Colors.white),
+              )),
+          FilledButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          BackupsScreen(apiKey: widget.apiKey, url: widget.url),
+                    ));
+              },
+              child: Text(
+                'Backups',
                 style: TextStyle(color: Colors.white),
               )),
         ],

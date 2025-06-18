@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:azuracastadmin/models/api_response.dart';
+import 'package:azuracastadmin/models/backup.dart';
 import 'package:azuracastadmin/models/charts.dart';
 import 'package:azuracastadmin/models/cpustats.dart';
 import 'package:azuracastadmin/models/ftpusers.dart';
@@ -1509,6 +1510,196 @@ Future<ApiResponse> deleteRole({
     return ApiResponse(
       success: false,
       message: 'Delete role failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Backup Management Functions
+
+// Fetch all backups
+Future<List<Backup>> fetchBackups(String url, String apiKey) async {
+  try {
+    var response = await http.get(
+      Uri.parse('$url/api/admin/backups'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      List<Backup> backups = (json.decode(response.body) as List)
+          .map((i) => Backup.fromJson(i))
+          .toList();
+      return backups;
+    } else {
+      throw Exception('Failed to fetch backups: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Failed to fetch backups: $e');
+  }
+}
+
+// Delete a backup
+Future<ApiResponse> deleteBackup({
+  required String url,
+  required String apiKey,
+  required String pathEncoded,
+}) async {
+  try {
+    var response = await http.delete(
+      Uri.parse('$url/api/admin/backups/delete/$pathEncoded'),
+      headers: {
+        'accept': 'application/json',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return ApiResponse.fromJson(json.decode(response.body));
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to delete backup: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Delete backup failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Download a backup
+Future<ApiResponse> downloadBackup({
+  required String url,
+  required String apiKey,
+  required String pathEncoded,
+  required String fileName,
+}) async {
+  try {
+    // Check and request storage permissions for Android
+    if (Platform.isAndroid) {
+      bool hasPermission = await _requestStoragePermission();
+      if (!hasPermission) {
+        return ApiResponse(
+          success: false,
+          message:
+              'Storage permission is required to download backups. Please enable storage access in app settings.',
+          code: 403,
+        );
+      }
+    }
+
+    // Make the HTTP request to download the backup
+    var response = await http.get(
+      Uri.parse('$url/api/admin/backups/download/$pathEncoded'),
+      headers: {
+        'accept': 'application/octet-stream',
+        'X-API-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Get the downloads directory
+      Directory downloadsDirectory;
+
+      if (Platform.isAndroid) {
+        // For Android, try multiple approaches to save to Downloads folder
+        try {
+          // First try: Use the public Downloads directory
+          const String publicDownloadsPath = '/storage/emulated/0/Download';
+          Directory publicDownloads = Directory(publicDownloadsPath);
+
+          if (await publicDownloads.exists()) {
+            // Test write access
+            try {
+              final testPath = '${publicDownloads.path}/.azuracast_write_test';
+              final testFile = File(testPath);
+              await testFile.writeAsString('test');
+              await testFile.delete();
+              downloadsDirectory = publicDownloads;
+            } catch (e) {
+              throw Exception('No write access to public Downloads');
+            }
+          } else {
+            throw Exception('Public Downloads directory not found');
+          }
+        } catch (e) {
+          // Second try: Use external storage Downloads
+          try {
+            Directory? externalDir = await getExternalStorageDirectory();
+            if (externalDir != null) {
+              // Create a Downloads subdirectory in external storage
+              downloadsDirectory = Directory('${externalDir.path}/Downloads');
+              if (!await downloadsDirectory.exists()) {
+                await downloadsDirectory.create(recursive: true);
+              }
+            } else {
+              throw Exception('External storage not available');
+            }
+          } catch (e) {
+            // Final fallback: Use documents directory
+            downloadsDirectory = await getApplicationDocumentsDirectory();
+          }
+        }
+      } else if (Platform.isIOS) {
+        // For iOS, save directly to the Documents directory to make files visible in Files app
+        try {
+          downloadsDirectory = await getApplicationDocumentsDirectory();
+        } catch (e) {
+          // Fallback to documents directory (same as above, but explicit)
+          downloadsDirectory = await getApplicationDocumentsDirectory();
+        }
+      } else {
+        // For other platforms, try to use downloads directory
+        downloadsDirectory = await getDownloadsDirectory() ??
+            await getApplicationDocumentsDirectory();
+      }
+
+      // Create the full file path
+      final String fullPath = '${downloadsDirectory.path}/$fileName';
+      final File file = File(fullPath);
+
+      // Write the file
+      await file.writeAsBytes(response.bodyBytes);
+
+      // Determine the appropriate success message based on where the file was saved
+      String platformMessage;
+      if (Platform.isIOS) {
+        platformMessage = 'Backup saved to Documents (visible in Files app)';
+      } else if (Platform.isAndroid) {
+        if (downloadsDirectory.path.contains('/storage/emulated/0/Download')) {
+          platformMessage = 'Backup downloaded to Downloads folder';
+        } else if (downloadsDirectory.path.contains('Downloads')) {
+          platformMessage = 'Backup saved to app Downloads folder';
+        } else {
+          platformMessage = 'Backup saved to app storage';
+        }
+      } else {
+        platformMessage = 'Backup downloaded successfully';
+      }
+
+      return ApiResponse(
+        success: true,
+        message: '$platformMessage: $fileName',
+        code: 200,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Download failed with status code: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Download failed: $e',
       code: 500,
     );
   }
