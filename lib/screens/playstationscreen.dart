@@ -10,11 +10,11 @@ import 'package:azuracastadmin/cubits/url/url_cubit.dart';
 import 'package:azuracastadmin/functions/functions.dart';
 import 'package:azuracastadmin/models/nowplaying.dart';
 import 'package:azuracastadmin/models/requestsongdata.dart';
+import 'package:azuracastadmin/services/audio_player_service.dart';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class PlayStationScreen extends StatefulWidget {
@@ -35,7 +35,7 @@ class PlayStationScreen extends StatefulWidget {
 
 class _PlayStationScreenState extends State<PlayStationScreen> {
   TextEditingController textEditingController = TextEditingController();
-  final player = AudioPlayer();
+  AudioPlayer get _audioPlayer => AudioPlayerService.instance.player;
   double volume = 1;
   late Future<NowPlaying> nowPlaying;
   late Timer timer;
@@ -67,24 +67,19 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
   @override
   void dispose() {
     timer.cancel();
-    player.dispose();
+    // Stop the radio stream when leaving the screen
+    AudioPlayerService.instance.stop();
     super.dispose();
   }
 
   Future<void> _init() async {
-    await player.setUrl(
-      widget.playURL,
-      tag: MediaItem(
-        id: '1',
-        title: widget.radio_name,
-        artist: 'stream',
-        isLive: true,
-        artUri: Uri.parse(
-            'https://avatars.githubusercontent.com/u/28115974?s=200&v=4'),
-      ),
+    await AudioPlayerService.instance.switchToRadio(
+      url: widget.playURL,
+      stationName: widget.radio_name,
+      stationId: widget.stationID.toString(),
     );
-    await player.setVolume(volume);
-    await player.play();
+    await AudioPlayerService.instance.setVolume(volume);
+    await AudioPlayerService.instance.play();
   }
 
   @override
@@ -251,7 +246,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         StreamBuilder<PlayerState>(
-          stream: player.playerStateStream,
+          stream: _audioPlayer.playerStateStream,
           builder: (context, snapshot) {
             final playerState = snapshot.data;
             final processingState = playerState?.processingState;
@@ -273,7 +268,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                   color: Colors.blue,
                 ),
                 iconSize: 32.0,
-                onPressed: player.play,
+                onPressed: () => AudioPlayerService.instance.play(),
               );
             } else if (processingState != ProcessingState.completed) {
               return IconButton(
@@ -282,7 +277,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                   color: Colors.blue,
                 ),
                 iconSize: 32.0,
-                onPressed: player.pause,
+                onPressed: () => AudioPlayerService.instance.pause(),
               );
             } else {
               return IconButton(
@@ -291,7 +286,8 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
                   color: Colors.blue,
                 ),
                 iconSize: 32.0,
-                onPressed: () => player.seek(Duration.zero),
+                onPressed: () =>
+                    AudioPlayerService.instance.seek(Duration.zero),
               );
             }
           },
@@ -310,7 +306,7 @@ class _PlayStationScreenState extends State<PlayStationScreen> {
               onChanged: (value) {
                 setState(() {
                   volume = value;
-                  player.setVolume(value);
+                  AudioPlayerService.instance.setVolume(value);
                 });
               },
             ),

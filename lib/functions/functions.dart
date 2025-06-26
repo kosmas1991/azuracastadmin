@@ -20,9 +20,12 @@ import 'package:azuracastadmin/models/user_account.dart';
 import 'package:azuracastadmin/models/users.dart';
 import 'package:azuracastadmin/models/roles.dart';
 import 'package:azuracastadmin/models/permissions.dart';
+import 'package:azuracastadmin/models/podcast.dart';
+import 'package:azuracastadmin/models/episode.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -1700,6 +1703,748 @@ Future<ApiResponse> downloadBackup({
     return ApiResponse(
       success: false,
       message: 'Download failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Podcast Management Functions
+
+// Fetch podcasts for a station
+Future<List<Podcast>> fetchPodcasts(
+    String url, String apiKey, int stationID) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    final response = await http.get(
+      Uri.parse('$url/api/station/$stationID/podcasts'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      List<Podcast> podcasts = podcastFromJson(response.body);
+      return podcasts;
+    } else {
+      throw Exception('Failed to fetch podcasts: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Failed to fetch podcasts: $e');
+  }
+}
+
+// Create a new podcast
+Future<ApiResponse> createPodcast({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required Map<String, dynamic> podcastData,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+      'Content-Type': 'application/json',
+    };
+
+    print('Creating podcast with data: $podcastData');
+
+    final response = await http.post(
+      Uri.parse('$url/api/station/$stationID/podcasts'),
+      headers: headers,
+      body: json.encode(podcastData),
+    );
+
+    print('Create podcast response code: ${response.statusCode}');
+    print('Create podcast response body: ${response.body}');
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: true,
+        message: 'Podcast created successfully',
+        code: response.statusCode,
+        extraData: responseData,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message:
+            'Failed to create podcast: ${response.statusCode} - ${response.body}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    print('Create podcast error: $e');
+    return ApiResponse(
+      success: false,
+      message: 'Create failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Update existing podcast
+Future<ApiResponse> updatePodcast({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String podcastId,
+  required Map<String, dynamic> podcastData,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+      'Content-Type': 'application/json',
+    };
+
+    print('Updating podcast with data: $podcastData');
+
+    final response = await http.put(
+      Uri.parse('$url/api/station/$stationID/podcast/$podcastId'),
+      headers: headers,
+      body: json.encode(podcastData),
+    );
+
+    print('Update podcast response code: ${response.statusCode}');
+    print('Update podcast response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: true,
+        message: 'Podcast updated successfully',
+        code: response.statusCode,
+        extraData: responseData,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message:
+            'Failed to update podcast: ${response.statusCode} - ${response.body}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    print('Update podcast error: $e');
+    return ApiResponse(
+      success: false,
+      message: 'Update failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Delete podcast
+Future<ApiResponse> deletePodcast({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String podcastId,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    final response = await http.delete(
+      Uri.parse('$url/api/station/$stationID/podcast/$podcastId'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: responseData['success'] ?? true,
+        message: responseData['message'] ?? 'Podcast deleted successfully',
+        code: response.statusCode,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to delete podcast: ${response.statusCode}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    return ApiResponse(
+      success: false,
+      message: 'Delete failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Upload podcast artwork to specific podcast
+Future<ApiResponse> uploadPodcastArt({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String podcastId,
+  required File imageFile,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$url/api/station/$stationID/podcast/$podcastId/art'),
+    );
+
+    request.headers.addAll(headers);
+    request.files.add(await http.MultipartFile.fromPath(
+      'file',
+      imageFile.path,
+      contentType: MediaType('image', 'jpeg'),
+    ));
+
+    print(
+        'Uploading podcast art to: $url/api/station/$stationID/podcast/$podcastId/art');
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    print('Upload response code: ${response.statusCode}');
+    print('Upload response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: responseData['success'] ?? true,
+        message: responseData['message'] ?? 'Art uploaded successfully',
+        code: response.statusCode,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message:
+            'Failed to upload art: ${response.statusCode} - ${response.body}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    print('Upload art error: $e');
+    return ApiResponse(
+      success: false,
+      message: 'Upload art failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Delete podcast art from specific podcast
+Future<ApiResponse> deletePodcastArt({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String podcastId,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    print(
+        'Deleting podcast art from: $url/api/station/$stationID/podcast/$podcastId/art');
+
+    final response = await http.delete(
+      Uri.parse('$url/api/station/$stationID/podcast/$podcastId/art'),
+      headers: headers,
+    );
+
+    print('Delete response code: ${response.statusCode}');
+    print('Delete response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: responseData['success'] ?? true,
+        message: responseData['message'] ?? 'Art deleted successfully',
+        code: response.statusCode,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message:
+            'Failed to delete art: ${response.statusCode} - ${response.body}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    print('Delete art error: $e');
+    return ApiResponse(
+      success: false,
+      message: 'Delete art failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Fetch storage locations for podcasts
+Future<StorageLocations> fetchStorageLocations(
+    String url, String apiKey) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    final response = await http.get(
+      Uri.parse('$url/api/admin/stations/storage-locations'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      return StorageLocations.fromJson(json.decode(response.body));
+    } else {
+      throw Exception(
+          'Failed to fetch storage locations: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Failed to fetch storage locations: $e');
+  }
+}
+
+// Episode-related functions
+
+// Fetch episodes for a specific podcast
+Future<List<Episode>> fetchEpisodes({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String podcastId,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    print(
+        'Fetching episodes from: $url/api/station/$stationID/podcast/$podcastId/episodes');
+
+    final response = await http.get(
+      Uri.parse('$url/api/station/$stationID/podcast/$podcastId/episodes'),
+      headers: headers,
+    );
+
+    print('Episodes response code: ${response.statusCode}');
+    print('Episodes response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final List<dynamic> episodesJson = json.decode(response.body);
+      return episodesJson.map((json) => Episode.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to fetch episodes: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Fetch episodes error: $e');
+    throw Exception('Failed to fetch episodes: $e');
+  }
+}
+
+// Create a new episode
+Future<Episode> createEpisode({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String podcastId,
+  required String title,
+  required String description,
+  required String descriptionShort,
+  String? link,
+  bool explicit = false,
+  int? seasonNumber,
+  int? episodeNumber,
+  int? publishAt,
+  bool isPublished = true,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    final body = {
+      'title': title,
+      'description': description,
+      'description_short': descriptionShort,
+      'explicit': explicit,
+      'is_published': isPublished,
+      if (link != null) 'link': link,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (publishAt != null) 'publish_at': publishAt,
+    };
+
+    print(
+        'Creating episode at: $url/api/station/$stationID/podcast/$podcastId/episodes');
+    print('Request body: ${json.encode(body)}');
+
+    final response = await http.post(
+      Uri.parse('$url/api/station/$stationID/podcast/$podcastId/episodes'),
+      headers: headers,
+      body: json.encode(body),
+    );
+
+    print('Create episode response code: ${response.statusCode}');
+    print('Create episode response body: ${response.body}');
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final responseData = json.decode(response.body);
+      return Episode.fromJson(responseData);
+    } else {
+      throw Exception(
+          'Failed to create episode: ${response.statusCode} - ${response.body}');
+    }
+  } catch (e) {
+    print('Create episode error: $e');
+    throw Exception('Failed to create episode: $e');
+  }
+}
+
+// Update an existing episode
+Future<Episode> updateEpisode({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String podcastId,
+  required String episodeId,
+  required String title,
+  required String description,
+  required String descriptionShort,
+  String? link,
+  bool explicit = false,
+  int? seasonNumber,
+  int? episodeNumber,
+  int? publishAt,
+  bool isPublished = true,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    final body = {
+      'title': title,
+      'description': description,
+      'description_short': descriptionShort,
+      'explicit': explicit,
+      'is_published': isPublished,
+      if (link != null) 'link': link,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (publishAt != null) 'publish_at': publishAt,
+    };
+
+    print(
+        'Updating episode at: $url/api/station/$stationID/podcast/$podcastId/episode/$episodeId');
+    print('Request body: ${json.encode(body)}');
+
+    final response = await http.put(
+      Uri.parse(
+          '$url/api/station/$stationID/podcast/$podcastId/episode/$episodeId'),
+      headers: headers,
+      body: json.encode(body),
+    );
+
+    print('Update episode response code: ${response.statusCode}');
+    print('Update episode response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return Episode.fromJson(responseData);
+    } else {
+      throw Exception(
+          'Failed to update episode: ${response.statusCode} - ${response.body}');
+    }
+  } catch (e) {
+    print('Update episode error: $e');
+    throw Exception('Failed to update episode: $e');
+  }
+}
+
+// Delete an episode
+Future<ApiResponse> deleteEpisode({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String podcastId,
+  required String episodeId,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    print(
+        'Deleting episode from: $url/api/station/$stationID/podcast/$podcastId/episode/$episodeId');
+
+    final response = await http.delete(
+      Uri.parse(
+          '$url/api/station/$stationID/podcast/$podcastId/episode/$episodeId'),
+      headers: headers,
+    );
+
+    print('Delete episode response code: ${response.statusCode}');
+    print('Delete episode response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: responseData['success'] ?? true,
+        message: responseData['message'] ?? 'Episode deleted successfully',
+        code: response.statusCode,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message:
+            'Failed to delete episode: ${response.statusCode} - ${response.body}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    print('Delete episode error: $e');
+    return ApiResponse(
+      success: false,
+      message: 'Delete episode failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Episode media upload/delete functions
+Future<ApiResponse> uploadEpisodeMedia({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String podcastId,
+  required String episodeId,
+  required File mediaFile,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    print(
+        'Uploading episode media to: $url/api/station/$stationID/podcast/$podcastId/episode/$episodeId/media');
+
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse(
+          '$url/api/station/$stationID/podcast/$podcastId/episode/$episodeId/media'),
+    );
+
+    request.headers.addAll(headers);
+    request.files.add(await http.MultipartFile.fromPath(
+      'file',
+      mediaFile.path,
+      contentType: MediaType('audio', 'mpeg'),
+    ));
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    print('Upload media response code: ${response.statusCode}');
+    print('Upload media response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: responseData['success'] ?? true,
+        message: responseData['message'] ?? 'Media uploaded successfully',
+        code: response.statusCode,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message:
+            'Failed to upload media: ${response.statusCode} - ${response.body}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    print('Upload media error: $e');
+    return ApiResponse(
+      success: false,
+      message: 'Upload media failed: $e',
+      code: 500,
+    );
+  }
+}
+
+Future<ApiResponse> deleteEpisodeMedia({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String podcastId,
+  required String episodeId,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    print(
+        'Deleting episode media from: $url/api/station/$stationID/podcast/$podcastId/episode/$episodeId/media');
+
+    final response = await http.delete(
+      Uri.parse(
+          '$url/api/station/$stationID/podcast/$podcastId/episode/$episodeId/media'),
+      headers: headers,
+    );
+
+    print('Delete media response code: ${response.statusCode}');
+    print('Delete media response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: responseData['success'] ?? true,
+        message: responseData['message'] ?? 'Media deleted successfully',
+        code: response.statusCode,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message:
+            'Failed to delete media: ${response.statusCode} - ${response.body}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    print('Delete media error: $e');
+    return ApiResponse(
+      success: false,
+      message: 'Delete media failed: $e',
+      code: 500,
+    );
+  }
+}
+
+// Episode artwork upload/delete functions
+Future<ApiResponse> uploadEpisodeArt({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String podcastId,
+  required String episodeId,
+  required File imageFile,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    print(
+        'Uploading episode art to: $url/api/station/$stationID/podcast/$podcastId/episode/$episodeId/art');
+
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse(
+          '$url/api/station/$stationID/podcast/$podcastId/episode/$episodeId/art'),
+    );
+
+    request.headers.addAll(headers);
+    request.files.add(await http.MultipartFile.fromPath(
+      'file',
+      imageFile.path,
+      contentType: MediaType('image', 'jpeg'),
+    ));
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    print('Upload art response code: ${response.statusCode}');
+    print('Upload art response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: responseData['success'] ?? true,
+        message: responseData['message'] ?? 'Art uploaded successfully',
+        code: response.statusCode,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message:
+            'Failed to upload art: ${response.statusCode} - ${response.body}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    print('Upload art error: $e');
+    return ApiResponse(
+      success: false,
+      message: 'Upload art failed: $e',
+      code: 500,
+    );
+  }
+}
+
+Future<ApiResponse> deleteEpisodeArt({
+  required String url,
+  required String apiKey,
+  required int stationID,
+  required String podcastId,
+  required String episodeId,
+}) async {
+  try {
+    final headers = {
+      'accept': 'application/json',
+      'X-API-Key': apiKey,
+    };
+
+    print(
+        'Deleting episode art from: $url/api/station/$stationID/podcast/$podcastId/episode/$episodeId/art');
+
+    final response = await http.delete(
+      Uri.parse(
+          '$url/api/station/$stationID/podcast/$podcastId/episode/$episodeId/art'),
+      headers: headers,
+    );
+
+    print('Delete art response code: ${response.statusCode}');
+    print('Delete art response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return ApiResponse(
+        success: responseData['success'] ?? true,
+        message: responseData['message'] ?? 'Art deleted successfully',
+        code: response.statusCode,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        message:
+            'Failed to delete art: ${response.statusCode} - ${response.body}',
+        code: response.statusCode,
+      );
+    }
+  } catch (e) {
+    print('Delete art error: $e');
+    return ApiResponse(
+      success: false,
+      message: 'Delete art failed: $e',
       code: 500,
     );
   }
