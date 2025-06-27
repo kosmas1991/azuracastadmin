@@ -740,38 +740,38 @@ class _FTPUsersScreenState extends State<FTPUsersScreen>
                                       ),
                                       SizedBox(height: 8),
                                       Text(
-                                        'FTP users allow file management access to your station.\nThey will appear here when created from the web interface.',
+                                        'FTP users allow file management access to your station',
                                         style: TextStyle(color: Colors.grey),
                                         textAlign: TextAlign.center,
                                       ),
                                       SizedBox(height: 16),
-                                      Container(
-                                        padding: EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.blue
-                                              .withValues(alpha: 0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border: Border.all(
-                                              color: Colors.blue
-                                                  .withValues(alpha: 0.3)),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(Icons.lightbulb_outline,
-                                                color: Colors.blue, size: 16),
-                                            SizedBox(width: 8),
-                                            Text(
-                                              'Create FTP users from the web interface',
-                                              style: TextStyle(
-                                                color: Colors.blue.shade300,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                      // Container(
+                                      //   padding: EdgeInsets.all(12),
+                                      //   decoration: BoxDecoration(
+                                      //     color: Colors.blue
+                                      //         .withValues(alpha: 0.1),
+                                      //     borderRadius:
+                                      //         BorderRadius.circular(8),
+                                      //     border: Border.all(
+                                      //         color: Colors.blue
+                                      //             .withValues(alpha: 0.3)),
+                                      //   ),
+                                      //   child: Row(
+                                      //     mainAxisSize: MainAxisSize.min,
+                                      //     children: [
+                                      //       Icon(Icons.lightbulb_outline,
+                                      //           color: Colors.blue, size: 16),
+                                      //       SizedBox(width: 8),
+                                      //       Text(
+                                      //         'Create FTP users from the web interface',
+                                      //         style: TextStyle(
+                                      //           color: Colors.blue.shade300,
+                                      //           fontSize: 12,
+                                      //         ),
+                                      //       ),
+                                      //     ],
+                                      //   ),
+                                      // ),
                                     ],
                                   ),
                                 );

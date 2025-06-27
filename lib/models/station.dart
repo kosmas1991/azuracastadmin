@@ -229,7 +229,7 @@ class BackendConfig {
   String? audioProcessingMethod;
   int? autodjQueueLength;
   String? charset;
-  int? crossfade;
+  double? crossfade;
   String? crossfadeType;
   dynamic customConfig;
   dynamic customConfigBottom;
@@ -249,7 +249,7 @@ class BackendConfig {
   int? hlsSegmentsInPlaylist;
   int? hlsSegmentsOverhead;
   String? liveBroadcastText;
-  int? masterMeLoudnessTarget;
+  double? masterMeLoudnessTarget;
   String? masterMePreset;
   String? performanceMode;
   bool? postProcessingIncludeLive;
@@ -304,7 +304,7 @@ class BackendConfig {
         audioProcessingMethod: json["audio_processing_method"],
         autodjQueueLength: json["autodj_queue_length"],
         charset: json["charset"],
-        crossfade: json["crossfade"],
+        crossfade: json["crossfade"] != null ? (json["crossfade"] as num).toDouble() : null,
         crossfadeType: json["crossfade_type"],
         customConfig: json["custom_config"],
         customConfigBottom: json["custom_config_bottom"],
@@ -324,7 +324,7 @@ class BackendConfig {
         hlsSegmentsInPlaylist: json["hls_segments_in_playlist"],
         hlsSegmentsOverhead: json["hls_segments_overhead"],
         liveBroadcastText: json["live_broadcast_text"],
-        masterMeLoudnessTarget: json["master_me_loudness_target"],
+        masterMeLoudnessTarget: json["master_me_loudness_target"] != null ? (json["master_me_loudness_target"] as num).toDouble() : null,
         masterMePreset: json["master_me_preset"],
         performanceMode: json["performance_mode"],
         postProcessingIncludeLive: json["post_processing_include_live"],

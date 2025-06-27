@@ -16,20 +16,20 @@ class VariablesScreen extends StatefulWidget {
 class _VariablesScreenState extends State<VariablesScreen> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late TextEditingController textEditingController;
-  
+
   @override
   void initState() {
     super.initState();
     // Initialize the text controller
     textEditingController = TextEditingController();
   }
-  
+
   @override
   void dispose() {
     textEditingController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -40,9 +40,12 @@ class _VariablesScreenState extends State<VariablesScreen> {
             if (state.step == 0 && textEditingController.text.isEmpty) {
               // Prefill server URL in debug mode
               textEditingController.text = "https://radioserver.gr";
-            } else if (state.step == 1 && (textEditingController.text.isEmpty || textEditingController.text == "https://radioserver.gr")) {
+            } else if (state.step == 1 &&
+                (textEditingController.text.isEmpty ||
+                    textEditingController.text == "https://radioserver.gr")) {
               // Clear previous content and prefill API key in debug mode
-              textEditingController.text = "7bb930a439f67cfe:e3f753dfaeaafc4a759a97653fb0e2e";
+              textEditingController.text =
+                  "7bb930a439f67cfe:e3f753dfaeaafc4a759a97653fb0e2e";
             }
           } else {
             // In production mode, clear the text field when moving to step 1

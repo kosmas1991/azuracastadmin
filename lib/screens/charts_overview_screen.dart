@@ -4,6 +4,7 @@ import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'dart:convert';
 
 class ChartsOverviewScreen extends StatefulWidget {
   final String url;
@@ -192,7 +193,7 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: true,
-                    horizontalInterval: 1,
+                    horizontalInterval: _calculateYAxisInterval(spots),
                     verticalInterval: 1,
                     getDrawingHorizontalLine: (value) {
                       return FlLine(
@@ -246,7 +247,7 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        interval: 1,
+                        interval: _calculateYAxisInterval(spots),
                         getTitlesWidget: (double value, TitleMeta meta) {
                           return Text(value.toInt().toString(),
                               style: TextStyle(
@@ -380,7 +381,8 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         String weekDay = dayOfWeek.labels != null &&
                                 groupIndex < dayOfWeek.labels!.length
-                            ? dayOfWeek.labels![groupIndex]
+                            ? utf8
+                                .decode(dayOfWeek.labels![groupIndex].codeUnits)
                             : 'Day ${groupIndex + 1}';
                         return BarTooltipItem(
                           '$weekDay\n${rod.toY.round()} listeners',
@@ -410,9 +412,11 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                           if (dayOfWeek.labels != null &&
                               value.toInt() < dayOfWeek.labels!.length) {
                             String day = dayOfWeek.labels![value.toInt()];
+                            String decodedDay = utf8.decode(day.codeUnits);
                             return Padding(
                               padding: EdgeInsets.only(top: 8),
-                              child: Text(day.substring(0, 3), style: style),
+                              child: Text(decodedDay.substring(0, 3),
+                                  style: style),
                             );
                           }
                           return Text('', style: style);
@@ -424,7 +428,7 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 28,
-                        interval: 1,
+                        interval: _calculateBarChartYAxisInterval(barGroups),
                         getTitlesWidget: (double value, TitleMeta meta) {
                           return Text(value.toInt().toString(),
                               style: TextStyle(
@@ -445,7 +449,8 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
-                    horizontalInterval: 1,
+                    horizontalInterval:
+                        _calculateBarChartYAxisInterval(barGroups),
                     getDrawingHorizontalLine: (value) {
                       return FlLine(
                         color: Colors.white.withValues(alpha: 0.1),
@@ -576,7 +581,7 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 28,
-                        interval: 1,
+                        interval: _calculateBarChartYAxisInterval(barGroups),
                         getTitlesWidget: (double value, TitleMeta meta) {
                           return Text(value.toInt().toString(),
                               style: TextStyle(
@@ -597,7 +602,8 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
-                    horizontalInterval: 1,
+                    horizontalInterval:
+                        _calculateBarChartYAxisInterval(barGroups),
                     getDrawingHorizontalLine: (value) {
                       return FlLine(
                         color: Colors.white.withValues(alpha: 0.1),
@@ -612,5 +618,50 @@ class _ChartsOverviewScreenState extends State<ChartsOverviewScreen> {
         ),
       ),
     );
+  }
+
+  // Helper method to calculate appropriate Y-axis interval
+  double _calculateYAxisInterval(List<FlSpot> spots) {
+    if (spots.isEmpty) return 50;
+
+    double maxValue =
+        spots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
+
+    // Calculate interval to show approximately 5-8 labels
+    double rawInterval = maxValue / 6;
+
+    // Round to nice numbers
+    if (rawInterval <= 10) return 10;
+    if (rawInterval <= 25) return 25;
+    if (rawInterval <= 50) return 50;
+    if (rawInterval <= 100) return 100;
+    if (rawInterval <= 250) return 250;
+    if (rawInterval <= 500) return 500;
+
+    // For very large numbers, round to nearest 100
+    return (rawInterval / 100).ceil() * 100;
+  }
+
+  // Helper method to calculate appropriate Y-axis interval for bar charts
+  double _calculateBarChartYAxisInterval(List<BarChartGroupData> barGroups) {
+    if (barGroups.isEmpty) return 50;
+
+    double maxValue = barGroups
+        .map((group) => group.barRods.first.toY)
+        .reduce((a, b) => a > b ? a : b);
+
+    // Calculate interval to show approximately 5-8 labels
+    double rawInterval = maxValue / 6;
+
+    // Round to nice numbers
+    if (rawInterval <= 10) return 10;
+    if (rawInterval <= 25) return 25;
+    if (rawInterval <= 50) return 50;
+    if (rawInterval <= 100) return 100;
+    if (rawInterval <= 250) return 250;
+    if (rawInterval <= 500) return 500;
+
+    // For very large numbers, round to nearest 100
+    return (rawInterval / 100).ceil() * 100;
   }
 }
